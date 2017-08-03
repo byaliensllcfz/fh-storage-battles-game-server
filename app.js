@@ -68,7 +68,7 @@ app.use(function(req, res, next) {
 // app.use("/endpoint/route/:var", require("./file-that-contains-the-endpoint"));
 
 // Health Check
-app.use("/_ah", require("./HealthCheck"));
+app.use("/_ah", require("./health-check"));
 
 /*
     Error codes:
