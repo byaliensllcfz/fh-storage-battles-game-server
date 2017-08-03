@@ -8,14 +8,12 @@ const stringify = require('json-stringify-safe');
 const loggingClient = logging({
     projectId: config['GCLOUD_PROJECT']
 });
-const log = loggingClient.log('auth-logs');
-
-var bCryptSalt = '$2a$10$tOgwp0ZJrg1G8HHjZgPGV.';
+const log = loggingClient.log('servicename-logs');
 
 const excludeFromLogs = ['client', 'connection', 'host', 'res', 'socket'];
 
 function getErrorUrl(req, type) {
-    return '/auth/v3/errors/' + type;
+    return '/servicename/v1/errors/' + type;
 }
 
 function mergeResponse(req, responseObject) {
@@ -68,7 +66,6 @@ function errorResponse(req, res, code, type, title, error) {
 }
 
 module.exports = {
-    bCryptSalt,
     errorResponse,
     getUrlParam,
     log,
