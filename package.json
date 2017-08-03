@@ -1,0 +1,22 @@
+{
+  "name": "tp-servicename-server",
+  "description": "RESTful API.",
+  "version": "1.0.0",
+  "private": true,
+  "engines": {
+    "node": ">=6.11.1"
+  },
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "@google-cloud/datastore": "^1.0.6",
+    "@google-cloud/logging": "^1.0.3",
+    "@newrelic/native-metrics": "^2.1.1",
+    "body-parser": "^1.17.2",
+    "express": "^4.15.3",
+    "json-stringify-safe": "^5.0.1",
+    "newrelic": "^1.40.0",
+    "request": "^2.81.0"
+  }
+}

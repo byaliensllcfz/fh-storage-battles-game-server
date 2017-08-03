@@ -1,0 +1,5 @@
+{
+    "GCLOUD_PROJECT": "tpserver-dev-env",
+    "DATA_BACKEND": "datastore",
+    "PORT": 8080
+}
