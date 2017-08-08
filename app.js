@@ -88,9 +88,13 @@ app.use("/_ah", require("./health-check"));
         50004: Missing Firebase Admin SDK json
  */
 
-// Basic 404 handler
+// Basic 404 and 405 handler
 app.use((req, res) => {
-    util.errorResponse(req, res, 404, 40400, "Not Found", "Page not found.");
+    if (res.locals.hasOwnProperty("methods") && Array.isArray(res.locals.methods)) {
+        util.errorResponse(req, res, 405, 40500, "Method Not Allowed", "This endpoint only supports " + res.locals.methods.join(", ") + ".");
+    } else {
+        util.errorResponse(req, res, 404, 40400, "Not Found", "Page not found.");
+    }
 });
 
 // Error handler
