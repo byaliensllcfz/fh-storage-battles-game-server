@@ -1,0 +1,141 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Tapps ServiceName API",
+    "version": "1.0.0",
+    "description": "RESTful API"
+  },
+  "schemes": [
+    "https"
+  ],
+  "host": "tp-server.appspot.com",
+  "basePath": "/service-name/v1/",
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json",
+    "application/problem+json"
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "summary": "",
+        "description": "",
+        "parameters": [
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+            }
+          }
+        }
+      }
+    }
+  },
+  "responses": {
+    "bad_request": {
+      "description": "The request is malformed. This happens when the body of a POST or PUT is not a\nvalid JSON, or when you don't pass a required query or header parameter, or when you\npass them, but they're the wrong types.\n",
+      "schema": {
+        "$ref": "#/definitions/response_problem"
+      },
+      "examples": {
+        "application/problem+json": {
+          "type": "/service-name/v1/errors/40001",
+          "title": "",
+          "detail": "",
+          "status": 400
+        }
+      }
+    },
+    "forbidden": {
+      "description": "You can't use this endpoint. Either you're not logged in or you don't have permission to access it.\n",
+      "schema": {
+        "$ref": "#/definitions/response_problem"
+      },
+      "examples": {
+        "application/problem+json": {
+          "type": "/service-name/v1/errors/40300",
+          "title": "Forbidden",
+          "detail": "Forbidden",
+          "status": 403
+        }
+      }
+    },
+    "not_found": {
+      "description": "Endpoint or resource does not exist.\n",
+      "schema": {
+        "$ref": "#/definitions/response_problem"
+      },
+      "examples": {
+        "application/problem+json": {
+          "type": "/service-name/v1/errors/40400",
+          "title": "",
+          "detail": "",
+          "status": 404
+        }
+      }
+    },
+    "conflict": {
+      "description": "The resource will conflict with another resource.\n",
+      "schema": {
+        "$ref": "#/definitions/response_problem"
+      },
+      "examples": {
+        "application/problem+json": {
+          "type": "/service-name/v1/errors/40900",
+          "title": "",
+          "detail": "",
+          "status": 409
+        }
+      }
+    },
+    "unprocessable_entity": {
+      "description": "The JSON body of the POST or PUT request is a valid JSON, but it does not make sense\nto the current request.\n\nThis usually means the JSON is missing a field, or contains a field that shouldn't\nexist.\n",
+      "schema": {
+        "$ref": "#/definitions/response_problem"
+      },
+      "examples": {
+        "application/problem+json": {
+          "type": "/service-name/v1/errors/42200",
+          "title": "",
+          "detail": "",
+          "status": 422
+        }
+      }
+    }
+  },
+  "definitions": {
+    "response_problem": {
+      "type": "object",
+      "description": "An HTTP error response.\n",
+      "required": [
+        "type",
+        "title",
+        "detail",
+        "status"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "pattern": "^/service-name/v(?:0|[1-9][0-9]*)/errors/[45][0-9]{4}$",
+          "description": "An URI defining the type of the error. It is formatted as\n`/service-name/version/error-code`, and error-code has the HTTP status code on\nits first three digits, and two extra digits for service-specific errors.\n"
+        },
+        "title": {
+          "type": "string",
+          "description": "A human-readable description of the type of error.\n"
+        },
+        "detail": {
+          "type": "string",
+          "description": "A human-readable description of this particular instance of the error, with\ninstructions on how to remedy it.\n"
+        },
+        "status": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The HTTP status code of the error.\n"
+        }
+      }
+    }
+  }
+}
