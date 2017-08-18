@@ -6,7 +6,7 @@ const should = chai.should();
 var expect = chai.expect;
 
 var common = require("./common");
-var datastore = require("../model/datastore");
+var datastore = require("../models/datastore");
 
 global.baseHeaders = {
     "Content-Type": "application/json",
@@ -44,6 +44,9 @@ describe("Service Name Tests", function () {
     });
     describe("Integration tests", function () {
         // importTest("Test name", './integration/test-file.js');
+    });
+    describe("System tests", function () {
+        // importTest("Test name", './system/test-file.js');
     });
     // after(function () {
     //     console.log("after all tests");

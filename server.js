@@ -6,7 +6,7 @@ const bodyParser = require("body-parser");
 const express = require("express");
 
 const config = require("./config");
-const datastore = require("./model/datastore");
+const datastore = require("./models/datastore");
 const headers = require("./config/tapps-headers");
 const util = require("./util");
 
