@@ -38,3 +38,8 @@ compiled
 .ghpages-tmp
 stats.json
 /package-lock.json
+
+# Config Files
+/app.yaml
+/config.json
+/newrelic.js
