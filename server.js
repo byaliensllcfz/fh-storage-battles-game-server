@@ -2,6 +2,7 @@
 
 // The New Relic require has to be the first thing to run!
 var newrelic = require("newrelic");
+const bodyParser = require("body-parser");
 const express = require("express");
 
 const config = require("./config");
@@ -11,6 +12,8 @@ const util = require("./util");
 
 const app = express();
 app.set("trust proxy", true);
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
 
 var currentKey, previousKey;
 
