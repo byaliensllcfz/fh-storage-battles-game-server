@@ -1,0 +1,15 @@
+service: servicename-v1
+runtime: nodejs
+env: flex
+
+# Dev env settings
+manual_scaling:
+  instances: 1
+
+health_check:
+  enable_health_check: True
+  check_interval_sec: 5
+  timeout_sec: 1
+  unhealthy_threshold: 2
+  healthy_threshold: 2
+  restart_threshold: 50

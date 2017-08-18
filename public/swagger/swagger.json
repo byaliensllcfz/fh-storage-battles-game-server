@@ -36,7 +36,7 @@
   },
   "responses": {
     "bad_request": {
-      "description": "The request is malformed. This happens when the body of a POST or PUT is not a\nvalid JSON, or when you don't pass a required query or header parameter, or when you\npass them, but they're the wrong types.\n",
+      "description": "The request is malformed. This happens when the body of a POST or PUT is not a\nvalid JSON, when you don't pass a required query or header parameter or when you\npass them but they're the wrong types.\n",
       "schema": {
         "$ref": "#/definitions/response_problem"
       },

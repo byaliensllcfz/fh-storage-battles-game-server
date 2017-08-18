@@ -1,7 +1,0 @@
-service: servicename-v1
-runtime: nodejs
-env: flex
-
-# Dev env settings
-manual_scaling:
- instances: 1

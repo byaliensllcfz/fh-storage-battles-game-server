@@ -9,3 +9,11 @@ automatic_scaling:
   cool_down_period_sec: 120 # default value
   cpu_utilization:
     target_utilization: 0.7
+
+health_check:
+  enable_health_check: True
+  check_interval_sec: 5
+  timeout_sec: 1
+  unhealthy_threshold: 2
+  healthy_threshold: 2
+  restart_threshold: 50

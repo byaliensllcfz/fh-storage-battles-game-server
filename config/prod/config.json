@@ -1,4 +1,5 @@
 {
+    "ENV": "prod",
     "GCLOUD_PROJECT": "tp-server",
     "DATA_BACKEND": "datastore",
     "PORT": 8080

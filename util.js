@@ -1,19 +1,29 @@
-'use strict';
+"use strict";
 
-const config = require('./config');
-const logging = require('@google-cloud/logging');
-const newrelic = require('newrelic');
-const stringify = require('json-stringify-safe');
+const config = require("./config");
+const headers = require("./config/tapps-headers");
+const logging = require("@google-cloud/logging");
+const newrelic = require("newrelic");
+const stringify = require("json-stringify-safe");
 
 const loggingClient = logging({
-    projectId: config['GCLOUD_PROJECT']
+    projectId: config["GCLOUD_PROJECT"]
 });
-const log = loggingClient.log('servicename-logs');
+const log = loggingClient.log("auth-client-api-logs");
 
-const excludeFromLogs = ['client', 'connection', 'host', 'res', 'socket'];
+const excludeFromLogs = ["client", "connection", "host", "res", "socket"];
+
+const errors = {
+    "40000": "Bad Request",
+    "40300": "Forbidden",
+    "40400": "Not Found",
+    "40500": "Method Not Allowed",
+    "42200": "Unprocessable Entity",
+    "50000": "Internal Error"
+};
 
 function getErrorUrl(req, type) {
-    return '/servicename/v1/errors/' + type;
+    return "/auth-client-api/v1/errors/" + type;
 }
 
 function mergeResponse(req, responseObject) {
@@ -23,11 +33,11 @@ function mergeResponse(req, responseObject) {
             reqCopy[field] = req[field];
         }
     }
-    if (reqCopy.hasOwnProperty('header')){
-        // It's safe to delete a property even if it does not exist
-        delete reqCopy.headers['x-tapps-shared-cloud-secret'];
-        delete reqCopy.headers['x-tapps-game-user-id-token'];
-        delete reqCopy.headers['x-tapps-cross-app-user-id-token'];
+    if (reqCopy.hasOwnProperty("header")){
+        // It"s safe to delete a property even if it does not exist
+        delete reqCopy.headers[headers["shared-cloud-secret"]];
+        delete reqCopy.headers[headers["game-user-id-token"]];
+        delete reqCopy.headers[headers["cross-app-user-id-token"]];
     }
     var logMessage = {};
     logMessage.request = JSON.parse(stringify(reqCopy));
@@ -36,16 +46,16 @@ function mergeResponse(req, responseObject) {
 }
 
 function getUrlParam(url, param) {
-    var urlArray = url.split('/');
+    var urlArray = url.split("/");
     var index = urlArray.indexOf(param);
     return urlArray[index + 1];
 }
 
-function errorResponse(req, res, code, type, title, error) {
+function errorResponse(req, res, code, type, error) {
     var responseJson = {};
     responseJson.type = getErrorUrl(req, type);
     responseJson.status = code;
-    responseJson.title = title;
+    responseJson.title = errors[type];
     responseJson.detail = stringify(error);
     if (code != 404) {
         var logMessage = mergeResponse(req, responseJson);
@@ -61,7 +71,10 @@ function errorResponse(req, res, code, type, title, error) {
             }
         }
     }
-    res.contentType('application/problem+json');
+    if (type === 40300) {
+        responseJson.detail = "Forbidden";
+    }
+    res.contentType("application/problem+json");
     res.status(code).send(JSON.stringify(responseJson));
 }
 

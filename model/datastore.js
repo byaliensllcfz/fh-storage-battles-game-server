@@ -1,16 +1,20 @@
-'use strict';
+"use strict";
 
-const Datastore = require('@google-cloud/datastore');
-const config = require('./config');
+const Datastore = require("@google-cloud/datastore");
+const config = require("../config");
 
-// Emulated datastore
-// var ds = Datastore({
-//   projectId: "tpserver-dev-env",
-//   apiEndpoint: process.env.DATASTORE_EMULATOR_HOST
-// });
-const ds = Datastore({
-    projectId: config['GCLOUD_PROJECT']
-});
+var ds;
+if (process.env === "emulated") {
+    // Emulated datastore
+    ds = Datastore({
+        projectId: "tpserver-dev-env",
+        apiEndpoint: process.env.DATASTORE_EMULATOR_HOST
+    });
+} else {
+    ds = Datastore({
+        projectId: config.GCLOUD_PROJECT
+    });
+}
 
 // Translates from Datastore's entity format to
 // the format expected by the application.
@@ -77,11 +81,46 @@ function toDatastore (obj, nonIndexed) {
     String params.id
     String params.kind
     String params.namespace
+    Function params.callback
+ */
+function read(params) {
+    const key = ds.key({
+        namespace: params.namespace,
+        path: [params.kind, params.id]
+    });
+
+    ds.get(key, (err, entity) => {
+        if (err) {
+            params.callback({
+                error: true,
+                log: err
+            });
+            return;
+        }
+        if (!entity) {
+            params.callback({
+                error: true,
+                log: "Not found"
+            });
+            return;
+        }
+        params.callback({
+            error: false,
+            data: fromDatastore(entity)
+        });
+    });
+}
+
+/*
+    Object params
+    String params.id
+    String params.kind
+    String params.namespace
     Object params.data
     Object params.excludeFromIndexes
     Function params.callback
  */
-function create(params) {
+function write(params) {
     const key = ds.key({
         namespace: params.namespace,
         path: [params.kind, params.id]
@@ -118,35 +157,31 @@ function create(params) {
     String params.namespace
     Function params.callback
  */
-function read(params) {
+function del(params) {
     const key = ds.key({
         namespace: params.namespace,
         path: [params.kind, params.id]
     });
 
-    ds.get(key, (err, entity) => {
-        if (err) {
-            params.callback({
-                error: true,
-                log: err
-            });
-            return;
+    ds.delete(
+        key,
+        (err) => {
+            if (err) {
+                params.callback({
+                    error: true,
+                    log: err
+                });
+            } else {
+                params.callback({
+                    error: false
+                });
+            }
         }
-        if (!entity) {
-            params.callback({
-                error: true,
-                log: 'Not found'
-            });
-            return;
-        }
-        params.callback({
-            error: false,
-            data: fromDatastore(entity)
-        });
-    });
+    );
 }
 
 module.exports = {
-    create,
-    read
+    read,
+    write,
+    del
 };
