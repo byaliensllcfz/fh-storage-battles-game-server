@@ -8,7 +8,7 @@ const express = require("express");
 const config = require("./config");
 const datastore = require("./models/datastore");
 const headers = require("./config/tapps-headers");
-const util = require("./util");
+const util = require("./lib/util");
 
 const app = express();
 app.set("trust proxy", true);
