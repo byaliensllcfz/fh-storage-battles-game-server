@@ -6,18 +6,16 @@
   "engines": {
     "node": ">=6.11.1"
   },
-  "scripts": {
-    "start": "node server.js",
-    "test": "mocha --timeout 10000"
-  },
   "dependencies": {
     "@google-cloud/datastore": "^1.0.6",
     "@google-cloud/logging": "^1.0.3",
     "@newrelic/native-metrics": "^2.1.1",
+    "@sematext/logagent": "^2.0.73",
     "body-parser": "^1.17.2",
-    "elasticsearch": "^13.3.1",
+    "bunyan": "^1.8.12",
     "express": "^4.15.3",
     "json-stringify-safe": "^5.0.1",
+    "mkdirp": "^0.5.1",
     "newrelic": "^1.40.0",
     "request": "^2.81.0"
   },
@@ -25,5 +23,9 @@
     "chai": "^3.5.0",
     "mocha": "^2.5.3",
     "supertest": "^3.0.0"
+  },
+  "scripts": {
+    "start": "logagent -c config/logstash.conf | node server.js",
+    "test": "mocha --timeout 10000"
   }
 }

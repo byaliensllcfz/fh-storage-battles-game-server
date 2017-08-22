@@ -86,13 +86,12 @@ app.use((req, res) => {
 
 // Error handler
 app.use((err, req, res, next) => {
-    var logMessage = util.mergeResponse(req, err);
-    var entry = util.log.entry(logMessage);
     if (err.status === 400) {
         // When the body-parser middleware tries to parse a request and the body is not a json it generates an error.
         util.errorResponse(req, res, err.status, 40000, "Malformed request body.");
     } else {
-        util.log.error(entry, function(err, apiResponse) {});
+        var logMessage = util.mergeResponse(req, err);
+        util.logError(logMessage);
         newrelic.addCustomParameter(logMessage);
         util.errorResponse(req, res, 500, 50000, "");
     }
@@ -102,8 +101,7 @@ if (module === require.main) {
     // Start the server
     const server = app.listen(config["PORT"], () => {
         const port = server.address().port;
-        var entry = util.log.entry("App listening on port " + port);
-        util.log.notice(entry, function(err, apiResponse) {});
+        util.logNotice("App listening on port " + port);
     });
 }
 

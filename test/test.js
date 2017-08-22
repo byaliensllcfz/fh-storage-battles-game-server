@@ -6,28 +6,11 @@ const should = chai.should();
 var expect = chai.expect;
 
 var common = require("./common");
-var datastore = require("../models/datastore");
 
 global.baseHeaders = {
     "Content-Type": "application/json",
     "X-Tapps-Bundle-Id": "br.com.tapps.toiletman"
 };
-describe("Datastore", function() {
-    it("should read the Shared Cloud Secret from Datastore", function(done) {
-        datastore.read({
-            "id": "latest",
-            "kind": "SharedCloudSecret",
-            "namespace": "cloud-configs",
-            "callback": function(params) {
-                params.should.be.a("object");
-                params.error.should.not.be.ok;
-                params.data.key.should.be.a("string");
-                global.baseHeaders["X-Tapps-Shared-Cloud-Secret"] = params.data.key;
-                done();
-            }
-        });
-    });
-});
 
 function importTest(name, path) {
     describe(name, function () {
@@ -44,6 +27,7 @@ describe("Service Name Tests", function () {
     });
     describe("Integration tests", function () {
         // importTest("Test name", './integration/test-file.js');
+        importTest("Datastore", './integration/datastore');
     });
     describe("System tests", function () {
         // importTest("Test name", './system/test-file.js');
