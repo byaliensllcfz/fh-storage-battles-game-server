@@ -3,7 +3,7 @@
     "cross-app-user-id": "X-Tapps-Cross-App-User-Id",
     "cross-app-user-id-data": "X-Tapps-Cross-App-User-Id-Data",
     "cross-app-user-id-token": "X-Tapps-Cross-App-User-Id-Token",
-	"forwarded-host": "X-Tapps-Forwarded-Host",
+    "forwarded-host": "X-Tapps-Forwarded-Host",
     "game-user-id": "X-Tapps-Game-User-Id",
     "game-user-id-data": "X-Tapps-Game-User-Id-Data",
     "game-user-id-token": "X-Tapps-Game-User-Id-Token",
