@@ -14,11 +14,10 @@ describe("General tests", function() {
             "id": "latest",
             "kind": "SharedCloudSecret",
             "namespace": "cloud-configs",
-            "callback": function(params) {
-                params.should.be.a("object");
-                params.error.should.not.be.ok;
-                params.data.key.should.be.a("string");
-                global.baseHeaders["X-Tapps-Shared-Cloud-Secret"] = params.data.key;
+            "callback": function(err, data) {
+                err.should.not.be.ok;
+                data.key.should.be.a("string");
+                global.baseHeaders["X-Tapps-Shared-Cloud-Secret"] = data.key;
                 done();
             }
         });

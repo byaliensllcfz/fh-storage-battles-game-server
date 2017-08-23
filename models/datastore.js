@@ -76,12 +76,13 @@ function toDatastore (obj, nonIndexed) {
     return results;
 }
 
-/*
-    Object params
-    String params.id
-    String params.kind
-    String params.namespace
-    Function params.callback
+/**
+ * @param {Object} params
+ * @param {String} params.id ID of the entity.
+ * @param {String} params.kind Entity kind.
+ * @param {String} params.namespace Entity namespace.
+ * @param {Function} params.callback
+ * Function params.callback
  */
 function read(params) {
     const key = ds.key({
@@ -91,40 +92,40 @@ function read(params) {
 
     ds.get(key, (err, entity) => {
         if (err) {
-            params.callback({
-                error: true,
-                log: err
-            });
+            params.callback(err, entity);
             return;
         }
         if (!entity) {
-            params.callback({
-                error: true,
-                log: "Not found"
-            });
+            params.callback(true, "Not found");
             return;
         }
-        params.callback({
-            error: false,
-            data: fromDatastore(entity)
-        });
+        params.callback(err, fromDatastore(entity));
     });
 }
 
-/*
-    Object params
-    String params.id
-    String params.kind
-    String params.namespace
-    Object params.data
-    Object params.excludeFromIndexes
-    Function params.callback
+/**
+ * @param {Object} params
+ * @param {String} [params.id] ID of the entity. If not provided will be automatically generated.
+ * @param {String} params.kind Entity kind.
+ * @param {String} params.namespace Entity namespace.
+ * @param {Object} params.data Entity data.
+ * @param {Array} params.excludeFromIndexes Array of properties that should not be indexed.
+ * @param {Function} params.callback
+ * Function params.callback
  */
 function write(params) {
-    const key = ds.key({
-        namespace: params.namespace,
-        path: [params.kind, params.id]
-    });
+    var key;
+    if (params.id) {
+        key = ds.key({
+            namespace: params.namespace,
+            path: [params.kind, params.id]
+        });
+    } else {
+        key = ds.key({
+            namespace: params.namespace,
+            path: [params.kind]
+        });
+    }
 
     const entity = {
         key: key,
@@ -135,27 +136,18 @@ function write(params) {
         entity,
         (err) => {
             params.data.id = entity.key.name;
-            if (err) {
-                params.callback({
-                    error: true,
-                    log: err
-                });
-            } else {
-                params.callback({
-                    error: false,
-                    data: params.data
-                });
-            }
+            params.callback(err, params.data);
         }
     );
 }
 
-/*
-    Object params
-    String params.id
-    String params.kind
-    String params.namespace
-    Function params.callback
+/**
+ * @param {Object} params
+ * @param {String} params.id ID of the entity.
+ * @param {String} params.kind Entity kind.
+ * @param {String} params.namespace Entity namespace.
+ * @param {Function} params.callback
+ * Function params.callback
  */
 function del(params) {
     const key = ds.key({
@@ -166,16 +158,7 @@ function del(params) {
     ds.delete(
         key,
         (err) => {
-            if (err) {
-                params.callback({
-                    error: true,
-                    log: err
-                });
-            } else {
-                params.callback({
-                    error: false
-                });
-            }
+            params.callback(err);
         }
     );
 }
