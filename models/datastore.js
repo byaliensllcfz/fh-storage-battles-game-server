@@ -96,7 +96,7 @@ function read(params) {
             return;
         }
         if (!entity) {
-            params.callback(true, "Not found");
+            params.callback("Not found", "Not found");
             return;
         }
         params.callback(err, fromDatastore(entity));
