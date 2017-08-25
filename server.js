@@ -6,6 +6,7 @@ const bodyParser = require("body-parser");
 const express = require("express");
 
 const config = require("./config");
+process.env.environment = config.ENV;
 const middleware = require("./lib/middleware");
 const util = require("./lib/util");
 

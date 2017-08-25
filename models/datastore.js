@@ -4,13 +4,15 @@ const Datastore = require("@google-cloud/datastore");
 const config = require("../config");
 
 var ds;
-if (process.env === "emulated") {
+if (process.env.environment === "emulated") {
+    console.log('Using Datastore Emulator');
     // Emulated datastore
     ds = Datastore({
-        projectId: "tpserver-dev-env",
-        apiEndpoint: process.env.DATASTORE_EMULATOR_HOST
+        projectId: config.GCLOUD_PROJECT,
+        apiEndpoint: "localhost:8380"
     });
 } else {
+    console.log('Using Real Datastore');
     ds = Datastore({
         projectId: config.GCLOUD_PROJECT
     });
@@ -163,8 +165,33 @@ function del(params) {
     );
 }
 
+function createQuery(namespace, kind) {
+    return ds.createQuery(namespace, kind);
+}
+
+function runQuery(query, callback) {
+    ds.runQuery(
+        query,
+        function(err, entities, info) {
+            if (err) {
+                callback(err);
+            } else {
+                var data = {};
+                data.entities = entities;
+                // Check if  more results may exist.
+                if (info.moreResults !== ds.NO_MORE_RESULTS) {
+                    data.more = info.endCursor;
+                }
+                callback(err, data);
+            }
+        }
+    );
+}
+
 module.exports = {
     read,
     write,
-    del
+    del,
+    createQuery,
+    runQuery
 };
