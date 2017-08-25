@@ -4,13 +4,13 @@
   "version": "1.0.0",
   "private": true,
   "engines": {
-    "node": ">=6.11.1"
+    "node": ">=6.11.2"
   },
   "dependencies": {
-    "@google-cloud/datastore": "^1.0.6",
-    "@google-cloud/logging": "^1.0.3",
+    "@google-cloud/datastore": "^1.1.0",
+    "@google-cloud/logging": "^1.0.6",
     "@newrelic/native-metrics": "^2.1.1",
-    "@sematext/logagent": "^2.0.73",
+    "@sematext/logagent": "^2.0.74",
     "body-parser": "^1.17.2",
     "bunyan": "^1.8.12",
     "express": "^4.15.3",
