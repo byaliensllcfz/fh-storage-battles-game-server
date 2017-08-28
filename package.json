@@ -28,6 +28,6 @@
   },
   "scripts": {
     "start": "logagent -c config/logstash.conf | node server.js",
-    "test": "mocha --timeout 10000"
+    "test": "istanbul cover _mocha -- -b -t 10000 -R spec"
   }
 }

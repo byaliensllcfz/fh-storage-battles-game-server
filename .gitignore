@@ -38,6 +38,7 @@ compiled
 .ghpages-tmp
 stats.json
 /package-lock.json
+/EmulatedDatastore
 
 # Config Files
 /app.yaml
