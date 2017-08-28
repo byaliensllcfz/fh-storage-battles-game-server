@@ -9,7 +9,7 @@ if (process.env.environment === "emulated") {
     // Emulated datastore
     ds = Datastore({
         projectId: config.GCLOUD_PROJECT,
-        apiEndpoint: "localhost:8380"
+        apiEndpoint: "localhost:8081"
     });
 } else {
     console.log('Using Real Datastore');
