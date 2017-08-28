@@ -134,8 +134,8 @@ function write(params) {
 
     ds.save(
         entity,
-        (err) => {
-            params.data.id = entity.key.name;
+        (err, entity) => {
+            params.data.id = entity.mutationResults[0].key.path[0].id;
             params.callback(err, params.data);
         }
     );
