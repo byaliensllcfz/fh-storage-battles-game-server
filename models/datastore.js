@@ -5,14 +5,12 @@ const config = require("../config");
 
 var ds;
 if (process.env.environment === "emulated") {
-    console.log('Using Datastore Emulator');
     // Emulated datastore
     ds = Datastore({
         projectId: config.GCLOUD_PROJECT,
         apiEndpoint: "localhost:8081"
     });
 } else {
-    console.log('Using Real Datastore');
     ds = Datastore({
         projectId: config.GCLOUD_PROJECT
     });
