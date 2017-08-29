@@ -77,12 +77,11 @@ function toDatastore (obj, nonIndexed) {
 }
 
 /**
- * @param {Object} params
- * @param {String} params.id ID of the entity.
- * @param {String} params.kind Entity kind.
- * @param {String} params.namespace Entity namespace.
+ * @param {Object}   params
+ * @param {String}   params.id        ID of the entity.
+ * @param {String}   params.kind      Entity kind.
+ * @param {String}   params.namespace Entity namespace.
  * @param {Function} params.callback
- * Function params.callback
  */
 function read(params) {
     const key = ds.key({
@@ -104,14 +103,13 @@ function read(params) {
 }
 
 /**
- * @param {Object} params
- * @param {String} [params.id] ID of the entity. If not provided will be automatically generated.
- * @param {String} params.kind Entity kind.
- * @param {String} params.namespace Entity namespace.
- * @param {Object} params.data Entity data.
- * @param {Array} params.excludeFromIndexes Array of properties that should not be indexed.
+ * @param {Object}   params
+ * @param {String}   [params.id]               ID of the entity. If not provided will be automatically generated.
+ * @param {String}   params.kind               Entity kind.
+ * @param {String}   params.namespace          Entity namespace.
+ * @param {Object}   params.data               Entity data.
+ * @param {Array}    params.excludeFromIndexes Array of properties that should not be indexed.
  * @param {Function} params.callback
- * Function params.callback
  */
 function write(params) {
     var key;
@@ -142,12 +140,11 @@ function write(params) {
 }
 
 /**
- * @param {Object} params
- * @param {String} params.id ID of the entity.
- * @param {String} params.kind Entity kind.
- * @param {String} params.namespace Entity namespace.
+ * @param {Object}   params
+ * @param {String}   params.id        ID of the entity.
+ * @param {String}   params.kind      Entity kind.
+ * @param {String}   params.namespace Entity namespace.
  * @param {Function} params.callback
- * Function params.callback
  */
 function del(params) {
     const key = ds.key({
@@ -163,10 +160,18 @@ function del(params) {
     );
 }
 
+/**
+ * Creates a datastore transaction for the given namespace and kind.
+ */
 function createQuery(namespace, kind) {
     return ds.createQuery(namespace, kind);
 }
 
+/**
+ * Run a Datastore query and calls the callback function with the query results.
+ * @param {Object}   query    Datastore query to be run.
+ * @param {Function} callback Function to be called after the operation finishes.
+ */
 function runQuery(query, callback) {
     ds.runQuery(
         query,
@@ -186,10 +191,77 @@ function runQuery(query, callback) {
     );
 }
 
+/**
+ * [saveEntities description]
+ * @param {Object}   transaction               Datastore transaction
+ * @param {Object}   params
+ * @param {Array}    params.keys               Array of datastore keys.
+ * @param {Array}    params.entities           Array of entity data to be stored.
+ * @param {Array}    params.excludeFromIndexes Array of properties that should not be indexed.
+ * @param {Function} params.callback
+ */
+function saveEntities(params) {
+    var transaction = ds.transaction();
+    var entity;
+    var entities = [];
+    params.entities.forEach((data, i) => {
+        entity = {
+            key: params.keys[i],
+            data: toDatastore(data, params.excludeFromIndexes)
+        };
+        entities.push(entity);
+        params.entities[i].id = params.keys[i].id;
+    });
+    transaction.save(entities);
+    transaction.commit(function(err) {
+        params.callback(err, params.entities);
+    });
+}
+
+/**
+ * Save multiple entities to datastore using a single transaction.
+ * @param {Object}   params
+ * @param {Array}    [params.ids]              Optional array of entity IDs.
+ * @param {String}   params.kind               Entities kind.
+ * @param {String}   params.namespace          Entities namespace.
+ * @param {Array}    params.entities           Array of entity data to be stored.
+ * @param {Array}    params.excludeFromIndexes Array of properties that should not be indexed.
+ * @param {Function} params.callback
+ */
+function writeMultiple(params) {
+    var key;
+    var keys = [];
+    if (params.ids) {
+        params.ids.forEach(id => {
+            key = ds.key({
+                namespace: params.namespace,
+                path: [params.kind, id]
+            });
+            keys.push(key);
+        });
+        params.keys = keys;
+        saveEntities(params);
+    } else {
+        var incompleteKey = ds.key({
+            namespace: params.namespace,
+            path: [params.kind]
+        });
+        ds.allocateIds(incompleteKey, params.entities.length)
+            .then(function(data) {
+                params.keys = data[0];
+                saveEntities(params);
+            })
+            .catch(function(err) {
+                params.callback(err);
+            });
+    }
+}
+
 module.exports = {
-    read,
-    write,
-    del,
     createQuery,
-    runQuery
+    del,
+    read,
+    runQuery,
+    write,
+    writeMultiple
 };

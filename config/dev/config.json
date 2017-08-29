@@ -1,6 +1,7 @@
 {
     "ENV": "dev",
-    "GCLOUD_PROJECT": "tpserver-dev-env",
     "DATA_BACKEND": "datastore",
+    "GCLOUD_PROJECT": "tpserver-dev-env",
+    "NAME": "service-name",
     "PORT": 8080
 }
