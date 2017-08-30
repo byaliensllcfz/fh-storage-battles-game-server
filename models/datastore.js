@@ -33,7 +33,7 @@ if (process.env.environment === "emulated") {
 //     property: value
 //   }
 function fromDatastore (obj) {
-    obj.id = obj[Datastore.KEY].name;
+    obj.id = obj[Datastore.KEY].id || obj[Datastore.KEY].name;
     return obj;
 }
 
@@ -77,6 +77,7 @@ function toDatastore (obj, nonIndexed) {
 }
 
 /**
+ * Read an entity from datastore.
  * @param {Object}   params
  * @param {String}   params.id        ID of the entity.
  * @param {String}   params.kind      Entity kind.
@@ -104,6 +105,30 @@ function read(params) {
 
 /**
  * @param {Object}   params
+ * @param {String}   params.id                 ID of the entity.
+ * @param {Object}   params.key                Datastore key.
+ * @param {Object}   params.data               Entity data.
+ * @param {Array}    params.excludeFromIndexes Array of properties that should not be indexed.
+ * @param {Function} params.callback
+ */
+function saveEntity(params) {
+    const entity = {
+        key: params.key,
+        data: toDatastore(params.data, params.excludeFromIndexes)
+    };
+
+    ds.save(
+        entity,
+        (err, entity) => {
+            params.data.id = params.id;
+            params.callback(err, params.data);
+        }
+    );
+}
+
+/**
+ * Save an entity to datastore.
+ * @param {Object}   params
  * @param {String}   [params.id]               ID of the entity. If not provided will be automatically generated.
  * @param {String}   params.kind               Entity kind.
  * @param {String}   params.namespace          Entity namespace.
@@ -114,32 +139,29 @@ function read(params) {
 function write(params) {
     var key;
     if (params.id) {
-        key = ds.key({
+        params.key = ds.key({
             namespace: params.namespace,
             path: [params.kind, params.id]
         });
+        saveEntity(params);
     } else {
         key = ds.key({
             namespace: params.namespace,
             path: [params.kind]
         });
+        ds.allocateIds(key, 1)
+            .then(function(data) {
+                params.key = data[0];
+                saveEntity(params);
+            })
+            .catch(function(err) {
+                params.callback(err);
+            });
     }
-
-    const entity = {
-        key: key,
-        data: toDatastore(params.data, params.excludeFromIndexes)
-    };
-
-    ds.save(
-        entity,
-        (err, entity) => {
-            params.data.id = entity.mutationResults[0].key.path[0].id;
-            params.callback(err, params.data);
-        }
-    );
 }
 
 /**
+ * Delete an entity from datastore.
  * @param {Object}   params
  * @param {String}   params.id        ID of the entity.
  * @param {String}   params.kind      Entity kind.
@@ -180,7 +202,10 @@ function runQuery(query, callback) {
                 callback(err);
             } else {
                 var data = {};
-                data.entities = entities;
+                data.entities = [];
+                entities.forEach((entity) => {
+                    data.entities.push(fromDatastore(entity));
+                });
                 // Check if  more results may exist.
                 if (info.moreResults !== ds.NO_MORE_RESULTS) {
                     data.more = info.endCursor;
@@ -192,7 +217,6 @@ function runQuery(query, callback) {
 }
 
 /**
- * [saveEntities description]
  * @param {Object}   transaction               Datastore transaction
  * @param {Object}   params
  * @param {Array}    params.keys               Array of datastore keys.

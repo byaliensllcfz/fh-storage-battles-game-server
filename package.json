@@ -24,11 +24,12 @@
     "chai": "^3.5.0",
     "istanbul": "^0.4.5",
     "mocha": "^2.5.3",
+    "rewire": "^2.5.2",
     "sinon": "^3.2.1",
     "supertest": "^3.0.0"
   },
   "scripts": {
-    "start": "logagent -c config/logstash.conf | node server.js",
+    "start": "logagent -c config/logagent.conf | node server.js",
     "test": "istanbul cover _mocha -- -b -t 10000 -R spec"
   }
 }

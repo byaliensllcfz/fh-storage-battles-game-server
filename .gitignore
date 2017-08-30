@@ -39,6 +39,7 @@ compiled
 stats.json
 /package-lock.json
 /EmulatedDatastore
+/logagentTailPointers.json
 
 # Config Files
 /app.yaml
