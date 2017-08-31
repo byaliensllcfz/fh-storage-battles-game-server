@@ -24,13 +24,17 @@ describe("Service Name Tests", function () {
     // });
     describe("Unit tests", function () {
         // importTest("Test name", './unit/test-file.js');
+        importTest("Util Functions Test", './unit/util');
+        importTest("Middlewares Test", './unit/middleware'); // TODO
+        importTest("Datastore with Emulator", './unit/datastore'); // TODO
     });
     describe("Integration tests", function () {
         // importTest("Test name", './integration/test-file.js');
-        importTest("Datastore", './integration/datastore');
+        importTest("Datastore", './integration/datastore'); // TODO
     });
     describe("System tests", function () {
         // importTest("Test name", './system/test-file.js');
+        importTest("Health Check", "./system/health-check"); // TODO
     });
     // after(function () {
     //     console.log("after all tests");

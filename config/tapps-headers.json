@@ -1,15 +1,15 @@
 {
-    "bundle-id": "X-Tapps-Bundle-Id",
-    "cross-app-user-id": "X-Tapps-Cross-App-User-Id",
-    "cross-app-user-id-data": "X-Tapps-Cross-App-User-Id-Data",
-    "cross-app-user-id-token": "X-Tapps-Cross-App-User-Id-Token",
-    "forwarded-host": "X-Tapps-Forwarded-Host",
-    "game-user-id": "X-Tapps-Game-User-Id",
-    "game-user-id-data": "X-Tapps-Game-User-Id-Data",
-    "game-user-id-token": "X-Tapps-Game-User-Id-Token",
-	"retry-count": "X-Tapps-Retry-Count",
-    "service-account-key": "X-Tapps-Service-Account-Key",
-    "service-account-name": "X-Tapps-Service-Account-Name",
-    "shared-cloud-secret": "X-Tapps-Shared-Cloud-Secret",
-    "transaction-id": "X-Tapps-Transaction-Id"
+    "bundle-id": "x-tapps-bundle-id",
+    "cross-app-user-id": "x-tapps-cross-app-user-id",
+    "cross-app-user-id-data": "x-tapps-cross-app-user-id-data",
+    "cross-app-user-id-token": "x-tapps-cross-app-user-id-token",
+    "forwarded-host": "x-tapps-forwarded-host",
+    "game-user-id": "x-tapps-game-user-id",
+    "game-user-id-data": "x-tapps-game-user-id-data",
+    "game-user-id-token": "x-tapps-game-user-id-token",
+    "retry-count": "x-tapps-retry-count",
+    "service-account-key": "x-tapps-service-account-key",
+    "service-account-name": "x-tapps-service-account-name",
+    "shared-cloud-secret": "x-tapps-shared-cloud-secret",
+    "transaction-id": "x-tapps-transaction-id"
 }
