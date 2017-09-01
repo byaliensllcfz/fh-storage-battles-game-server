@@ -1,14 +1,14 @@
-"use strict";
+'use strict';
 
-const Datastore = require("@google-cloud/datastore");
-const config    = require("../config");
+const Datastore = require('@google-cloud/datastore');
+const config    = require('../config');
 
 var ds;
-if (process.env.environment === "emulated") {
+if (process.env.environment === 'emulated') {
     // Emulated datastore
     ds = Datastore({
         projectId: config.GCLOUD_PROJECT,
-        apiEndpoint: "localhost:8081"
+        apiEndpoint: 'localhost:8081'
     });
 } else {
     ds = Datastore({
@@ -96,7 +96,7 @@ function read(params) {
             return;
         }
         if (!entity) {
-            params.callback("Not found", "Not found");
+            params.callback('Not found', 'Not found');
             return;
         }
         params.callback(err, fromDatastore(entity));
