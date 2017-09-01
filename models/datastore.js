@@ -289,9 +289,43 @@ function writeMultiple(params) {
     }
 }
 
+/**
+ * Delete multiple entities from datastore using a single transaction.
+ * @param {Object}   params
+ * @param {Array}    params.ids                Array of entity IDs.
+ * @param {String}   params.kind               Entities kind.
+ * @param {String}   params.namespace          Entities namespace.
+ * @param {Function} params.callback
+ */
+function deleteMultiple(params) {
+    var key;
+    var keys = [];
+    params.ids.forEach(id => {
+        key = ds.key({
+            namespace: params.namespace,
+            path: [params.kind, id]
+        });
+        keys.push(key);
+    });
+    var transaction = ds.transaction();
+    transaction.run()
+        .then(() => {
+            transaction.delete(keys);
+            transaction.commit(function(err) {
+                transaction.rollback();
+                params.callback(err, params.ids);
+            });
+        })
+        .catch((err) => {
+            transaction.rollback();
+            params.callback(err, params.ids);
+        });
+}
+
 module.exports = {
     createQuery,
     del,
+    deleteMultiple,
     read,
     runQuery,
     write,
