@@ -1,11 +1,11 @@
 "use strict";
 
-const chai = require("chai");
+const chai    = require("chai");
 const request = require("supertest");
-const should = chai.should();
-var expect = chai.expect;
+const expect  = chai.expect;
+const should  = chai.should();
 
-var common = require("./common");
+const common = require("./common");
 
 global.baseHeaders = {
     "Content-Type": "application/json",

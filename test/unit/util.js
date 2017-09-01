@@ -1,14 +1,14 @@
 "use strict";
 
-const chai = require("chai");
-const fs = require("fs");
+const chai   = require("chai");
+const fs     = require("fs");
 const rewire = require("rewire");
-const sinon = require("sinon");
+const sinon  = require("sinon");
+const expect = chai.expect;
 const should = chai.should();
-var expect = chai.expect;
 
 const config = require("../../config");
-var util = rewire("../../lib/util.js");
+var util     = rewire("../../lib/util.js");
 
 describe("Logging", function() {
     var log, content;

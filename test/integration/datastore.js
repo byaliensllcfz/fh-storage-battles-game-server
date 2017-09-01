@@ -1,12 +1,14 @@
 "use strict";
 
-var common = require("../common");
+const chai   = require("chai");
+const rewire = require("rewire");
+const sinon  = require("sinon");
+const expect = chai.expect;
+const should = chai.should();
+
+const common    = require("../common");
 const datastore = require("../../models/datastore");
 
-const chai = require("chai");
-const request = require("supertest");
-const should = chai.should();
-var expect = chai.expect;
 
 describe("General tests", function() {
     it("should read the Shared Cloud Secret from Datastore", function(done) {

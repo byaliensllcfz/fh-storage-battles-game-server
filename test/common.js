@@ -1,9 +1,9 @@
 "use strict";
 
-const chai = require("chai");
+const chai    = require("chai");
 const request = require("supertest");
-const should = chai.should();
-var expect = chai.expect;
+const expect  = chai.expect;
+const should  = chai.should();
 
 function errorChecks(err, res){
     if (err) throw err;

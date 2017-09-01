@@ -1,14 +1,13 @@
 "use strict";
 
 // The New Relic require has to be the first thing to run!
-var newrelic = require("newrelic");
+var newrelic     = require("newrelic");
 const bodyParser = require("body-parser");
-const express = require("express");
+const express    = require("express");
 
-const config = require("./config");
-process.env.environment = config.ENV;
+const config     = require("./config");
 const middleware = require("./lib/middleware");
-const util = require("./lib/util");
+const util       = require("./lib/util");
 
 const app = express();
 app.set("trust proxy", true);

@@ -1,7 +1,7 @@
 "use strict";
 
 const Datastore = require("@google-cloud/datastore");
-const config = require("../config");
+const config    = require("../config");
 
 var ds;
 if (process.env.environment === "emulated") {
@@ -225,7 +225,6 @@ function runQuery(query, callback) {
  * @param {Function} params.callback
  */
 function saveEntities(params) {
-    var transaction = ds.transaction();
     var entity;
     var entities = [];
     params.entities.forEach((data, i) => {
@@ -236,10 +235,19 @@ function saveEntities(params) {
         entities.push(entity);
         params.entities[i].id = params.keys[i].id;
     });
-    transaction.save(entities);
-    transaction.commit(function(err) {
-        params.callback(err, params.entities);
-    });
+    var transaction = ds.transaction();
+    transaction.run()
+        .then(() => {
+            transaction.save(entities);
+            transaction.commit(function(err) {
+                transaction.rollback();
+                params.callback(err, params.entities);
+            });
+        })
+        .catch((err) => {
+            transaction.rollback();
+            params.callback(err, params.entities);
+        });
 }
 
 /**
