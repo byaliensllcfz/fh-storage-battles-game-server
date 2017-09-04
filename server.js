@@ -7,7 +7,7 @@ const express    = require('express');
 
 const config     = require('./config');
 const middleware = require('./lib/middleware');
-const util       = require('./lib/util');
+const logger     = require('./lib/logger');
 
 const app = express();
 app.set('trust proxy', true);
@@ -31,7 +31,7 @@ if (module === require.main) {
     // Start the server
     const server = app.listen(config.PORT, () => {
         const port = server.address().port;
-        util.logNotice('App listening on port ' + port);
+        logger.notice('App listening on port ' + port);
     });
 }
 

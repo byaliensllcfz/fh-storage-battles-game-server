@@ -64,14 +64,22 @@ function toDatastore (obj, nonIndexed) {
     nonIndexed = nonIndexed || [];
     const results = [];
     Object.keys(obj).forEach((k) => {
-        if (obj[k] === undefined) {
-            return;
+        if (obj[k] !== undefined) {
+            if (Array.isArray(obj[k]) && nonIndexed.indexOf(k) > -1) {
+                obj[k].forEach((field, i) => {
+                    results.push({
+                        name: k,
+                        value: field,
+                        excludeFromIndexes: true
+                    });
+                });
+            }
+            results.push({
+                name: k,
+                value: obj[k],
+                excludeFromIndexes: (nonIndexed.indexOf(k) > -1)
+            });
         }
-        results.push({
-            name: k,
-            value: obj[k],
-            excludeFromIndexes: (nonIndexed.indexOf(k) > -1)
-        });
     });
     return results;
 }
@@ -104,29 +112,6 @@ function read(params) {
 }
 
 /**
- * @param {Object}   params
- * @param {String}   params.id                 ID of the entity.
- * @param {Object}   params.key                Datastore key.
- * @param {Object}   params.data               Entity data.
- * @param {Array}    params.excludeFromIndexes Array of properties that should not be indexed.
- * @param {Function} params.callback
- */
-function saveEntity(params) {
-    const entity = {
-        key: params.key,
-        data: toDatastore(params.data, params.excludeFromIndexes)
-    };
-
-    ds.save(
-        entity,
-        (err, entity) => {
-            params.data.id = params.id;
-            params.callback(err, params.data);
-        }
-    );
-}
-
-/**
  * Save an entity to datastore.
  * @param {Object}   params
  * @param {String}   [params.id]               ID of the entity. If not provided will be automatically generated.
@@ -139,25 +124,29 @@ function saveEntity(params) {
 function write(params) {
     var key;
     if (params.id) {
-        params.key = ds.key({
+        key = ds.key({
             namespace: params.namespace,
             path: [params.kind, params.id]
         });
-        saveEntity(params);
     } else {
         key = ds.key({
             namespace: params.namespace,
             path: [params.kind]
         });
-        ds.allocateIds(key, 1)
-            .then(function(data) {
-                params.key = data[0];
-                saveEntity(params);
-            })
-            .catch(function(err) {
-                params.callback(err);
-            });
     }
+
+    const entity = {
+        key: key,
+        data: toDatastore(params.data, params.excludeFromIndexes)
+    };
+
+    ds.save(
+        entity,
+        (err, entity) => {
+            params.data.id = params.id || entity.mutationResults[0].key.path[0].id;
+            params.callback(err, params.data);
+        }
+    );
 }
 
 /**

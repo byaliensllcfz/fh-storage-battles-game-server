@@ -11,19 +11,23 @@ const config     = require('../../config');
 const middleware = rewire('../../lib/middleware');
 
 var sandbox;
-var utilStub;
-var revertUtil;
+var loggerStub, revertLogger;
+var utilStub, revertUtil;
 beforeEach(function () {
     sandbox = sinon.sandbox.create();
     utilStub = {
         errorResponse: sandbox.stub(),
-        logError: sandbox.stub(),
         mergeResponse: sandbox.stub()
     };
+    loggerStub = {
+        error: sandbox.stub(),
+    };
     revertUtil = middleware.__set__('util', utilStub);
+    revertLogger = middleware.__set__('logger', loggerStub);
 });
 afterEach(function () {
     revertUtil();
+    revertLogger();
     sandbox.restore();
 });
 
