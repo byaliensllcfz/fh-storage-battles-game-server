@@ -21,27 +21,16 @@ function importTest(name, path) {
 
 describe('Service Name Tests', function () {
     describe('Unit tests', function () {
-        before(function () {
-            process.env.environment = "emulated";
-        });
         // importTest('Test name', './unit/test-file.js');
         importTest('Logging Functions Test', './unit/logger');
         importTest('Util Functions Test', './unit/util');
         importTest('Middlewares Test', './unit/middleware');
     });
     describe('Integration tests', function () {
-        before(function () {
-            delete require.cache[require.resolve('../models/datastore')];
-            process.env.environment = "emulated";
-        });
         // importTest('Test name', './integration/test-file.js');
-        importTest('Datastore', './integration/datastore'); // TODO
+        importTest('Datastore', './integration/datastore');
     });
     describe('System tests', function () {
-        before(function () {
-            delete require.cache[require.resolve('../models/datastore')];
-            process.env.environment = config.ENV;
-        });
         // importTest('Test name', './system/test-file.js');
         // importTest('Datastore', './system/datastore'); // TODO
         importTest('Health Check', './system/health-check'); // TODO

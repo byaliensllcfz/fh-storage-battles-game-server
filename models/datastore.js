@@ -225,18 +225,20 @@ function saveEntities(params) {
         params.entities[i].id = params.keys[i].id;
     });
     var transaction = ds.transaction();
-    transaction.run()
-        .then(() => {
-            transaction.save(entities);
-            transaction.commit(function(err) {
-                transaction.rollback();
-                params.callback(err, params.entities);
-            });
-        })
-        .catch((err) => {
+    transaction.run(function(err) {
+        if (err) {
             transaction.rollback();
             params.callback(err, params.entities);
-        });
+        } else {
+            transaction.save(entities);
+            transaction.commit(function(err) {
+                if (err) {
+                    transaction.rollback();
+                }
+                params.callback(err, params.entities);
+            });
+        }
+    });
 }
 
 /**
