@@ -6,7 +6,6 @@ const sinon  = require('sinon');
 const expect = chai.expect;
 const should = chai.should();
 
-const common    = require('../common');
 const datastore = require('../../models/datastore');
 
 function cleanup(done) {

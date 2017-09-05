@@ -8,7 +8,7 @@ const expect = chai.expect;
 const should = chai.should();
 
 const config = require('../../config');
-var util     = rewire('../../lib/util.js');
+var util     = rewire('../../lib/util');
 
 describe('Error responses', function() {
     var sandbox;

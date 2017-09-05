@@ -8,7 +8,7 @@ const expect = chai.expect;
 const should = chai.should();
 
 const config = require('../../config');
-var logger   = rewire('../../lib/logger.js');
+var logger   = rewire('../../lib/logger');
 
 var log, content;
 beforeEach(function() {
