@@ -33,7 +33,7 @@ describe('Service Name Tests', function () {
     describe('System tests', function () {
         before(function(done) {
             // Read the Shared Cloud Secret from Datastore
-            const datastore = require('../../models/datastore');
+            const datastore = require('../models/datastore');
             datastore.read({
                 'id': 'latest',
                 'kind': 'SharedCloudSecret',

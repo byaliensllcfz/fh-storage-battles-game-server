@@ -8,7 +8,61 @@ const should = chai.should();
 
 const datastore = require('../../models/datastore');
 
-function cleanup(done) {
+var kind;
+var namespace;
+var ids;
+
+before(function(done) {
+    kind = 'TestNode';
+    namespace = 'test-node';
+    teardown(done);
+    ids = [];
+});
+
+function setup(done) {
+    // Create some default entities that can be used in tests
+    datastore.writeMultiple({
+        kind: kind,
+        namespace: namespace,
+        ids: ['test-1', 'test-2', 'test-3', 'test-4', 'test-5'],
+        entities: [
+            {
+                float: 3.5,
+                string: 'test-1',
+                boolean: true,
+                int: 2
+            },
+            {
+                float: 4.5,
+                boolean: false,
+                int: 5
+            },
+            {
+                string: 'test-3',
+                date: new Date(),
+                boolean: true,
+                int: 5
+            },
+            {
+                float: 3.5,
+                boolean: true,
+                int: 2
+            },
+            {
+                float: 4.5,
+                date: new Date(),
+                boolean: false,
+                int: 1
+            }
+        ],
+        callback: function (err, data) {
+            ids = ids;
+            done();
+        }
+    });
+}
+
+function teardown(done) {
     // Query and delete any entities that remained.
     var query = datastore.createQuery(namespace, kind);
     datastore.runQuery(
@@ -31,36 +85,27 @@ function cleanup(done) {
     );
 }
 
-var kind;
-var namespace;
-var ids;
-var date = new Date();
-var testData = {
-    string: 'string',
-    date: new Date(),
-    boolean: true,
-    int: 5,
-    array: ['string', date, true, 5],
-    null: null,
-    undefined: undefined
-};
-var resultData = {
-    string: 'string',
-    date: new Date(),
-    boolean: true,
-    int: 5,
-    array: ['string', date, true, 5],
-    null: null
-};
-
-before(function(done) {
-    kind = 'TestNode';
-    namespace = 'test-node';
-    cleanup(done);
-    ids = [];
-});
-
 describe('Write', function() {
+    var date = new Date();
+    var testData = {
+        float: 6.0,
+        string: 'string',
+        date: new Date(),
+        boolean: true,
+        int: 5,
+        array: ['string', date, true, 5],
+        null: null,
+        undefined: undefined
+    };
+    var resultData = {
+        float: 6.0,
+        string: 'string',
+        date: new Date(),
+        boolean: true,
+        int: 5,
+        array: ['string', date, true, 5],
+        null: null
+    };
     it('should write an entity to datastore, using a specific id', function(done) {
         datastore.write({
             id: 'test-id',
@@ -96,6 +141,23 @@ describe('Write', function() {
 });
 
 describe('Read', function() {
+    var testData;
+    before(function(done) {
+        testData = {test: 'test'};
+        datastore.write({
+            id: 'test-id',
+            kind: kind,
+            namespace: namespace,
+            data: testData,
+            excludeFromIndexes: ['test'],
+            callback: function(err, data) {
+                done();
+            }
+        });
+    });
+    after(function(done) {
+        teardown(done);
+    });
     it('should read an entity from datastore', function(done) {
         var id = 'test-id';
         datastore.read({
@@ -105,8 +167,7 @@ describe('Read', function() {
             callback: function(err, data) {
                 should.not.exist(err);
                 data.id.should.be.equal(id);
-                delete data.id;
-                data.should.be.deep.equal(resultData);
+                data.should.be.deep.equal(testData);
                 done();
             }
         });
@@ -126,6 +187,18 @@ describe('Read', function() {
 });
 
 describe('Delete', function() {
+    before(function(done) {
+        datastore.write({
+            id: 'test-id',
+            kind: kind,
+            namespace: namespace,
+            data: {test: 'test'},
+            excludeFromIndexes: ['test'],
+            callback: function(err, data) {
+                done();
+            }
+        });
+    });
     it('should delete an entity', function(done) {
         datastore.del({
             kind: kind,
@@ -152,6 +225,9 @@ describe('Delete', function() {
 });
 
 describe('Write Batch', function() {
+    after(function(done) {
+        teardown(done);
+    });
     it('should write multiple entities to datastore', function(done) {
         var localIds = ['1', '2', '3', '4'];
         ids = ids.concat(localIds);
@@ -176,7 +252,7 @@ describe('Write Batch', function() {
             namespace: namespace,
             ids: localIds,
             entities: entities,
-            excludeFromIndexes: Object.keys(testData),
+            excludeFromIndexes: ['boolean', 'date', 'int', 'string'],
             callback: function (err, data) {
                 should.not.exist(err);
                 data.should.be.a('array');
@@ -213,6 +289,12 @@ describe('Write Batch', function() {
 });
 
 describe('Query', function() {
+    before(function(done) {
+        setup(done);
+    });
+    after(function(done) {
+        teardown(done);
+    });
     it('should find no entities that match the query', function(done) {
         var query = datastore.createQuery(namespace, kind);
         query.filter('int', '=', 0);
@@ -227,7 +309,7 @@ describe('Query', function() {
     });
     it('should find one entity that matches the query with an equality filter', function(done) {
         var query = datastore.createQuery(namespace, kind);
-        query.filter('int', '=', 2);
+        query.filter('int', '=', 1);
         datastore.runQuery(
             query,
             function(err, data) {
@@ -241,7 +323,7 @@ describe('Query', function() {
     });
     it('should find multiple entities that match the query with multiple equality filters', function(done) {
         var query = datastore.createQuery(namespace, kind);
-        query.filter('int', '=', 5);
+        query.filter('int', '=', 2);
         query.filter('boolean', '=', true);
         datastore.runQuery(
             query,
@@ -250,7 +332,7 @@ describe('Query', function() {
                 data.should.be.a('object');
                 data.entities.should.be.a('array');
                 data.entities.length.should.be.equal(2);
-                data.entities[0].int.should.be.equal(5);
+                data.entities[0].int.should.be.equal(2);
                 data.entities[0].boolean.should.be.equal(true);
                 done();
             }
@@ -258,7 +340,7 @@ describe('Query', function() {
     });
     it('should find an entity that matches the query with an inequality filter', function(done) {
         var query = datastore.createQuery(namespace, kind);
-        query.filter('int', '<', 3);
+        query.filter('int', '<', 2);
         datastore.runQuery(
             query,
             function(err, data) {
@@ -288,6 +370,12 @@ describe('Query', function() {
 });
 
 describe('Delete Batch', function() {
+    beforeEach(function(done) {
+        setup(done);
+    });
+    afterEach(function(done) {
+        teardown(done);
+    });
     it('should delete multiple entities from datastore', function(done) {
         datastore.deleteMultiple({
             ids: ids,
@@ -299,8 +387,4 @@ describe('Delete Batch', function() {
             }
         });
     });
-});
-
-after(function(done) {
-    cleanup(done);
 });
