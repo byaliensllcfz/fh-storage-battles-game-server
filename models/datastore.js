@@ -16,6 +16,16 @@ if (process.env.environment === 'emulated') {
     });
 }
 
+/**
+ * Converts strings that represent integers to "Number" type.
+ * This is necessary because Datastore always returns entity IDs as strings, even when they are actually numbers.
+ * @param  {(number|string)} id Datastore entity ID.
+ * @return {(number|string)}    Entity ID converted to number if it's a positive integer.
+ */
+function getId(id) {
+    return /^\d+$/.test(id) ? parseInt(id, 10) : id;
+}
+
 // Translates from Datastore's entity format to
 // the format expected by the application.
 //
@@ -33,7 +43,7 @@ if (process.env.environment === 'emulated') {
 //     property: value
 //   }
 function fromDatastore (obj) {
-    obj.id = obj[Datastore.KEY].id || obj[Datastore.KEY].name;
+    obj.id = obj[Datastore.KEY].name || getId(obj[Datastore.KEY].id);
     return obj;
 }
 
@@ -95,7 +105,7 @@ function toDatastore (obj, nonIndexed) {
 function read(params) {
     const key = ds.key({
         namespace: params.namespace,
-        path: [params.kind, params.id]
+        path: [params.kind, getId(params.id)]
     });
 
     ds.get(key, (err, entity) => {
@@ -124,6 +134,7 @@ function read(params) {
 function write(params) {
     var key;
     if (params.id) {
+        params.id = getId(params.id);
         key = ds.key({
             namespace: params.namespace,
             path: [params.kind, params.id]
@@ -143,7 +154,7 @@ function write(params) {
     ds.save(
         entity,
         (err, entity) => {
-            params.data.id = params.id || entity.mutationResults[0].key.path[0].id;
+            params.data.id = params.id || getId(entity.mutationResults[0].key.path[0].id);
             params.callback(err, params.data);
         }
     );
@@ -160,7 +171,7 @@ function write(params) {
 function del(params) {
     const key = ds.key({
         namespace: params.namespace,
-        path: [params.kind, params.id]
+        path: [params.kind, getId(params.id)]
     });
 
     ds.delete(
@@ -258,7 +269,7 @@ function writeMultiple(params) {
         params.ids.forEach(id => {
             key = ds.key({
                 namespace: params.namespace,
-                path: [params.kind, id]
+                path: [params.kind, getId(id)]
             });
             keys.push(key);
         });
@@ -294,23 +305,25 @@ function deleteMultiple(params) {
     params.ids.forEach(id => {
         key = ds.key({
             namespace: params.namespace,
-            path: [params.kind, id]
+            path: [params.kind, getId(id)]
         });
         keys.push(key);
     });
     var transaction = ds.transaction();
-    transaction.run()
-        .then(() => {
-            transaction.delete(keys);
-            transaction.commit(function(err) {
-                transaction.rollback();
-                params.callback(err, params.ids);
-            });
-        })
-        .catch((err) => {
+    transaction.run(function(err) {
+        if (err) {
             transaction.rollback();
             params.callback(err, params.ids);
-        });
+        } else {
+            transaction.delete(keys);
+            transaction.commit(function(err) {
+                if (err) {
+                    transaction.rollback();
+                }
+                params.callback(err, params.ids);
+            });
+        }
+    });
 }
 
 module.exports = {
