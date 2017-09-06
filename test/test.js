@@ -22,9 +22,9 @@ function importTest(name, path) {
 describe('Service Name Tests', function () {
     describe('Unit tests', function () {
         // importTest('Test name', './unit/test-file');
-        importTest('Logging Functions Test', './unit/logger');
-        importTest('Util Functions Test', './unit/util');
-        importTest('Middlewares Test', './unit/middleware');
+        importTest('Logging Functions', './unit/logger');
+        importTest('Util Functions', './unit/util');
+        importTest('Middlewares', './unit/middleware');
     });
     describe('Integration tests', function () {
         // importTest('Test name', './integration/test-file');
@@ -49,7 +49,4 @@ describe('Service Name Tests', function () {
         // importTest('Test name', './system/test-file');
         importTest('Health Check', './system/health-check');
     });
-    // after(function () {
-    //     console.log('after all tests');
-    // });
 });

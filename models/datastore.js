@@ -207,7 +207,7 @@ function runQuery(query, callback) {
                     data.entities.push(fromDatastore(entity));
                 });
                 // Check if  more results may exist.
-                if (info.moreResults !== ds.NO_MORE_RESULTS) {
+                if (info.moreResults != ds.NO_MORE_RESULTS && info.endCursor != 'CgA=') {
                     data.more = info.endCursor;
                 }
                 callback(err, data);
