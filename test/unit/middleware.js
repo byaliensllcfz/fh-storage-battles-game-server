@@ -92,6 +92,22 @@ describe('Client Authentication', function() {
         sinon.assert.calledWith(utilStub.errorResponse, req, res, 40300);
         done();
     });
+    it('should fail because the Game User Id Data header is invalid', function(done) {
+        var uid = 'uid';
+        var req  = httpMocks.createRequest({
+            method: 'GET',
+            url: '/test/endpoint',
+            headers: {
+                'x-tapps-game-user-id-data': '{invalidJson'
+            }
+        });
+        var res = httpMocks.createResponse();
+        var nextStub = sandbox.stub();
+        middleware.authenticate('', req, res, nextStub);
+        sinon.assert.calledOnce(utilStub.errorResponse);
+        sinon.assert.calledWith(utilStub.errorResponse, req, res, 40300);
+        done();
+    });
 });
 
 describe('Error Handler', function() {
