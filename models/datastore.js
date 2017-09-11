@@ -7,12 +7,12 @@ var ds;
 if (process.env.environment === 'emulated') {
     // Emulated datastore
     ds = Datastore({
-        projectId: config.GCLOUD_PROJECT,
-        apiEndpoint: 'localhost:8081'
+        projectId: process.env.DATASTORE_PROJECT_ID || config.GCLOUD_PROJECT,
+        apiEndpoint: process.env.DATASTORE_EMULATOR_HOST || 'localhost:8081'
     });
 } else {
     ds = Datastore({
-        projectId: config.GCLOUD_PROJECT
+        projectId: process.env.DATASTORE_PROJECT_ID || config.GCLOUD_PROJECT
     });
 }
 
