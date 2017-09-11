@@ -10,25 +10,19 @@ const should = chai.should();
 const config = require('../../config');
 var util     = rewire('../../lib/util');
 
-describe('Error responses', function() {
-    var sandbox;
-    var loggerStub, revertLogger;
-    beforeEach(function () {
-        sandbox = sinon.sandbox.create();
-        loggerStub = {
-            error: sandbox.stub(),
-            info: sandbox.stub()
-        };
-        revertLogger = util.__set__('logger', loggerStub);
-    });
-    afterEach(function () {
-        revertLogger();
-        sandbox.restore();
-    });
+describe('Auxiliar functions', function() {
     it('should get the error URL', function(done) {
         var getErrorUrl = util.__get__('getErrorUrl');
         var type = 40400;
         getErrorUrl('', type).should.be.equal('/' + config.NAME +  '/v1/errors/' + type);
+        done();
+    });
+    it('should convert an error object to a regular object', function(done) {
+        var replaceErrors = util.__get__('replaceErrors');
+        var error = new Error();
+        error = replaceErrors(error);
+        error.should.be.a('object');
+        error.should.have.property('stack');
         done();
     });
     it('should create a log object, merging the request and response objects', function(done) {
@@ -58,6 +52,23 @@ describe('Error responses', function() {
         logMessage.request.should.be.deep.equal(logReq);
         logMessage.response.should.be.deep.equal(res);
         done();
+    });
+});
+
+describe('Error responses', function() {
+    var sandbox;
+    var loggerStub, revertLogger;
+    beforeEach(function () {
+        sandbox = sinon.sandbox.create();
+        loggerStub = {
+            error: sandbox.stub(),
+            info: sandbox.stub()
+        };
+        revertLogger = util.__set__('logger', loggerStub);
+    });
+    afterEach(function () {
+        revertLogger();
+        sandbox.restore();
     });
     it('should generate a "Not Found" error response', function(done) {
         var contentTypeStub = sandbox.stub();
