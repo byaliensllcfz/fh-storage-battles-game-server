@@ -1,6 +1,7 @@
 'use strict';
 
 const chai    = require('chai');
+const fs      = require('fs');
 const request = require('supertest');
 const expect  = chai.expect;
 const should  = chai.should();
@@ -48,5 +49,23 @@ describe('Service Name Tests', function () {
         });
         // importTest('Test name', './system/test-file');
         importTest('Health Check', './system/health-check');
+    });
+    after(function() {
+        fs.writeFileSync(
+            '/var/log/app_engine/custom_logs/app-' + config.NAME + '-notice.json',
+            ''
+        );
+        fs.writeFileSync(
+            '/var/log/app_engine/custom_logs/app-' + config.NAME + '-info.json',
+            ''
+        );
+        fs.writeFileSync(
+            '/var/log/app_engine/custom_logs/app-' + config.NAME +  '-error.json',
+            ''
+        );
+        fs.writeFileSync(
+            '/var/log/app_engine/custom_logs/app-' + config.NAME +  '-alert.json',
+            ''
+        );
     });
 });
