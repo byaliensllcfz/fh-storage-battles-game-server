@@ -59,6 +59,32 @@ describe('Error responses', function() {
         logMessage.response.should.be.deep.equal(res);
         done();
     });
+    it('should generate a "Not Found" error response', function(done) {
+        var contentTypeStub = sandbox.stub();
+        var statusStub = sandbox.stub();
+        var sendStub = sandbox.stub();
+        var req = {
+            test: 'test'
+        };
+        var res = {
+            contentType: contentTypeStub,
+            status: statusStub,
+            send: sendStub
+        };
+        statusStub.returns(res);
+        var status = 404;
+        var type = 40400;
+        var detail = 'Endpoint not found.';
+        util.errorResponse(req, res, type, detail);
+        sinon.assert.calledWith(contentTypeStub, 'application/problem+json');
+        sinon.assert.calledWith(statusStub, status);
+        sinon.assert.calledOnce(sendStub);
+        var response = JSON.parse(sendStub.getCall(0).args[0]);
+        response.detail.should.be.equal(detail);
+        response.title.should.be.equal('Not Found');
+        response.status.should.be.equal(status);
+        done();
+    });
     it('should generate a "Forbidden" error response', function(done) {
         var newrelicStub = {
             addCustomParameter: sandbox.stub()
