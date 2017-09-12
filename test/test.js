@@ -10,8 +10,8 @@ const common = require('./common');
 const config = require('../config');
 
 global.baseHeaders = {
-    'Content-Type': 'application/json',
-    'X-Tapps-Bundle-Id': 'br.com.tapps.toiletman'
+    'content-type': 'application/json',
+    'x-tapps-bundle-id': 'br.com.tapps.toiletman'
 };
 
 function importTest(name, path) {
@@ -41,7 +41,7 @@ describe('Service Name Tests', function () {
                 'namespace': 'cloud-configs',
                 'callback': function(err, data) {
                     if (!err) {
-                        global.baseHeaders['X-Tapps-Shared-Cloud-Secret'] = data.key;
+                        global.baseHeaders['x-tapps-shared-cloud-secret'] = data.key;
                         done();
                     }
                 }
