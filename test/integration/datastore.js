@@ -6,18 +6,12 @@ const sinon  = require('sinon');
 const expect = chai.expect;
 const should = chai.should();
 
-const datastore = require('../../models/datastore');
+const Datastore = require('../../models/datastore');
+var datastore = new Datastore('emulated');
 
 var kind;
 var namespace;
 var ids;
-
-before(function(done) {
-    kind = 'TestNode';
-    namespace = 'test-node';
-    teardown(done);
-    ids = [];
-});
 
 function setup(done) {
     // Create some default entities that can be used in tests
@@ -84,6 +78,13 @@ function teardown(done) {
         }
     );
 }
+
+before(function(done) {
+    kind = 'TestNode';
+    namespace = 'test-node';
+    teardown(done);
+    ids = [];
+});
 
 describe('Write', function() {
     var date = new Date();
