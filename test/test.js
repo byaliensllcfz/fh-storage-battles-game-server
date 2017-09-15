@@ -11,8 +11,9 @@ const config = require('../config');
 
 global.baseHeaders = {
     'content-type': 'application/json',
-    'x-tapps-bundle-id': 'br.com.tapps.toiletman'
+    'x-tapps-bundle-id': 'test.bundle.id'
 };
+process.env.DATASTORE_TYPE = 'emulated';
 
 function importTest(name, path) {
     describe(name, function () {
@@ -26,6 +27,7 @@ describe('Service Name Tests', function () {
         importTest('Logging Functions', './unit/logger');
         importTest('Util Functions', './unit/util');
         importTest('Middlewares', './unit/middleware');
+        importTest('Datastore', './unit/datastore');
     });
     describe('Integration tests', function () {
         // importTest('Test name', './integration/test-file');
@@ -41,7 +43,26 @@ describe('Service Name Tests', function () {
                 'kind': 'SharedCloudSecret',
                 'namespace': 'cloud-configs',
                 'callback': function(err, data) {
-                    if (!err) {
+                    if (err) {
+                        const uuid = require('uuid/v4');
+                        var key = uuid();
+                        var date = new Date().getTime();
+                        date += (1 * 60 * 60 * 1000);
+                        datastore.write({
+                            'id': 'latest',
+                            'kind': 'SharedCloudSecret',
+                            'namespace': 'cloud-configs',
+                            'data': {
+                                'expiration': new Date(date).valueOf(),
+                                'key': key
+                            },
+                            'callback': function(err, data) {
+                                if (err) throw err;
+                                global.baseHeaders['x-tapps-shared-cloud-secret'] = key;
+                                done();
+                            }
+                        });
+                    } else {
                         global.baseHeaders['x-tapps-shared-cloud-secret'] = data.key;
                         done();
                     }
@@ -52,6 +73,7 @@ describe('Service Name Tests', function () {
         importTest('Health Check', './system/health-check');
     });
     after(function() {
+        // Remove any leftover logs
         fs.writeFileSync(
             '/var/log/app_engine/custom_logs/app-' + config.NAME + '-notice.json',
             ''

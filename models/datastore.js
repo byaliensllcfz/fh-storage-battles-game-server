@@ -1,12 +1,12 @@
 'use strict';
 
-const gcloudDatastore = require('@google-cloud/datastore');
-const config          = require('../config');
+var gcloudDatastore = require('@google-cloud/datastore');
+const config        = require('../config');
 
 class Datastore{
 
-    constructor(env){
-        if (env ==='emulated') {
+    constructor(){
+        if (process.env.DATASTORE_TYPE ==='emulated') {
             // Emulated datastore
             this.ds = gcloudDatastore({
                 projectId: process.env.DATASTORE_PROJECT_ID || config.GCLOUD_PROJECT,
@@ -26,7 +26,7 @@ class Datastore{
      * @return {(number|string)}    Entity ID converted to number if it's a positive integer.
      */
     getId(id) {
-        return /^\d+$/.test(id) ? parseInt(id, 10) : id;
+        return /^\d+$/.test(id) ? gcloudDatastore.int(id) : id;
     }
 
     // Translates from Datastore's entity format to
@@ -46,7 +46,7 @@ class Datastore{
     //     property: value
     //   }
     fromDatastore (obj) {
-        obj.id = obj[gcloudDatastore.KEY].name || this.getId(obj[gcloudDatastore.KEY].id);
+        obj.id = obj[gcloudDatastore.KEY].name || obj[gcloudDatastore.KEY].id;
         return obj;
     }
 
@@ -117,7 +117,7 @@ class Datastore{
                 return;
             }
             if (!entity) {
-                params.callback('Not found', 'Not found');
+                params.callback(new Error('Not found'), 'Not found');
                 return;
             }
             params.callback(err, this.fromDatastore(entity));
@@ -127,20 +127,19 @@ class Datastore{
     /**
      * Save an entity to datastore.
      * @param {Object}   params
-     * @param {String}   [params.id]               ID of the entity. If not provided will be automatically generated.
-     * @param {String}   params.kind               Entity kind.
-     * @param {String}   params.namespace          Entity namespace.
-     * @param {Object}   params.data               Entity data.
-     * @param {Array}    params.excludeFromIndexes Array of properties that should not be indexed.
+     * @param {String}   [params.id]                 ID of the entity. If not provided will be automatically generated.
+     * @param {String}   params.kind                 Entity kind.
+     * @param {String}   params.namespace            Entity namespace.
+     * @param {Object}   params.data                 Entity data.
+     * @param {Array}    [params.excludeFromIndexes] Optional array of properties that should not be indexed.
      * @param {Function} params.callback
      */
     write(params) {
         var key;
         if (params.id) {
-            params.id = this.getId(params.id);
             key = this.ds.key({
                 namespace: params.namespace,
-                path: [params.kind, params.id]
+                path: [params.kind, this.getId(params.id)]
             });
         } else {
             key = this.ds.key({
@@ -157,7 +156,7 @@ class Datastore{
         this.ds.save(
             entity,
             (err, entity) => {
-                params.data.id = params.id || this.getId(entity.mutationResults[0].key.path[0].id);
+                params.data.id = params.id || entity.mutationResults[0].key.path[0].id;
                 params.callback(err, params.data);
             }
         );
@@ -220,7 +219,41 @@ class Datastore{
     }
 
     /**
-     * @param {Object}   transaction               Datastore transaction
+     * Converts Datastore.transaction.run to a promise, so multiple transactions can be run simultaneously.
+     * @param  {Object}  transaction Datastore transaction.
+     * @param  {Array}   entities    Array of entities to be saved.
+     * @return {Promise}             Promise that will be resolved or rejected depending on the transaction result.
+     */
+    transactionRun(transaction, operation, entities) {
+        return new Promise((resolve, reject) => {
+            transaction.run(function(err) {
+                if (err) {
+                    transaction.rollback();
+                    reject(err);
+                } else {
+                    if (operation === 'save') {
+                        transaction.save(entities);
+                    } else if (operation === 'delete') {
+                        transaction.delete(entities);
+                    } else {
+                        transaction.rollback();
+                        reject('Invalid operation.');
+                    }
+                    transaction.commit(function(err) {
+                        if (err) {
+                            transaction.rollback();
+                            reject(err);
+                        } else {
+                            resolve(entities);
+                        }
+                    });
+                }
+            });
+        });
+    }
+
+    /**
+     * @param {Object}   transaction               Datastore transaction.
      * @param {Object}   params
      * @param {Array}    params.keys               Array of datastore keys.
      * @param {Array}    params.entities           Array of entity data to be stored.
@@ -238,31 +271,39 @@ class Datastore{
             entities.push(entity);
             params.entities[i].id = params.keys[i].id;
         });
-        var transaction = this.ds.transaction();
-        transaction.run(function(err) {
-            if (err) {
+        var promises = [];
+        var transactions = [];
+        var tempEntities;
+        var originalLength = entities.length;
+        for (var i = 0; i < originalLength; i+=25) {
+            // Get 25 entities at a time, because that's the limit of entity modifications per transaction.
+            tempEntities = entities.splice(0, 25);
+            var transaction = this.ds.transaction();
+            // Store the transactions so they can be rolled back if one of them fails.
+            transactions.push(transaction);
+            var promise = this.transactionRun(transaction, 'save', tempEntities);
+            promises.push(promise);
+        }
+        Promise.all(promises).then(values => {
+            // All transactions succeeded.
+            params.callback(null, params.entities);
+        }).catch((err) => {
+            // One of the transactions failed. All of them have to be rolled back.
+            transactions.forEach(transaction => {
                 transaction.rollback();
-                params.callback(err, params.entities);
-            } else {
-                transaction.save(entities);
-                transaction.commit(function(err) {
-                    if (err) {
-                        transaction.rollback();
-                    }
-                    params.callback(err, params.entities);
-                });
-            }
+            });
+            params.callback(err, params.entities);
         });
     }
 
     /**
      * Save multiple entities to datastore using a single transaction.
      * @param {Object}   params
-     * @param {Array}    [params.ids]              Optional array of entity IDs.
-     * @param {String}   params.kind               Entities kind.
-     * @param {String}   params.namespace          Entities namespace.
-     * @param {Array}    params.entities           Array of entity data to be stored.
-     * @param {Array}    params.excludeFromIndexes Array of properties that should not be indexed.
+     * @param {Array}    [params.ids]                Optional array of entity IDs.
+     * @param {String}   params.kind                 Entities kind.
+     * @param {String}   params.namespace            Entities namespace.
+     * @param {Array}    params.entities             Array of entity data to be stored.
+     * @param {Array}    [params.excludeFromIndexes] Optional array of properties that should not be indexed.
      * @param {Function} params.callback
      */
     writeMultiple(params) {
@@ -312,20 +353,28 @@ class Datastore{
             });
             keys.push(key);
         });
-        var transaction = this.ds.transaction();
-        transaction.run(function(err) {
-            if (err) {
+        var promises = [];
+        var transactions = [];
+        var tempKeys;
+        var originalLength = keys.length;
+        for (var i = 0; i < originalLength; i+=25) {
+            // Get 25 entities at a time, because that's the limit of entity modifications per transaction.
+            tempKeys = keys.splice(0, 25);
+            var transaction = this.ds.transaction();
+            // Store the transactions so they can be rolled back if one of them fails.
+            transactions.push(transaction);
+            var promise = this.transactionRun(transaction, 'delete', tempKeys);
+            promises.push(promise);
+        }
+        Promise.all(promises).then(values => {
+            // All transactions succeeded.
+            params.callback(null, params.ids);
+        }).catch((err) => {
+            // One of the transactions failed. All of them have to be rolled back.
+            transactions.forEach(transaction => {
                 transaction.rollback();
-                params.callback(err, params.ids);
-            } else {
-                transaction.delete(keys);
-                transaction.commit(function(err) {
-                    if (err) {
-                        transaction.rollback();
-                    }
-                    params.callback(err, params.ids);
-                });
-            }
+            });
+            params.callback(err, params.ids);
         });
     }
 }

@@ -7,11 +7,11 @@ const expect = chai.expect;
 const should = chai.should();
 
 const Datastore = require('../../models/datastore');
-var datastore = new Datastore('emulated');
+var datastore = new Datastore();
 
-var kind;
-var namespace;
-var ids;
+var kind = 'TestNode';
+var namespace = 'test-node';
+var ids = [];
 
 function setup(done) {
     // Create some default entities that can be used in tests
@@ -62,6 +62,7 @@ function teardown(done) {
     datastore.runQuery(
         query,
         function(err, data) {
+            if (err) throw err;
             var ids =[];
             data.entities.forEach((entity) => {
                 ids.push(entity.id);
@@ -80,13 +81,14 @@ function teardown(done) {
 }
 
 before(function(done) {
-    kind = 'TestNode';
-    namespace = 'test-node';
     teardown(done);
     ids = [];
 });
 
 describe('Write', function() {
+    after(function(done) {
+        teardown(done);
+    });
     var date = new Date();
     var testData = {
         float: 6.0,
@@ -180,7 +182,7 @@ describe('Read', function() {
             id: 'wrong-id',
             callback: function(err, data) {
                 should.exist(err);
-                err.should.be.equal('Not found');
+                data.should.be.equal('Not found');
                 done();
             }
         });
@@ -218,7 +220,7 @@ describe('Delete', function() {
             id: 'test-id',
             callback: function(err, data) {
                 should.exist(err);
-                err.should.be.equal('Not found');
+                data.should.be.equal('Not found');
                 done();
             }
         });
@@ -231,7 +233,6 @@ describe('Write Batch', function() {
     });
     it('should write multiple entities to datastore', function(done) {
         var localIds = ['1', '2', '3', '4'];
-        ids = ids.concat(localIds);
         var entities = [
             {
                 boolean: true,
@@ -281,7 +282,29 @@ describe('Write Batch', function() {
                 data.should.be.a('array');
                 data.forEach((entity) => {
                     entity.should.be.a('object');
-                    ids.push(entity.id);
+                });
+                done();
+            }
+        });
+    });
+    it('should write more than 25 entities to datastore, requiring more than 1 transaction', function(done) {
+        var entity = {
+            int: 2,
+            boolean: false
+        };
+        var entities = [];
+        for (var i = 0; i <= 30; i++) {
+            entities.push(entity);
+        }
+        datastore.writeMultiple({
+            kind: kind,
+            namespace: namespace,
+            entities: entities,
+            callback: function (err, data) {
+                should.not.exist(err);
+                data.should.be.a('array');
+                data.forEach((entity) => {
+                    entity.should.be.a('object');
                 });
                 done();
             }
