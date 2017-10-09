@@ -4,27 +4,27 @@
   "version": "1.0.0",
   "private": true,
   "engines": {
-    "node": ">=6.11.3"
+    "node": ">=6.11.4"
   },
   "dependencies": {
     "@google-cloud/datastore": "^1.1.0",
     "@google-cloud/logging": "^1.0.6",
-    "@newrelic/native-metrics": "^2.1.1",
-    "@sematext/logagent": "^2.0.74",
-    "body-parser": "^1.17.2",
-    "express": "^4.15.3",
+    "@newrelic/native-metrics": "^2.1.2",
+    "@sematext/logagent": "^2.0.85",
+    "body-parser": "^1.18.2",
+    "express": "^4.16.1",
     "json-stringify-safe": "^5.0.1",
     "mkdirp": "^0.5.1",
     "newrelic": "^1.40.0",
-    "request": "^2.81.0",
+    "request": "^2.83.0",
     "uuid": "^3.1.0",
-    "winston": "^2.3.1"
+    "winston": "^2.4.0"
   },
   "devDependencies": {
     "chai": "^3.5.0",
     "istanbul": "^0.4.5",
     "mocha": "^2.5.3",
-    "node-mocks-http": "^1.6.4",
+    "node-mocks-http": "^1.6.5",
     "rewire": "^2.5.2",
     "sinon": "^3.2.1",
     "supertest": "^3.0.0"
