@@ -6,7 +6,7 @@ const config        = require('../config');
 class Datastore{
 
     constructor(){
-        if (process.env.DATASTORE_TYPE ==='emulated') {
+        if (process.env.npm_config_datastore ==='emulated') {
             // Emulated datastore
             this.ds = gcloudDatastore({
                 projectId: process.env.DATASTORE_PROJECT_ID || config.GCLOUD_PROJECT,

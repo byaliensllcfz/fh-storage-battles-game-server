@@ -3,8 +3,12 @@ runtime: nodejs
 env: flex
 
 # Dev env settings
-manual_scaling:
-  instances: 1
+automatic_scaling:
+  min_num_instances: 2
+  max_num_instances: 20
+  cool_down_period_sec: 120 # default value
+  cpu_utilization:
+    target_utilization: 0.7
 
 health_check:
   enable_health_check: True

@@ -31,6 +31,58 @@ afterEach(function () {
     sandbox.restore();
 });
 
+describe('Update Valid Routes', function() {
+    it('should throw an error because there is a route registered directly on the app', function(done) {
+        var app = {
+            _router: {
+                stack: [
+                    {
+                        route: 'Some route'
+                    }
+                ]
+            }
+        };
+        expect(function() {
+            middleware.updateValidRoutes(app);
+        }).to.throw();
+        done();
+    });
+    it('should register the routes', function(done) {
+        var app = {
+            _router: {
+                stack: [
+                    {
+                        name: 'router',
+                        regexp: /^\/test\/?(?=\/|$)/i,
+                        handle: {
+                            stack: [
+                                {
+                                    route: {
+                                        path: '/endpoint',
+                                        methods: {'get': true}
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        };
+        var resultRoutes = [
+            {
+                methods: [
+                    "GET"
+                ],
+                regexp: /\/test\/endpoint/
+            }
+        ];
+        middleware.updateValidRoutes(app);
+        var routes = middleware.__get__('routes');
+        routes.should.be.deep.equal(resultRoutes);
+        done();
+    });
+});
+
 describe('Client Authentication', function() {
     it('should allow the request because the Service Account Name header is present', function(done) {
         var req  = httpMocks.createRequest({
@@ -129,7 +181,7 @@ describe('Error Handler', function() {
     });
     it('should send a response with status code 500', function(done) {
         var newrelicStub = {
-            addCustomParameter: sandbox.stub()
+            addCustomParameters: sandbox.stub()
         };
         var revertNewRelic = middleware.__set__('newrelic', newrelicStub);
         var req  = httpMocks.createRequest({
@@ -151,25 +203,32 @@ describe('Error Handler', function() {
 
 describe('Not Found Handler', function() {
     it('should send a response with status code 405', function(done) {
+        var routesStub = [
+            {
+                methods: [
+                    'POST'
+                ],
+                regexp: /\/test\/endpoint/
+            }
+        ];
+        var revertRoutes = middleware.__set__('routes', routesStub);
         var req  = httpMocks.createRequest({
             method: 'GET',
             url: '/test/endpoint'
         });
         var res = httpMocks.createResponse();
-        res.locals = {};
-        res.locals.methods = ['POST'];
         middleware.notFoundHandler(req, res);
         sinon.assert.calledOnce(utilStub.errorResponse);
         sinon.assert.calledWith(utilStub.errorResponse, req, res, 40500);
+        revertRoutes();
         done();
     });
     it('should send a response with status code 404', function(done) {
         var req  = httpMocks.createRequest({
             method: 'GET',
-            url: '/test/endpoint'
+            url: '/invalid/endpoint'
         });
         var res = httpMocks.createResponse();
-        res.locals = {};
         middleware.notFoundHandler(req, res);
         sinon.assert.calledOnce(utilStub.errorResponse);
         sinon.assert.calledWith(utilStub.errorResponse, req, res, 40400);

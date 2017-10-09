@@ -13,7 +13,6 @@ global.baseHeaders = {
     'content-type': 'application/json',
     'x-tapps-bundle-id': 'test.bundle.id'
 };
-process.env.DATASTORE_TYPE = 'emulated';
 
 function importTest(name, path) {
     describe(name, function () {

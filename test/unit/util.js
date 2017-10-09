@@ -28,16 +28,12 @@ describe('Auxiliar functions', function() {
     it('should create a log object, merging the request and response objects', function(done) {
         var req = {
             'client': 'This should be ignored',
-            'number': 5,
-            'string': 'test',
             'headers': {
                 'x-tapps-shared-cloud-secret': 'Header should be removed',
                 'x-tapps-header': 'Should still exist'
             }
         };
         var logReq = {
-            'number': 5,
-            'string': 'test',
             'headers': {
                 'x-tapps-header': 'Should still exist'
             }
@@ -98,7 +94,7 @@ describe('Error responses', function() {
     });
     it('should generate a "Forbidden" error response', function(done) {
         var newrelicStub = {
-            addCustomParameter: sandbox.stub()
+            addCustomParameters: sandbox.stub()
         };
         var revertNewRelic = util.__set__('newrelic', newrelicStub);
         var contentTypeStub = sandbox.stub();
@@ -117,7 +113,7 @@ describe('Error responses', function() {
         var type = 40300;
         util.errorResponse(req, res, type, 'This should only be logged, but shouldn\'t exist in the response.');
         sinon.assert.calledOnce(loggerStub.info);
-        sinon.assert.called(newrelicStub.addCustomParameter);
+        sinon.assert.called(newrelicStub.addCustomParameters);
         sinon.assert.calledWith(contentTypeStub, 'application/problem+json');
         sinon.assert.calledWith(statusStub, status);
         sinon.assert.calledOnce(sendStub);
@@ -130,7 +126,7 @@ describe('Error responses', function() {
     });
     it('should generate an "Internal Error" response', function(done) {
         var newrelicStub = {
-            addCustomParameter: sandbox.stub()
+            addCustomParameters: sandbox.stub()
         };
         var revertNewRelic = util.__set__('newrelic', newrelicStub);
         var contentTypeStub = sandbox.stub();
@@ -150,7 +146,7 @@ describe('Error responses', function() {
         var detail = 'This should exist in the response.';
         util.errorResponse(req, res, type, detail);
         sinon.assert.calledOnce(loggerStub.error);
-        sinon.assert.called(newrelicStub.addCustomParameter);
+        sinon.assert.called(newrelicStub.addCustomParameters);
         sinon.assert.calledWith(contentTypeStub, 'application/problem+json');
         sinon.assert.calledWith(statusStub, status);
         sinon.assert.calledOnce(sendStub);

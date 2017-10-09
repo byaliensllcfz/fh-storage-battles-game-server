@@ -24,6 +24,7 @@ app.use(middleware.security);
 app.use('/_ah', require('./routes/health-check'));
 
 // Error Handling Middlewares
+middleware.updateValidRoutes(app);
 app.use(middleware.notFoundHandler);
 app.use(middleware.errorHandler);
 

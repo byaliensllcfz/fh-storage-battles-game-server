@@ -1,15 +1,12 @@
 'use strict';
 
 const express = require('express');
-const router  = express.Router();
+var newrelic  = require('newrelic');
 
-// Specify valid methods for the 405 handler
-router.all('/health', function (req, res, next) {
-    res.locals.methods = ['GET'];
-    next();
-});
+const router = express.Router();
 
 router.get('/health', function(req, res) {
+    newrelic.setIgnoreTransaction(true);
     res.send('OK');
 });
 
