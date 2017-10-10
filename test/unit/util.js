@@ -75,8 +75,9 @@ describe('Error responses', function() {
         };
         var res = {
             contentType: contentTypeStub,
+            locals: {},
+            send: sendStub,
             status: statusStub,
-            send: sendStub
         };
         statusStub.returns(res);
         var status = 404;
@@ -105,15 +106,14 @@ describe('Error responses', function() {
         };
         var res = {
             contentType: contentTypeStub,
+            locals: {},
+            send: sendStub,
             status: statusStub,
-            send: sendStub
         };
         statusStub.returns(res);
         var status = 403;
         var type = 40300;
         util.errorResponse(req, res, type, 'This should only be logged, but shouldn\'t exist in the response.');
-        sinon.assert.calledOnce(loggerStub.info);
-        sinon.assert.called(newrelicStub.addCustomParameters);
         sinon.assert.calledWith(contentTypeStub, 'application/problem+json');
         sinon.assert.calledWith(statusStub, status);
         sinon.assert.calledOnce(sendStub);
@@ -137,16 +137,15 @@ describe('Error responses', function() {
         };
         var res = {
             contentType: contentTypeStub,
+            locals: {},
+            send: sendStub,
             status: statusStub,
-            send: sendStub
         };
         statusStub.returns(res);
         var status = 500;
         var type = 50000;
         var detail = 'This should exist in the response.';
         util.errorResponse(req, res, type, detail);
-        sinon.assert.calledOnce(loggerStub.error);
-        sinon.assert.called(newrelicStub.addCustomParameters);
         sinon.assert.calledWith(contentTypeStub, 'application/problem+json');
         sinon.assert.calledWith(statusStub, status);
         sinon.assert.calledOnce(sendStub);
