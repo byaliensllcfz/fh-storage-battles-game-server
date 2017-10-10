@@ -15,6 +15,7 @@ app.set('trust proxy', true);
 // Middlewares
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.responseTime());
 app.use(middleware.security);
 
 // API Endpoints
