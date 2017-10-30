@@ -14,7 +14,7 @@ describe('Auxiliar functions', function() {
     it('should get the error URL', function(done) {
         var getErrorUrl = util.__get__('getErrorUrl');
         var type = 40400;
-        getErrorUrl('', type).should.be.equal('/' + config.NAME +  '/v1/errors/' + type);
+        getErrorUrl('', type).should.be.equal('/' + config.NAME + '/' + config.VERSION + '/errors/' + type);
         done();
     });
     it('should convert an error object to a regular object', function(done) {
@@ -39,7 +39,7 @@ describe('Auxiliar functions', function() {
             }
         };
         var res = {
-            'type': '/' + config.NAME + '/v1/errors/40300',
+            'type': '/' + config.NAME + '/' + config.VERSION + '/errors/40300',
             'status': 403,
             'title': 'Forbidden',
             'detail': 'Forbidden'

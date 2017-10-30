@@ -3,5 +3,6 @@
     "DATA_BACKEND": "datastore",
     "GCLOUD_PROJECT": "tp-server",
     "NAME": "service-name",
+    "VERSION": "v1",
     "PORT": 8080
 }

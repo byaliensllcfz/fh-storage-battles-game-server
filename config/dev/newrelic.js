@@ -9,9 +9,9 @@
 exports.config = {
   /**
    * Application name.
-   * 'DEV - TP ServiceName Server v1' or 'TP ServiceName Server v1'
+   * 'DEV - TP Service Name Server v1' or 'TP Service Name Server v1'
    */
-  app_name: 'DEV - TP ServiceName Server v1',
+  app_name: 'DEV - TP Service Name Server v1',
   /**
    * Your New Relic license key.
    */
