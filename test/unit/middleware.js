@@ -313,7 +313,7 @@ describe('Security', function() {
         var nextStub = sandbox.stub();
         middleware.security(req, res, nextStub);
         sinon.assert.calledOnce(utilStub.errorResponse);
-        sinon.assert.calledWith(utilStub.errorResponse, req, res, 50001);
+        sinon.assert.calledWith(utilStub.errorResponse, req, res, 50000);
         revertDatastore();
         done();
     });
