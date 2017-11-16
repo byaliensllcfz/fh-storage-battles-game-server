@@ -85,7 +85,7 @@ describe('Update Valid Routes', function() {
 
 describe('Client Authentication', function() {
     it('should allow the request because the Service Account Name header is present', function(done) {
-        var req  = httpMocks.createRequest({
+        var req = httpMocks.createRequest({
             method: 'GET',
             url: '/test/endpoint',
             headers: {
@@ -100,7 +100,7 @@ describe('Client Authentication', function() {
     });
     it('should allow the request because the Game User Id Data header is present', function(done) {
         var uid = 'uid';
-        var req  = httpMocks.createRequest({
+        var req = httpMocks.createRequest({
             method: 'GET',
             url: '/test/endpoint',
             headers: {
@@ -115,7 +115,7 @@ describe('Client Authentication', function() {
     });
     it('should allow the request because the Game User Id Data header is present and the uid is the same as the one in the URL', function(done) {
         var uid = 'uid';
-        var req  = httpMocks.createRequest({
+        var req = httpMocks.createRequest({
             method: 'GET',
             url: '/test/endpoint',
             headers: {
@@ -130,7 +130,7 @@ describe('Client Authentication', function() {
     });
     it('should fail because the uid received in the Game User Id Data header is different from the one in the URL', function(done) {
         var uid = 'uid';
-        var req  = httpMocks.createRequest({
+        var req = httpMocks.createRequest({
             method: 'GET',
             url: '/test/endpoint',
             headers: {
@@ -146,12 +146,24 @@ describe('Client Authentication', function() {
     });
     it('should fail because the Game User Id Data header is invalid', function(done) {
         var uid = 'uid';
-        var req  = httpMocks.createRequest({
+        var req = httpMocks.createRequest({
             method: 'GET',
             url: '/test/endpoint',
             headers: {
                 'x-tapps-game-user-id-data': '{invalidJson'
             }
+        });
+        var res = httpMocks.createResponse();
+        var nextStub = sandbox.stub();
+        middleware.authenticate('', req, res, nextStub);
+        sinon.assert.calledOnce(utilStub.errorResponse);
+        sinon.assert.calledWith(utilStub.errorResponse, req, res, 40300);
+        done();
+    });
+    it('should fail because the authentication headers are missing', function(done) {
+        var req = httpMocks.createResponse({
+            method: 'GET',
+            url: '/test/endpoint'
         });
         var res = httpMocks.createResponse();
         var nextStub = sandbox.stub();
