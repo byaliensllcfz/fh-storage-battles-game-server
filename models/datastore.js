@@ -1,6 +1,6 @@
 'use strict';
 
-var gcloudDatastore = require('@google-cloud/datastore');
+let gcloudDatastore = require('@google-cloud/datastore');
 const config        = require('../config');
 
 class Datastore{
@@ -79,7 +79,7 @@ class Datastore{
         Object.keys(obj).forEach((k) => {
             if (obj[k] !== undefined) {
                 if (Array.isArray(obj[k]) && nonIndexed.indexOf(k) > -1) {
-                    obj[k].forEach((field, i) => {
+                    obj[k].forEach((field) => {
                         results.push({
                             name: k,
                             value: field,
@@ -135,7 +135,7 @@ class Datastore{
      * @param {Function} params.callback
      */
     write(params) {
-        var key;
+        let key;
         if (params.id) {
             key = this.ds.key({
                 namespace: params.namespace,
@@ -203,13 +203,13 @@ class Datastore{
                 if (err) {
                     callback(err);
                 } else {
-                    var data = {};
+                    let data = {};
                     data.entities = [];
                     entities.forEach((entity) => {
                         data.entities.push(this.fromDatastore(entity));
                     });
                     // Check if  more results may exist.
-                    if (info.moreResults != gcloudDatastore.NO_MORE_RESULTS && info.endCursor != 'CgA=') {
+                    if (info.moreResults !== gcloudDatastore.NO_MORE_RESULTS && info.endCursor !== 'CgA=') {
                         data.more = info.endCursor;
                     }
                     callback(err, data);
@@ -261,8 +261,8 @@ class Datastore{
      * @param {Function} params.callback
      */
     saveEntities(params) {
-        var entity;
-        var entities = [];
+        let entity;
+        let entities = [];
         params.entities.forEach((data, i) => {
             entity = {
                 key: params.keys[i],
@@ -271,17 +271,17 @@ class Datastore{
             entities.push(entity);
             params.entities[i].id = params.keys[i].id;
         });
-        var promises = [];
-        var transactions = [];
-        var tempEntities;
-        var originalLength = entities.length;
-        for (var i = 0; i < originalLength; i+=25) {
+        let promises = [];
+        let transactions = [];
+        let tempEntities;
+        const originalLength = entities.length;
+        for (let i = 0; i < originalLength; i+=25) {
             // Get 25 entities at a time, because that's the limit of entity modifications per transaction.
             tempEntities = entities.splice(0, 25);
-            var transaction = this.ds.transaction();
+            const transaction = this.ds.transaction();
             // Store the transactions so they can be rolled back if one of them fails.
             transactions.push(transaction);
-            var promise = this.transactionRun(transaction, 'save', tempEntities);
+            const promise = this.transactionRun(transaction, 'save', tempEntities);
             promises.push(promise);
         }
         Promise.all(promises).then(values => {
@@ -307,8 +307,8 @@ class Datastore{
      * @param {Function} params.callback
      */
     writeMultiple(params) {
-        var key;
-        var keys = [];
+        let key;
+        let keys = [];
         if (params.ids) {
             params.ids.forEach(id => {
                 key = this.ds.key({
@@ -320,7 +320,7 @@ class Datastore{
             params.keys = keys;
             this.saveEntities(params);
         } else {
-            var incompleteKey = this.ds.key({
+            const incompleteKey = this.ds.key({
                 namespace: params.namespace,
                 path: [params.kind]
             });
@@ -344,8 +344,8 @@ class Datastore{
      * @param {Function} params.callback
      */
     deleteMultiple(params) {
-        var key;
-        var keys = [];
+        let key;
+        let keys = [];
         params.ids.forEach(id => {
             key = this.ds.key({
                 namespace: params.namespace,
@@ -353,17 +353,17 @@ class Datastore{
             });
             keys.push(key);
         });
-        var promises = [];
-        var transactions = [];
-        var tempKeys;
-        var originalLength = keys.length;
-        for (var i = 0; i < originalLength; i+=25) {
+        let promises = [];
+        let transactions = [];
+        let tempKeys;
+        const originalLength = keys.length;
+        for (let i = 0; i < originalLength; i+=25) {
             // Get 25 entities at a time, because that's the limit of entity modifications per transaction.
             tempKeys = keys.splice(0, 25);
-            var transaction = this.ds.transaction();
+            const transaction = this.ds.transaction();
             // Store the transactions so they can be rolled back if one of them fails.
             transactions.push(transaction);
-            var promise = this.transactionRun(transaction, 'delete', tempKeys);
+            const promise = this.transactionRun(transaction, 'delete', tempKeys);
             promises.push(promise);
         }
         Promise.all(promises).then(values => {

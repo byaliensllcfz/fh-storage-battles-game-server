@@ -1,9 +1,9 @@
 'use strict';
 
-const express = require('express');
-var newrelic  = require('newrelic');
+const express  = require('express');
+const newrelic = require('newrelic');
 
-const router = express.Router();
+const router = express.Router({mergeParams: true});
 
 router.get('/health', function(req, res) {
     newrelic.setIgnoreTransaction(true);

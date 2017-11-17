@@ -4,32 +4,32 @@
   "version": "1.0.0",
   "private": true,
   "engines": {
-    "node": ">=6.11.4"
+    "node": ">=8.9.0"
   },
   "dependencies": {
     "@google-cloud/datastore": "^1.1.0",
-    "@google-cloud/logging": "^1.0.6",
-    "@sematext/logagent": "^2.0.85",
+    "@sematext/logagent": "^2.0.87",
     "body-parser": "^1.18.2",
-    "express": "^4.16.1",
+    "express": "^4.16.2",
     "json-stringify-safe": "^5.0.1",
     "mkdirp": "^0.5.1",
-    "newrelic": "^1.40.0",
+    "newrelic": "^2.4.0",
     "request": "^2.83.0",
     "uuid": "^3.1.0",
     "winston": "^2.4.0"
   },
   "devDependencies": {
-    "chai": "^3.5.0",
+    "chai": "^4.1.2",
     "istanbul": "^0.4.5",
-    "mocha": "^2.5.3",
-    "node-mocks-http": "^1.6.5",
+    "mocha": "^4.0.1",
+    "node-mocks-http": "^1.6.6",
     "rewire": "^2.5.2",
-    "sinon": "^3.2.1",
+    "sinon": "^4.1.2",
+    "sinon-chai": "^2.14.0",
     "supertest": "^3.0.0"
   },
   "scripts": {
     "start": "logagent -c config/logagent.conf | node server.js",
-    "test": "istanbul cover _mocha -- -b -t 10000 -R spec"
+    "test": "istanbul cover _mocha -- -b -t 10000 -R spec --exit"
   }
 }

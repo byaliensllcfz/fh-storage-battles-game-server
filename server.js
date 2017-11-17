@@ -1,7 +1,7 @@
 'use strict';
 
 // The New Relic require has to be the first thing to run!
-var newrelic     = require('newrelic');
+const newrelic   = require('newrelic');
 const bodyParser = require('body-parser');
 const express    = require('express');
 

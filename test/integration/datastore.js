@@ -1,17 +1,14 @@
 'use strict';
 
 const chai   = require('chai');
-const rewire = require('rewire');
-const sinon  = require('sinon');
-const expect = chai.expect;
 const should = chai.should();
 
 const Datastore = require('../../models/datastore');
-var datastore = new Datastore();
+const datastore = new Datastore();
 
-var kind = 'TestNode';
-var namespace = 'test-node';
-var ids = [];
+const kind = 'TestNode';
+const namespace = 'test-node';
+let ids = [];
 
 function setup(done) {
     // Create some default entities that can be used in tests
@@ -50,6 +47,8 @@ function setup(done) {
             }
         ],
         callback: function (err, data) {
+            should.not.exist(err);
+            should.exist(data);
             ids = ids;
             done();
         }
@@ -58,12 +57,14 @@ function setup(done) {
 
 function teardown(done) {
     // Query and delete any entities that remained.
-    var query = datastore.createQuery(namespace, kind);
+    const query = datastore.createQuery(namespace, kind);
     datastore.runQuery(
         query,
         function(err, data) {
-            if (err) throw err;
-            var ids =[];
+            if (err) {
+                throw err;
+            }
+            let ids =[];
             data.entities.forEach((entity) => {
                 ids.push(entity.id);
             });
@@ -73,6 +74,7 @@ function teardown(done) {
                 namespace: namespace,
                 callback: function(err, data) {
                     should.not.exist(err);
+                    should.exist(data);
                     done();
                 }
             });
@@ -89,8 +91,8 @@ describe('Write', function() {
     after(function(done) {
         teardown(done);
     });
-    var date = new Date();
-    var testData = {
+    const date = new Date();
+    const testData = {
         float: 6.0,
         string: 'string',
         date: new Date(),
@@ -99,15 +101,6 @@ describe('Write', function() {
         array: ['string', date, true, 5],
         null: null,
         undefined: undefined
-    };
-    var resultData = {
-        float: 6.0,
-        string: 'string',
-        date: new Date(),
-        boolean: true,
-        int: 5,
-        array: ['string', date, true, 5],
-        null: null
     };
     it('should write an entity to datastore, using a specific id', function(done) {
         datastore.write({
@@ -144,7 +137,7 @@ describe('Write', function() {
 });
 
 describe('Read', function() {
-    var testData;
+    let testData;
     before(function(done) {
         testData = {test: 'test'};
         datastore.write({
@@ -154,6 +147,8 @@ describe('Read', function() {
             data: testData,
             excludeFromIndexes: ['test'],
             callback: function(err, data) {
+                should.not.exist(err);
+                should.exist(data);
                 done();
             }
         });
@@ -162,7 +157,7 @@ describe('Read', function() {
         teardown(done);
     });
     it('should read an entity from datastore', function(done) {
-        var id = 'test-id';
+        const id = 'test-id';
         datastore.read({
             kind: kind,
             namespace: namespace,
@@ -198,6 +193,8 @@ describe('Delete', function() {
             data: {test: 'test'},
             excludeFromIndexes: ['test'],
             callback: function(err, data) {
+                should.not.exist(err);
+                should.exist(data);
                 done();
             }
         });
@@ -232,8 +229,8 @@ describe('Write Batch', function() {
         teardown(done);
     });
     it('should write multiple entities to datastore', function(done) {
-        var localIds = ['1', '2', '3', '4'];
-        var entities = [
+        const localIds = ['1', '2', '3', '4'];
+        const entities = [
             {
                 boolean: true,
                 string: 'test'
@@ -263,7 +260,7 @@ describe('Write Batch', function() {
         });
     });
     it('should write multiple entities to datastore, automatically generating indexes for them', function(done) {
-        var entities = [
+        const entities = [
             {
                 int: 2,
                 boolean: false
@@ -288,12 +285,12 @@ describe('Write Batch', function() {
         });
     });
     it('should write more than 25 entities to datastore, requiring more than 1 transaction', function(done) {
-        var entity = {
+        const entity = {
             int: 2,
             boolean: false
         };
-        var entities = [];
-        for (var i = 0; i <= 30; i++) {
+        let entities = [];
+        for (let i = 0; i <= 30; i++) {
             entities.push(entity);
         }
         datastore.writeMultiple({
@@ -320,7 +317,7 @@ describe('Query', function() {
         teardown(done);
     });
     it('should find no entities that match the query', function(done) {
-        var query = datastore.createQuery(namespace, kind);
+        const query = datastore.createQuery(namespace, kind);
         query.filter('int', '=', 0);
         datastore.runQuery(
             query,
@@ -332,7 +329,7 @@ describe('Query', function() {
         );
     });
     it('should find one entity that matches the query with an equality filter', function(done) {
-        var query = datastore.createQuery(namespace, kind);
+        const query = datastore.createQuery(namespace, kind);
         query.filter('int', '=', 1);
         datastore.runQuery(
             query,
@@ -346,7 +343,7 @@ describe('Query', function() {
         );
     });
     it('should find multiple entities that match the query with multiple equality filters', function(done) {
-        var query = datastore.createQuery(namespace, kind);
+        const query = datastore.createQuery(namespace, kind);
         query.filter('int', '=', 2);
         query.filter('boolean', '=', true);
         datastore.runQuery(
@@ -363,7 +360,7 @@ describe('Query', function() {
         );
     });
     it('should find an entity that matches the query with an inequality filter', function(done) {
-        var query = datastore.createQuery(namespace, kind);
+        const query = datastore.createQuery(namespace, kind);
         query.filter('int', '<', 2);
         datastore.runQuery(
             query,
@@ -377,7 +374,7 @@ describe('Query', function() {
         );
     });
     it('should limit the number of entities returned by the query', function(done) {
-        var query = datastore.createQuery(namespace, kind);
+        const query = datastore.createQuery(namespace, kind);
         query.filter('int', '>', 0);
         query.limit(2);
         datastore.runQuery(
@@ -407,6 +404,7 @@ describe('Delete Batch', function() {
             namespace: namespace,
             callback: function(err, data) {
                 should.not.exist(err);
+                should.exist(data);
                 done();
             }
         });
