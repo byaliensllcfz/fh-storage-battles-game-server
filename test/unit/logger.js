@@ -29,7 +29,7 @@ beforeEach(function() {
 
 it('should log information', function(done) {
     let log = 'Test Info';
-     logger.__get__('infoTransport').on('logged', function(info) {
+    logger.__get__('infoTransport').on('logged', function(info) {
         fs.readFile(
             '/var/log/app_engine/custom_logs/app-' + config.NAME + '-info.json',
             'utf8',

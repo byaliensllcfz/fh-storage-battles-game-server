@@ -172,31 +172,19 @@ describe('Error responses', function() {
         revertNewRelic();
         done();
     });
-    it('should use the default title for the error status, since the error type is not defined', function(done) {
-        let contentTypeStub = sandbox.stub();
-        let statusStub = sandbox.stub();
-        let sendStub = sandbox.stub();
+    it('should fail because there is no title defined for that error type', function(done) {
+        let revertConfig = util.__set__('config', {'ENV': 'dev'});
         let req = {
             test: 'test'
         };
-        let res = {
-            contentType: contentTypeStub,
-            locals: {},
-            send: sendStub,
-            status: statusStub,
-        };
-        statusStub.returns(res);
-        let status = 404;
+        let res = {};
         let type = 40499;
         let detail = 'Endpoint not found.';
-        util.errorResponse(req, res, type, detail);
-        sinon.assert.calledWith(contentTypeStub, 'application/problem+json');
-        sinon.assert.calledWith(statusStub, status);
-        sinon.assert.calledOnce(sendStub);
-        let response = JSON.parse(sendStub.getCall(0).args[0]);
-        response.detail.should.be.equal(detail);
-        response.title.should.be.equal('Not Found');
-        response.status.should.be.equal(status);
+        let errorFunction = function() {
+            util.errorResponse(req, res, type, detail);
+        };
+        errorFunction.should.throw();
+        revertConfig();
         done();
     });
 });

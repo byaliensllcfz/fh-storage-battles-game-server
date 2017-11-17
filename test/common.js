@@ -1,7 +1,9 @@
 'use strict';
 
 function errorChecks(err, res){
-    if (err) { throw err; }
+    if (err) {
+        throw err;
+    }
     res.body.should.have.property('type');
     res.body.should.have.property('status');
     res.body.should.have.property('title');

@@ -61,7 +61,9 @@ function teardown(done) {
     datastore.runQuery(
         query,
         function(err, data) {
-            if (err) { throw err; }
+            if (err) {
+                throw err;
+            }
             let ids =[];
             data.entities.forEach((entity) => {
                 ids.push(entity.id);

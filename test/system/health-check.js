@@ -19,7 +19,9 @@ it('should get an OK response', function(done) {
         .get('/_ah/health')
         .expect('Content-Type', 'text/html; charset=utf-8')
         .expect(200, function(err, res) {
-            if (err) { throw err; }
+            if (err) {
+                throw err;
+            }
             res.text.should.eql('OK');
             done();
         });

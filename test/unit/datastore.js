@@ -5,11 +5,11 @@ const rewire = require('rewire');
 const sinon  = require('sinon');
 const should = chai.should();
 
-var gcloudDatastore = require('@google-cloud/datastore');
-var Datastore       = rewire('../../models/datastore');
+const gcloudDatastore = require('@google-cloud/datastore');
+const Datastore       = rewire('../../models/datastore');
 
-var sandbox, datastore;
-var gcloudDatastoreStub, revertGcloudDatastore;
+let sandbox, datastore;
+let gcloudDatastoreStub, revertGcloudDatastore;
 beforeEach(function () {
     sandbox = sinon.sandbox.create();
 });
@@ -22,7 +22,7 @@ const namespace = 'test-node';
 
 describe('Class Instantiation', function() {
     it('should create a new datastore instance', function(done) {
-        var dsStub = {
+        const dsStub = {
             key: sandbox.stub().returns('key'),
             get: '',
             save: '',
@@ -50,15 +50,15 @@ describe('Class Instantiation', function() {
 
 describe('Get ID', function() {
     it('should not convert the string because it does not represent an integer', function(done) {
-        var number = 'not number';
-        var result = datastore.getId(number);
+        const number = 'not number';
+        const result = datastore.getId(number);
         result.should.be.a('string');
         result.should.be.equal(number);
         done();
     });
     it('should convert the integer string to a datastore integer', function(done) {
-        var number = '12345';
-        var result = datastore.getId(number);
+        const number = '12345';
+        const result = datastore.getId(number);
         result.should.be.a('object');
         result.value.should.be.equal(number);
         done();
@@ -67,8 +67,8 @@ describe('Get ID', function() {
 
 describe('Read', function() {
     it('should fail to read from datastore', function(done) {
-        var key = 'key';
-        var dsStub = {
+        const key = 'key';
+        const dsStub = {
             key: sandbox.stub().returns(key),
             get: sandbox.stub().callsFake(function (receivedKey, callback) {
                 receivedKey.should.be.equal(key);
@@ -89,8 +89,8 @@ describe('Read', function() {
         });
     });
     it('should fail because there is no entity with the given id', function(done) {
-        var key = 'key';
-        var dsStub = {
+        const key = 'key';
+        const dsStub = {
             key: sandbox.stub().returns(key),
             get: sandbox.stub().callsFake(function (receivedKey, callback) {
                 receivedKey.should.be.equal(key);
@@ -112,8 +112,8 @@ describe('Read', function() {
         });
     });
     it('should read an entity from datastore', function(done) {
-        var id = 'test-id';
-        var resultData = {
+        const id = 'test-id';
+        const resultData = {
             float: 6.0,
             string: 'string',
             boolean: true,
@@ -121,12 +121,12 @@ describe('Read', function() {
             array: ['string', true, 5],
             null: null
         };
-        var key = 'key';
-        var dsStub = {
+        const key = 'key';
+        const dsStub = {
             key: sandbox.stub().returns(key),
             get: sandbox.stub().callsFake(function (receivedKey, callback) {
                 receivedKey.should.be.equal(key);
-                var result = JSON.parse(JSON.stringify(resultData));
+                const result = JSON.parse(JSON.stringify(resultData));
                 result[gcloudDatastore.KEY] = {};
                 result[gcloudDatastore.KEY].name = id;
                 callback(null, result);
@@ -151,8 +151,8 @@ describe('Read', function() {
 });
 
 describe('Write', function() {
-    var date = new Date();
-    var testData = {
+    const date = new Date();
+    const testData = {
         float: 6.0,
         string: 'string',
         date: new Date(),
@@ -162,7 +162,7 @@ describe('Write', function() {
         null: null,
         undefined: undefined
     };
-    var resultData = {
+    const resultData = {
         float: 6.0,
         string: 'string',
         date: new Date(),
@@ -172,8 +172,8 @@ describe('Write', function() {
         null: null
     };
     it('should fail to write an entity', function(done) {
-        var key = 'key';
-        var dsStub = {
+        const key = 'key';
+        const dsStub = {
             key: sandbox.stub().returns(key),
             save: sandbox.stub().callsFake(function (entity, callback) {
                 entity.key.should.be.equal(key);
@@ -196,8 +196,8 @@ describe('Write', function() {
         });
     });
     it('should write an entity to datastore, using a specific id', function(done) {
-        var key = 'key';
-        var dsStub = {
+        const key = 'key';
+        const dsStub = {
             key: sandbox.stub().returns(key),
             save: sandbox.stub().callsFake(function (entity, callback) {
                 entity.key.should.be.equal(key);
@@ -222,13 +222,13 @@ describe('Write', function() {
         });
     });
     it('should write an entity to datastore, generating an id for it', function(done) {
-        var key = 'key';
-        var dsStub = {
+        const key = 'key';
+        const dsStub = {
             key: sandbox.stub().returns(key),
             save: sandbox.stub().callsFake(function (entity, callback) {
                 entity.key.should.be.equal(key);
                 entity.data.should.be.a('array');
-                var result = JSON.parse(JSON.stringify(resultData));
+                const result = JSON.parse(JSON.stringify(resultData));
                 result.mutationResults = [{key: {path: [{id: '5'}]}}];
                 callback(null, result);
             })
@@ -254,8 +254,8 @@ describe('Write', function() {
 
 describe('Delete', function() {
     it('should fail to delete an entity', function(done) {
-        var key = 'key';
-        var dsStub = {
+        const key = 'key';
+        const dsStub = {
             key: sandbox.stub().returns(key),
             delete: sandbox.stub().callsFake(function (receivedKey, callback) {
                 receivedKey.should.be.equal(key);
@@ -276,8 +276,8 @@ describe('Delete', function() {
         });
     });
     it('should delete an entity', function(done) {
-        var key = 'key';
-        var dsStub = {
+        const key = 'key';
+        const dsStub = {
             key: sandbox.stub().returns(key),
             delete: sandbox.stub().callsFake(function (receivedKey, callback) {
                 receivedKey.should.be.equal(key);
@@ -301,15 +301,15 @@ describe('Delete', function() {
 
 describe('Query', function() {
     it('should fail to query entiteis', function(done) {
-        var queryStub;
-        var dsStub = {
+        let queryStub;
+        const dsStub = {
             createQuery: sandbox.stub().returns(queryStub),
             runQuery: sandbox.stub().callsFake(function (query, callback) {
                 callback(new Error());
             })
         };
         datastore.ds = dsStub;
-        var query = datastore.createQuery(namespace, kind);
+        const query = datastore.createQuery(namespace, kind);
         datastore.runQuery(
             query,
             function(err, data) {
@@ -321,8 +321,8 @@ describe('Query', function() {
         );
     });
     it('should fail to query entiteis', function(done) {
-        var id = 'test-id';
-        var entities = [
+        const id = 'test-id';
+        const entities = [
             {
                 float: 6.0,
             },
@@ -342,22 +342,22 @@ describe('Query', function() {
                 null: null
             },
         ];
-        var queryStub;
-        var dsStub = {
+        let queryStub;
+        const dsStub = {
             createQuery: sandbox.stub().returns(queryStub),
             runQuery: sandbox.stub().callsFake(function (query, callback) {
-                var newEntities = [];
+                let newEntities = [];
                 entities.forEach((entity) => {
                     entity[gcloudDatastore.KEY] = {};
                     entity[gcloudDatastore.KEY].name = id;
                     newEntities.push(entity);
                 });
-                var info = {};
+                let info = {};
                 callback(null, newEntities, info);
             })
         };
         datastore.ds = dsStub;
-        var query = datastore.createQuery(namespace, kind);
+        const query = datastore.createQuery(namespace, kind);
         datastore.runQuery(
             query,
             function(err, data) {
@@ -373,7 +373,7 @@ describe('Query', function() {
 
 describe('Run Transaction', function() {
     it('should fail to run the transaction', function(done) {
-        var transactionStub = {
+        const transactionStub = {
             run: sandbox.stub().callsFake(function(callback) {
                 callback(new Error());
             }),
@@ -392,7 +392,7 @@ describe('Run Transaction', function() {
             });
     });
     it('should fail because the operation is invalid', function(done) {
-        var transactionStub = {
+        const transactionStub = {
             run: sandbox.stub().callsFake(function(callback) {
                 callback();
             }),
@@ -411,7 +411,7 @@ describe('Run Transaction', function() {
             });
     });
     it('should fail to commit the transaction', function(done) {
-        var testEntities = [
+        const testEntities = [
             {
                 float: 6.0,
             },
@@ -419,7 +419,7 @@ describe('Run Transaction', function() {
                 string: 'string',
             }
         ];
-        var transactionStub = {
+        const transactionStub = {
             run: sandbox.stub().callsFake(function(callback) {
                 callback();
             }),
@@ -443,7 +443,7 @@ describe('Run Transaction', function() {
             });
     });
     it('should successfully run a save transaction', function(done) {
-        var testEntities = [
+        const testEntities = [
             {
                 float: 6.0,
             },
@@ -451,7 +451,7 @@ describe('Run Transaction', function() {
                 string: 'string',
             }
         ];
-        var transactionStub = {
+        const transactionStub = {
             run: sandbox.stub().callsFake(function(callback) {
                 callback();
             }),
@@ -475,7 +475,7 @@ describe('Run Transaction', function() {
             });
     });
     it('should successfully run a delete transaction', function(done) {
-        var testEntities = [
+        const testEntities = [
             {
                 float: 6.0,
             },
@@ -483,7 +483,7 @@ describe('Run Transaction', function() {
                 string: 'string',
             }
         ];
-        var transactionStub = {
+        const transactionStub = {
             run: sandbox.stub().callsFake(function(callback) {
                 callback();
             }),
@@ -510,8 +510,8 @@ describe('Run Transaction', function() {
 
 describe('Save Entities', function() {
     it('should fail to save entities', function(done) {
-        var keys = [{id: 1}, {id: 2}, {id: 3}, {id: 4}, {id: 5}, {id: 6}];
-        var entities = [
+        const keys = [{id: 1}, {id: 2}, {id: 3}, {id: 4}, {id: 5}, {id: 6}];
+        const entities = [
             {
                 float: 6.0,
             },
@@ -531,8 +531,8 @@ describe('Save Entities', function() {
                 null: null
             }
         ];
-        var rollbackStub = sandbox.stub();
-        var dsStub = {
+        const rollbackStub = sandbox.stub();
+        const dsStub = {
             transaction: sandbox.stub().returns(
                     {rollback: rollbackStub}
                 )
@@ -555,8 +555,8 @@ describe('Save Entities', function() {
         });
     });
     it('should successfully save entities', function(done) {
-        var keys = [{id: 1}, {id: 2}, {id: 3}, {id: 4}, {id: 5}, {id: 6}];
-        var entities = [
+        const keys = [{id: 1}, {id: 2}, {id: 3}, {id: 4}, {id: 5}, {id: 6}];
+        const entities = [
             {
                 float: 6.0,
             },
@@ -576,8 +576,8 @@ describe('Save Entities', function() {
                 null: null
             }
         ];
-        var rollbackStub = sandbox.stub();
-        var dsStub = {
+        const rollbackStub = sandbox.stub();
+        const dsStub = {
             transaction: sandbox.stub().returns(
                     {rollback: rollbackStub}
                 )
@@ -603,9 +603,9 @@ describe('Save Entities', function() {
 
 describe('Write Multiple', function() {
     it('should write multiple entities to datastore', function(done) {
-        var key = 'key';
-        var localIds = ['1', '2', '3', '4'];
-        var entities = [
+        const key = 'key';
+        const localIds = ['1', '2', '3', '4'];
+        const entities = [
             {
                 boolean: true,
                 string: 'test'
@@ -621,7 +621,7 @@ describe('Write Multiple', function() {
                 boolean: true
             }
         ];
-        var dsStub = {
+        const dsStub = {
             key: sandbox.stub().returns(key)
         };
         datastore.ds = dsStub;
@@ -652,8 +652,8 @@ describe('Write Multiple', function() {
         });
     });
     it('should fail to allocate IDs for the entities', function(done) {
-        var key = 'key';
-        var entities = [
+        const key = 'key';
+        const entities = [
             {
                 int: 2,
                 boolean: false
@@ -663,7 +663,7 @@ describe('Write Multiple', function() {
                 int: 5
             }
         ];
-        var dsStub = {
+        const dsStub = {
             key: sandbox.stub().returns(key),
             allocateIds: sandbox.stub().callsFake(function(incompleteKey, length) {
                 return new Promise((resolve, reject) => {
@@ -694,9 +694,9 @@ describe('Write Multiple', function() {
         });
     });
     it('should write multiple entities to datastore, automatically generating indexes for them', function(done) {
-        var key = 'key';
-        var localIds = ['1', '2', '3', '4'];
-        var entities = [
+        const key = 'key';
+        const localIds = ['1', '2', '3', '4'];
+        const entities = [
             {
                 int: 2,
                 boolean: false
@@ -706,7 +706,7 @@ describe('Write Multiple', function() {
                 int: 5
             }
         ];
-        var dsStub = {
+        const dsStub = {
             key: sandbox.stub().returns(key),
             allocateIds: sandbox.stub().callsFake(function(incompleteKey, length) {
                 return new Promise((resolve, reject) => {
@@ -732,10 +732,10 @@ describe('Write Multiple', function() {
 
 describe('Delete Multiple', function() {
     it('should fail to delete entities', function(done) {
-        var key = 'key';
-        var ids = [1, 2, 3, 4, 5, 6];
-        var rollbackStub = sandbox.stub();
-        var dsStub = {
+        const key = 'key';
+        const ids = [1, 2, 3, 4, 5, 6];
+        const rollbackStub = sandbox.stub();
+        const dsStub = {
             key: sandbox.stub().returns(key),
             transaction: sandbox.stub().returns(
                     {rollback: rollbackStub}
@@ -760,10 +760,10 @@ describe('Delete Multiple', function() {
         });
     });
     it('should successfully delete entities', function(done) {
-        var key = 'key';
-        var ids = [1, 2, 3, 4, 5, 6];
-        var rollbackStub = sandbox.stub();
-        var dsStub = {
+        const key = 'key';
+        const ids = [1, 2, 3, 4, 5, 6];
+        const rollbackStub = sandbox.stub();
+        const dsStub = {
             key: sandbox.stub().returns(key),
             transaction: sandbox.stub().returns(
                     {rollback: rollbackStub}
