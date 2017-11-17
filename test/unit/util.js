@@ -1,12 +1,8 @@
 'use strict';
 
-const chai      = require('chai');
-const fs        = require('fs');
 const httpMocks = require('node-mocks-http');
 const rewire    = require('rewire');
 const sinon     = require('sinon');
-const expect    = chai.expect;
-const should    = chai.should();
 
 const config = require('../../config');
 let util     = rewire('../../lib/util');

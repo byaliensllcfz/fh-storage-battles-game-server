@@ -5,9 +5,7 @@ const httpMocks = require('node-mocks-http');
 const rewire    = require('rewire');
 const sinon     = require('sinon');
 const expect    = chai.expect;
-const should    = chai.should();
 
-const config     = require('../../config');
 const middleware = rewire('../../lib/middleware');
 
 var sandbox;
@@ -71,7 +69,7 @@ describe('Update Valid Routes', function() {
         var resultRoutes = [
             {
                 methods: [
-                    "GET"
+                    'GET'
                 ],
                 regexp: /\/test\/endpoint/
             }
@@ -145,7 +143,6 @@ describe('Client Authentication', function() {
         done();
     });
     it('should fail because the Game User Id Data header is invalid', function(done) {
-        var uid = 'uid';
         var req = httpMocks.createRequest({
             method: 'GET',
             url: '/test/endpoint',
@@ -192,10 +189,6 @@ describe('Error Handler', function() {
         done();
     });
     it('should send a response with status code 500', function(done) {
-        var newrelicStub = {
-            addCustomParameters: sandbox.stub()
-        };
-        var revertNewRelic = middleware.__set__('newrelic', newrelicStub);
         var req  = httpMocks.createRequest({
             method: 'GET',
             url: '/test/endpoint'
@@ -208,7 +201,6 @@ describe('Error Handler', function() {
         middleware.errorHandler(err, req, res, nextStub);
         sinon.assert.calledOnce(utilStub.errorResponse);
         sinon.assert.calledWith(utilStub.errorResponse, req, res, 50000);
-        revertNewRelic();
         done();
     });
 });

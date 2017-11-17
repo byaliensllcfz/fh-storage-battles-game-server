@@ -1,12 +1,7 @@
 'use strict';
 
-const chai    = require('chai');
-const fs      = require('fs');
-const request = require('supertest');
-const expect  = chai.expect;
-const should  = chai.should();
+const fs = require('fs');
 
-const common = require('./common');
 const config = require('../config');
 
 global.baseHeaders = {
@@ -36,7 +31,7 @@ describe('Service Name Tests', function () {
         before(function(done) {
             // Read the Shared Cloud Secret from Datastore
             const Datastore = require('../models/datastore');
-            var datastore = new Datastore();
+            const datastore = new Datastore();
             datastore.read({
                 'id': 'latest',
                 'kind': 'SharedCloudSecret',
@@ -56,7 +51,7 @@ describe('Service Name Tests', function () {
                                 'key': key
                             },
                             'callback': function(err, data) {
-                                if (err) throw err;
+                                if (err) { throw err; }
                                 global.baseHeaders['x-tapps-shared-cloud-secret'] = key;
                                 done();
                             }

@@ -3,10 +3,8 @@
 const chai   = require('chai');
 const rewire = require('rewire');
 const sinon  = require('sinon');
-const expect = chai.expect;
 const should = chai.should();
 
-const config        = require('../../config');
 var gcloudDatastore = require('@google-cloud/datastore');
 var Datastore       = rewire('../../models/datastore');
 

@@ -1,9 +1,6 @@
 'use strict';
 
-const chai    = require('chai');
 const request = require('supertest');
-const expect  = chai.expect;
-const should  = chai.should();
 
 const common = require('../common');
 const server = require('../../server');
@@ -22,7 +19,7 @@ it('should get an OK response', function(done) {
         .get('/_ah/health')
         .expect('Content-Type', 'text/html; charset=utf-8')
         .expect(200, function(err, res) {
-            if (err) throw err;
+            if (err) { throw err; }
             res.text.should.eql('OK');
             done();
         });
