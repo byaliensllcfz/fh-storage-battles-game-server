@@ -1,10 +1,12 @@
 'use strict';
 
-const chai      = require('chai');
-const httpMocks = require('node-mocks-http');
-const rewire    = require('rewire');
-const sinon     = require('sinon');
-const expect    = chai.expect;
+const chai             = require('chai');
+const httpMocks        = require('node-mocks-http');
+const rewire           = require('rewire');
+const sinon            = require('sinon');
+const sinonStubPromise = require('sinon-stub-promise');
+const expect           = chai.expect;
+sinonStubPromise(sinon);
 
 const middleware = rewire('../../lib/middleware');
 
@@ -15,7 +17,8 @@ beforeEach(function () {
     sandbox = sinon.sandbox.create();
     utilStub = {
         errorResponse: sandbox.stub(),
-        mergeResponse: sandbox.stub()
+        logTransaction: sandbox.stub(),
+        mergeResponse: sandbox.stub(),
     };
     loggerStub = {
         error: sandbox.stub(),
@@ -240,7 +243,46 @@ describe('Not Found Handler', function() {
     });
 });
 
+describe('Response Time', function() {
+    it('should not log the response since it is a health check', function(done) {
+        const req  = httpMocks.createRequest({
+            method: 'GET',
+            url: '/_ah/health'
+        });
+        const res = httpMocks.createResponse({
+            eventEmitter: require('events').EventEmitter
+        });
+        const nextStub = sandbox.stub();
+        middleware.responseTime(req, res, nextStub);
+        sinon.assert.calledOnce(nextStub);
+        res.send('OK');
+        done();
+    });
+    it('should log the response', function(done) {
+        const req  = httpMocks.createRequest({
+            method: 'GET',
+            url: '/test'
+        });
+        const res = httpMocks.createResponse({
+            eventEmitter: require('events').EventEmitter
+        });
+        const nextStub = sandbox.stub();
+        middleware.responseTime(req, res, nextStub);
+        sinon.assert.calledOnce(nextStub);
+        res.send('OK');
+        sinon.assert.calledOnce(utilStub.logTransaction);
+        done();
+    });
+});
+
 describe('Security', function() {
+    let datastoreStub;
+    before(function (done) {
+        datastoreStub = {
+            read: sinon.stub().returnsPromise()
+        };
+        done();
+    });
     it('should bypass the security verifications in order to reach the Health Check endpoint', function(done) {
         const req  = httpMocks.createRequest({
             method: 'GET',
@@ -308,11 +350,7 @@ describe('Security', function() {
             }
         });
         const res = httpMocks.createResponse();
-        const datastoreStub = {
-            read: function(params) {
-                params.callback(true);
-            }
-        };
+        datastoreStub.read.rejects(new Error('Not found'));
         const revertDatastore = middleware.__set__('datastore', datastoreStub);
         const nextStub = sandbox.stub();
         middleware.security(req, res, nextStub);
@@ -331,16 +369,7 @@ describe('Security', function() {
             }
         });
         const res = httpMocks.createResponse();
-        const datastoreStub = {
-            read: function(params) {
-                params.callback(
-                    false,
-                    {
-                        key: sharedCloudSecret
-                    }
-                );
-            }
-        };
+        datastoreStub.read.resolves({ key: sharedCloudSecret });
         const revertDatastore = middleware.__set__('datastore', datastoreStub);
         const revertCurrentKey = middleware.__set__('currentKey', '');
         const revertPreviousKey = middleware.__set__('previousKey', '');
@@ -362,16 +391,7 @@ describe('Security', function() {
             }
         });
         const res = httpMocks.createResponse();
-        const datastoreStub = {
-            read: function(params) {
-                params.callback(
-                    false,
-                    {
-                        key: 'wrong-key'
-                    }
-                );
-            }
-        };
+        datastoreStub.read.resolves({ key: 'wrong-key' });
         const revertDatastore = middleware.__set__('datastore', datastoreStub);
         const revertCurrentKey = middleware.__set__('currentKey', '');
         const revertPreviousKey = middleware.__set__('previousKey', '');
@@ -394,16 +414,7 @@ describe('Security', function() {
             }
         });
         const res = httpMocks.createResponse();
-        const datastoreStub = {
-            read: function(params) {
-                params.callback(
-                    false,
-                    {
-                        key: 'wrong-key'
-                    }
-                );
-            }
-        };
+        datastoreStub.read.resolves({ key: 'wrong-key' });
         const revertDatastore = middleware.__set__('datastore', datastoreStub);
         const revertCurrentKey = middleware.__set__('currentKey', 'wrong-key');
         const revertPreviousKey = middleware.__set__('previousKey', '');
