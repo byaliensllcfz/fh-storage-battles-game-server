@@ -59,24 +59,24 @@ function teardown(done) {
     // Query and delete any entities that remained.
     const query = datastore.createQuery(namespace, kind);
     datastore.runQuery(query)
-    .then((data) => {
-        let ids =[];
-        data.entities.forEach((entity) => {
-            ids.push(entity.id);
+        .then((data) => {
+            let ids =[];
+            data.entities.forEach((entity) => {
+                ids.push(entity.id);
+            });
+            datastore.deleteMultiple({
+                ids: ids,
+                kind: kind,
+                namespace: namespace
+            }).then(function (data) {
+                should.exist(data);
+                    done();
+            }).catch(function (error) {
+                throw error;
+            });
+        }).catch((err) => {
+            throw err;
         });
-        datastore.deleteMultiple({
-            ids: ids,
-            kind: kind,
-            namespace: namespace
-        }).then(function (data) {
-            should.exist(data);
-                done();
-        }).catch(function (error) {
-            throw error;
-        });
-    }).catch((err) => {
-        throw err;
-    });
 }
 
 before(function(done) {
@@ -318,68 +318,68 @@ describe('Query', function() {
         const query = datastore.createQuery(namespace, kind);
         query.filter('int', '=', 0);
         datastore.runQuery(query)
-        .then(function (data) {
-            data.should.be.deep.equal({ entities: [] });
-            done();
-        }).catch(function (error) {
-            throw error;
-        });
+            .then(function (data) {
+                data.should.be.deep.equal({ entities: [] });
+                done();
+            }).catch(function (error) {
+                throw error;
+            });
     });
     it('should find one entity that matches the query with an equality filter', function(done) {
         const query = datastore.createQuery(namespace, kind);
         query.filter('int', '=', 1);
         datastore.runQuery(query)
-        .then(function (data) {
-            data.should.be.a('object');
-            data.entities.should.be.a('array');
-            data.entities.length.should.be.equal(1);
-            done();
-        }).catch(function (error) {
-            throw error;
-        });
+            .then(function (data) {
+                data.should.be.a('object');
+                data.entities.should.be.a('array');
+                data.entities.length.should.be.equal(1);
+                done();
+            }).catch(function (error) {
+                throw error;
+            });
     });
     it('should find multiple entities that match the query with multiple equality filters', function(done) {
         const query = datastore.createQuery(namespace, kind);
         query.filter('int', '=', 2);
         query.filter('boolean', '=', true);
         datastore.runQuery(query)
-        .then(function (data) {
-            data.should.be.a('object');
-            data.entities.should.be.a('array');
-            data.entities.length.should.be.equal(2);
-            data.entities[0].int.should.be.equal(2);
-            data.entities[0].boolean.should.be.equal(true);
-            done();
-        }).catch(function (error) {
-            throw error;
-        });
+            .then(function (data) {
+                data.should.be.a('object');
+                data.entities.should.be.a('array');
+                data.entities.length.should.be.equal(2);
+                data.entities[0].int.should.be.equal(2);
+                data.entities[0].boolean.should.be.equal(true);
+                done();
+            }).catch(function (error) {
+                throw error;
+            });
     });
     it('should find an entity that matches the query with an inequality filter', function(done) {
         const query = datastore.createQuery(namespace, kind);
         query.filter('int', '<', 2);
         datastore.runQuery(query)
-        .then(function (data) {
-            data.should.be.a('object');
-            data.entities.should.be.a('array');
-            data.entities.length.should.be.equal(1);
-            done();
-        }).catch(function (error) {
-            throw error;
-        });
+            .then(function (data) {
+                data.should.be.a('object');
+                data.entities.should.be.a('array');
+                data.entities.length.should.be.equal(1);
+                done();
+            }).catch(function (error) {
+                throw error;
+            });
     });
     it('should limit the number of entities returned by the query', function(done) {
         const query = datastore.createQuery(namespace, kind);
         query.filter('int', '>', 0);
         query.limit(2);
         datastore.runQuery(query)
-        .then(function (data) {
-            data.should.be.a('object');
-            data.entities.should.be.a('array');
-            data.entities.length.should.be.equal(2);
-            done();
-        }).catch(function (error) {
-            throw error;
-        });
+            .then(function (data) {
+                data.should.be.a('object');
+                data.entities.should.be.a('array');
+                data.entities.length.should.be.equal(2);
+                done();
+            }).catch(function (error) {
+                throw error;
+            });
     });
 });
 
