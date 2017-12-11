@@ -22,8 +22,8 @@ class Datastore{
     /**
      * Converts strings that represent integers to "Number" type.
      * This is necessary because Datastore always returns entity IDs as strings, even when they are actually numbers.
-     * @param  {(number|string)} id Datastore entity ID.
-     * @return {(number|string)}    Entity ID converted to number if it's a positive integer.
+     * @param   {(number|string)} id Datastore entity ID.
+     * @returns {(number|string)}    Entity ID converted to number if it's a positive integer.
      */
     getId(id) {
         return /^\d+$/.test(id) ? gcloudDatastore.int(id) : id;
@@ -99,11 +99,11 @@ class Datastore{
 
     /**
      * Read an entity from datastore.
-     * @param  {Object}  params
-     * @param  {String}  params.id        ID of the entity.
-     * @param  {String}  params.kind      Entity kind.
-     * @param  {String}  params.namespace Entity namespace.
-     * @return {Promise}                  Promise that will be resolved or rejected depending on the operation result.
+     * @param   {Object}  params
+     * @param   {String}  params.id        ID of the entity.
+     * @param   {String}  params.kind      Entity kind.
+     * @param   {String}  params.namespace Entity namespace.
+     * @returns {Promise}                  Promise that will be resolved or rejected depending on the operation result.
      */
     read(params) {
         const key = this.ds.key({
@@ -126,13 +126,13 @@ class Datastore{
 
     /**
      * Save an entity to datastore.
-     * @param  {Object}  params
-     * @param  {String}  [params.id]                 ID of the entity. If not provided will be automatically generated.
-     * @param  {String}  params.kind                 Entity kind.
-     * @param  {String}  params.namespace            Entity namespace.
-     * @param  {Object}  params.data                 Entity data.
-     * @param  {Array}   [params.excludeFromIndexes] Optional array of properties that should not be indexed.
-     * @return {Promise}                             Promise that will be resolved or rejected depending on the operation result.
+     * @param   {Object}  params
+     * @param   {String}  [params.id]                 ID of the entity. If not provided will be automatically generated.
+     * @param   {String}  params.kind                 Entity kind.
+     * @param   {String}  params.namespace            Entity namespace.
+     * @param   {Object}  params.data                 Entity data.
+     * @param   {Array}   [params.excludeFromIndexes] Optional array of properties that should not be indexed.
+     * @returns {Promise}                             Promise that will be resolved or rejected depending on the operation result.
      */
     write(params) {
         let key;
@@ -170,11 +170,11 @@ class Datastore{
 
     /**
      * Delete an entity from datastore.
-     * @param  {Object}  params
-     * @param  {String}  params.id        ID of the entity.
-     * @param  {String}  params.kind      Entity kind.
-     * @param  {String}  params.namespace Entity namespace.
-     * @return {Promise}                  Promise that will be resolved or rejected depending on the operation result.
+     * @param   {Object}  params
+     * @param   {String}  params.id        ID of the entity.
+     * @param   {String}  params.kind      Entity kind.
+     * @param   {String}  params.namespace Entity namespace.
+     * @returns {Promise}                  Promise that will be resolved or rejected depending on the operation result.
      */
     del(params) {
         const key = this.ds.key({
@@ -205,8 +205,8 @@ class Datastore{
 
     /**
      * Run a Datastore query and returns a promise.
-     * @param  {Object}  query Datastore query to be run.
-     * @return {Promise}       Promise that will be resolved or rejected depending on the operation result.
+     * @param   {Object}  query Datastore query to be run.
+     * @returns {Promise}       Promise that will be resolved or rejected depending on the operation result.
      */
     runQuery(query) {
         return new Promise((resolve, reject) => {
@@ -234,9 +234,9 @@ class Datastore{
 
     /**
      * Converts Datastore.transaction.run to a promise, so multiple transactions can be run simultaneously.
-     * @param  {Object}  transaction Datastore transaction.
-     * @param  {Array}   entities Array of entities to be saved.
-     * @return {Promise}          Promise that will be resolved or rejected depending on the transaction result.
+     * @param   {Object}  transaction Datastore transaction.
+     * @param   {Array}   entities Array of entities to be saved.
+     * @returns {Promise}          Promise that will be resolved or rejected depending on the transaction result.
      */
     transactionRun(transaction, operation, entities) {
         return new Promise((resolve, reject) => {
@@ -267,12 +267,12 @@ class Datastore{
     }
 
     /**
-     * @param  {Object}  transaction               Datastore transaction.
-     * @param  {Object}  params
-     * @param  {Array}   params.keys               Array of datastore keys.
-     * @param  {Array}   params.entities           Array of entity data to be stored.
-     * @param  {Array}   params.excludeFromIndexes Array of properties that should not be indexed.
-     * @return {Promise}                           Promise that will be resolved or rejected depending on the operation result.
+     * @param   {Object}  transaction               Datastore transaction.
+     * @param   {Object}  params
+     * @param   {Array}   params.keys               Array of datastore keys.
+     * @param   {Array}   params.entities           Array of entity data to be stored.
+     * @param   {Array}   params.excludeFromIndexes Array of properties that should not be indexed.
+     * @returns {Promise}                           Promise that will be resolved or rejected depending on the operation result.
      */
     saveEntities(params) {
         let entity;
@@ -312,13 +312,13 @@ class Datastore{
 
     /**
      * Save multiple entities to datastore using a single transaction.
-     * @param  {Object}  params
-     * @param  {Array}   [params.ids]                Optional array of entity IDs.
-     * @param  {String}  params.kind                 Entities kind.
-     * @param  {String}  params.namespace            Entities namespace.
-     * @param  {Array}   params.entities             Array of entity data to be stored.
-     * @param  {Array}   [params.excludeFromIndexes] Optional array of properties that should not be indexed.
-     * @return {Promise}                             Promise that will be resolved or rejected depending on the operation result.
+     * @param   {Object}  params
+     * @param   {Array}   [params.ids]                Optional array of entity IDs.
+     * @param   {String}  params.kind                 Entities kind.
+     * @param   {String}  params.namespace            Entities namespace.
+     * @param   {Array}   params.entities             Array of entity data to be stored.
+     * @param   {Array}   [params.excludeFromIndexes] Optional array of properties that should not be indexed.
+     * @returns {Promise}                             Promise that will be resolved or rejected depending on the operation result.
      */
     writeMultiple(params) {
         let key;
@@ -365,11 +365,11 @@ class Datastore{
 
     /**
      * Delete multiple entities from datastore using a single transaction.
-     * @param {Object}   params
-     * @param {Array}    params.ids       Array of entity IDs.
-     * @param {String}   params.kind      Entities kind.
-     * @param {String}   params.namespace Entities namespace.
-     * @return {Promise}                  Promise that will be resolved or rejected depending on the operation result.
+     * @param   {Object}   params
+     * @param   {Array}    params.ids       Array of entity IDs.
+     * @param   {String}   params.kind      Entities kind.
+     * @param   {String}   params.namespace Entities namespace.
+     * @returns {Promise}                  Promise that will be resolved or rejected depending on the operation result.
      */
     deleteMultiple(params) {
         let key;
