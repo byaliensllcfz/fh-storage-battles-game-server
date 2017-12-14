@@ -9,9 +9,46 @@ global.baseHeaders = {
     'x-tapps-bundle-id': 'test.bundle.id'
 };
 
+process.on('unhandledRejection', ex => {
+    throw ex;
+});
+
 function importTest(name, path) {
     describe(name, function () {
         require(path);
+    });
+}
+
+function systemTestSetup (done) {
+    // Read the Shared Cloud Secret from Datastore
+    const Datastore = require('../models/datastore');
+    const datastore = new Datastore();
+    datastore.read({
+        id: 'latest',
+        kind: 'SharedCloudSecret',
+        namespace: 'cloud-configs'
+    }).then(function (result) {
+        global.baseHeaders['x-tapps-shared-cloud-secret'] = result.key;
+        done();
+    }).catch(function () {
+        const uuid = require('uuid/v4');
+        var key = uuid();
+        var date = new Date().getTime();
+        date += (1 * 60 * 60 * 1000);
+        datastore.write({
+            id: 'latest',
+            kind: 'SharedCloudSecret',
+            namespace: 'cloud-configs',
+            data: {
+                expiration: new Date(date).valueOf(),
+                key: key
+            }
+        }).then(function () {
+            global.baseHeaders['x-tapps-shared-cloud-secret'] = key;
+            done();
+        }).catch(function (error) {
+            throw error;
+        });
     });
 }
 
@@ -29,41 +66,7 @@ describe('Service Name Tests', function () {
     });
     describe('System tests', function () {
         before(function(done) {
-            // Read the Shared Cloud Secret from Datastore
-            const Datastore = require('../models/datastore');
-            const datastore = new Datastore();
-            datastore.read({
-                'id': 'latest',
-                'kind': 'SharedCloudSecret',
-                'namespace': 'cloud-configs',
-                'callback': function(err, data) {
-                    if (err) {
-                        const uuid = require('uuid/v4');
-                        const key = uuid();
-                        const date = new Date().getTime();
-                        date += (1 * 60 * 60 * 1000);
-                        datastore.write({
-                            'id': 'latest',
-                            'kind': 'SharedCloudSecret',
-                            'namespace': 'cloud-configs',
-                            'data': {
-                                'expiration': new Date(date).valueOf(),
-                                'key': key
-                            },
-                            'callback': function(err, data) {
-                                if (err) {
-                                    throw err;
-                                }
-                                global.baseHeaders['x-tapps-shared-cloud-secret'] = key;
-                                done();
-                            }
-                        });
-                    } else {
-                        global.baseHeaders['x-tapps-shared-cloud-secret'] = data.key;
-                        done();
-                    }
-                }
-            });
+            systemTestSetup(done);
         });
         // importTest('Test name', './system/test-file');
         importTest('Health Check', './system/health-check');

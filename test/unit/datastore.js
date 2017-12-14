@@ -1,9 +1,11 @@
 'use strict';
 
-const chai   = require('chai');
-const rewire = require('rewire');
-const sinon  = require('sinon');
-const should = chai.should();
+const chai             = require('chai');
+const rewire           = require('rewire');
+const sinon            = require('sinon');
+const sinonStubPromise = require('sinon-stub-promise');
+const should           = chai.should();
+sinonStubPromise(sinon);
 
 const gcloudDatastore = require('@google-cloud/datastore');
 const Datastore       = rewire('../../models/datastore');
@@ -79,13 +81,14 @@ describe('Read', function() {
         datastore.read({
             kind: kind,
             namespace: namespace,
-            id: 'wrong-id',
-            callback: function(err, data) {
-                should.exist(err);
-                sinon.assert.called(dsStub.key);
-                sinon.assert.calledOnce(dsStub.get);
-                done();
-            }
+            id: 'wrong-id'
+        }).then(function () {
+            throw new Error('Expected operation to fail.');
+        }).catch(function (error) {
+            should.exist(error);
+            sinon.assert.called(dsStub.key);
+            sinon.assert.calledOnce(dsStub.get);
+            done();
         });
     });
     it('should fail because there is no entity with the given id', function(done) {
@@ -101,14 +104,15 @@ describe('Read', function() {
         datastore.read({
             kind: kind,
             namespace: namespace,
-            id: 'wrong-id',
-            callback: function(err, data) {
-                should.exist(err);
-                sinon.assert.called(dsStub.key);
-                sinon.assert.calledOnce(dsStub.get);
-                data.should.be.equal('Not found');
-                done();
-            }
+            id: 'wrong-id'
+        }).then(function () {
+            throw new Error('Expected operation to fail.');
+        }).catch(function (error) {
+            should.exist(error);
+            sinon.assert.called(dsStub.key);
+            sinon.assert.calledOnce(dsStub.get);
+            error.message.should.be.equal('Not found');
+            done();
         });
     });
     it('should read an entity from datastore', function(done) {
@@ -136,16 +140,16 @@ describe('Read', function() {
         datastore.read({
             kind: kind,
             namespace: namespace,
-            id: id,
-            callback: function(err, data) {
-                should.not.exist(err);
-                sinon.assert.called(dsStub.key);
-                sinon.assert.calledOnce(dsStub.get);
-                data.id.should.be.equal(id);
-                delete data.id;
-                data.should.be.deep.equal(resultData);
-                done();
-            }
+            id: id
+        }).then(function (data) {
+            sinon.assert.called(dsStub.key);
+            sinon.assert.calledOnce(dsStub.get);
+            data.id.should.be.equal(id);
+            delete data.id;
+            data.should.be.deep.equal(resultData);
+            done();
+        }).catch(function (error) {
+            throw error;
         });
     });
 });
@@ -186,13 +190,14 @@ describe('Write', function() {
             id: 'test-id',
             kind: kind,
             namespace: namespace,
-            data: testData,
-            callback: function(err, returnData) {
-                should.exist(err);
-                sinon.assert.called(dsStub.key);
-                sinon.assert.calledOnce(dsStub.save);
-                done();
-            }
+            data: testData
+        }).then(function () {
+            throw new Error('Expected operation to fail.');
+        }).catch(function (error) {
+            should.exist(error);
+            sinon.assert.called(dsStub.key);
+            sinon.assert.calledOnce(dsStub.save);
+            done();
         });
     });
     it('should write an entity to datastore, using a specific id', function(done) {
@@ -210,15 +215,15 @@ describe('Write', function() {
             id: 'test-id',
             kind: kind,
             namespace: namespace,
-            data: testData,
-            callback: function(err, returnData) {
-                should.not.exist(err);
-                sinon.assert.called(dsStub.key);
-                sinon.assert.calledOnce(dsStub.save);
-                returnData.should.be.a('object');
-                returnData.should.be.deep.equal(testData);
-                done();
-            }
+            data: testData
+        }).then(function (returnData) {
+            sinon.assert.called(dsStub.key);
+            sinon.assert.calledOnce(dsStub.save);
+            returnData.should.be.a('object');
+            returnData.should.be.deep.equal(testData);
+            done();
+        }).catch(function (error) {
+            throw error;
         });
     });
     it('should write an entity to datastore, generating an id for it', function(done) {
@@ -238,16 +243,16 @@ describe('Write', function() {
             kind: kind,
             namespace: namespace,
             data: testData,
-            excludeFromIndexes: ['array', 'date'],
-            callback: function(err, returnData) {
-                should.not.exist(err);
-                sinon.assert.called(dsStub.key);
-                sinon.assert.calledOnce(dsStub.save);
-                returnData.should.be.a('object');
-                delete returnData.id;
-                returnData.should.be.deep.equal(testData);
-                done();
-            }
+            excludeFromIndexes: ['array', 'date']
+        }).then(function (returnData) {
+            sinon.assert.called(dsStub.key);
+            sinon.assert.calledOnce(dsStub.save);
+            returnData.should.be.a('object');
+            delete returnData.id;
+            returnData.should.be.deep.equal(testData);
+            done();
+        }).catch(function (error) {
+            throw error;
         });
     });
 });
@@ -266,13 +271,14 @@ describe('Delete', function() {
         datastore.del({
             kind: kind,
             namespace: namespace,
-            id: 'test-id',
-            callback: function(err) {
-                should.exist(err);
-                sinon.assert.called(dsStub.key);
-                sinon.assert.calledOnce(dsStub.delete);
-                done();
-            }
+            id: 'test-id'
+        }).then(function () {
+            throw new Error('Expected operation to fail.');
+        }).catch(function (error) {
+            should.exist(error);
+            sinon.assert.called(dsStub.key);
+            sinon.assert.calledOnce(dsStub.delete);
+            done();
         });
     });
     it('should delete an entity', function(done) {
@@ -288,13 +294,13 @@ describe('Delete', function() {
         datastore.del({
             kind: kind,
             namespace: namespace,
-            id: 'test-id',
-            callback: function(err) {
-                should.not.exist(err);
-                sinon.assert.called(dsStub.key);
-                sinon.assert.calledOnce(dsStub.delete);
-                done();
-            }
+            id: 'test-id'
+        }).then(function () {
+            sinon.assert.called(dsStub.key);
+            sinon.assert.calledOnce(dsStub.delete);
+            done();
+        }).catch(function (error) {
+            throw error;
         });
     });
 });
@@ -310,17 +316,17 @@ describe('Query', function() {
         };
         datastore.ds = dsStub;
         const query = datastore.createQuery(namespace, kind);
-        datastore.runQuery(
-            query,
-            function(err, data) {
-                should.exist(err);
+        datastore.runQuery(query)
+            .then(function () {
+                throw new Error('Expected operation to fail.');
+            }).catch(function (error) {
+                should.exist(error);
                 sinon.assert.calledOnce(dsStub.createQuery);
                 sinon.assert.calledOnce(dsStub.runQuery);
                 done();
-            }
-        );
+            });
     });
-    it('should fail to query entiteis', function(done) {
+    it('should fail to query entities', function(done) {
         const id = 'test-id';
         const entities = [
             {
@@ -358,16 +364,15 @@ describe('Query', function() {
         };
         datastore.ds = dsStub;
         const query = datastore.createQuery(namespace, kind);
-        datastore.runQuery(
-            query,
-            function(err, data) {
-                should.not.exist(err);
+        datastore.runQuery(query)
+            .then(function (data) {
                 sinon.assert.calledOnce(dsStub.createQuery);
                 sinon.assert.calledOnce(dsStub.runQuery);
                 data.entities.should.be.deep.equal(entities);
                 done();
-            }
-        );
+            }).catch(function (error) {
+                throw error;
+            });
     });
 });
 
@@ -377,16 +382,17 @@ describe('Run Transaction', function() {
             run: sandbox.stub().callsFake(function(callback) {
                 callback(new Error());
             }),
-            save: sandbox.stub(),
+            commit: sandbox.stub(),
             delete: sandbox.stub(),
-            commit: sandbox.stub()
+            rollback: sandbox.stub(),
+            save: sandbox.stub(),
         };
         datastore.transactionRun(transactionStub, 'save', {})
-            .then((entities) => {
+            .then(() => {
                 throw new Error('Expected transaction to fail.');
             })
-            .catch((err) => {
-                should.exist(err);
+            .catch((error) => {
+                should.exist(error);
                 sinon.assert.calledOnce(transactionStub.run);
                 done();
             });
@@ -396,16 +402,17 @@ describe('Run Transaction', function() {
             run: sandbox.stub().callsFake(function(callback) {
                 callback();
             }),
-            save: sandbox.stub(),
+            commit: sandbox.stub(),
             delete: sandbox.stub(),
-            commit: sandbox.stub()
+            rollback: sandbox.stub(),
+            save: sandbox.stub(),
         };
         datastore.transactionRun(transactionStub, 'wrong-operation', {})
-            .then((entities) => {
+            .then(() => {
                 throw new Error('Expected transaction to fail.');
             })
-            .catch((err) => {
-                should.exist(err);
+            .catch((error) => {
+                should.exist(error);
                 sinon.assert.calledOnce(transactionStub.run);
                 done();
             });
@@ -420,21 +427,22 @@ describe('Run Transaction', function() {
             }
         ];
         const transactionStub = {
+            commit: sandbox.stub().callsFake(function(callback) {
+                callback(new Error());
+            }),
             run: sandbox.stub().callsFake(function(callback) {
                 callback();
             }),
-            save: sandbox.stub(),
             delete: sandbox.stub(),
-            commit: sandbox.stub().callsFake(function(callback) {
-                callback(new Error());
-            })
+            rollback: sandbox.stub(),
+            save: sandbox.stub(),
         };
         datastore.transactionRun(transactionStub, 'save', testEntities)
-            .then((entities) => {
+            .then(() => {
                 throw new Error('Expected transaction to fail.');
             })
-            .catch((err) => {
-                should.exist(err);
+            .catch((error) => {
+                should.exist(error);
                 sinon.assert.calledOnce(transactionStub.run);
                 sinon.assert.calledOnce(transactionStub.save);
                 sinon.assert.calledWith(transactionStub.save, testEntities);
@@ -452,14 +460,15 @@ describe('Run Transaction', function() {
             }
         ];
         const transactionStub = {
+            commit: sandbox.stub().callsFake(function(callback) {
+                callback();
+            }),
             run: sandbox.stub().callsFake(function(callback) {
                 callback();
             }),
-            save: sandbox.stub(),
             delete: sandbox.stub(),
-            commit: sandbox.stub().callsFake(function(callback) {
-                callback();
-            })
+            rollback: sandbox.stub(),
+            save: sandbox.stub(),
         };
         datastore.transactionRun(transactionStub, 'save', testEntities)
             .then((entities) => {
@@ -470,8 +479,8 @@ describe('Run Transaction', function() {
                 sinon.assert.calledOnce(transactionStub.commit);
                 done();
             })
-            .catch((err) => {
-                throw err;
+            .catch((error) => {
+                throw error;
             });
     });
     it('should successfully run a delete transaction', function(done) {
@@ -484,14 +493,15 @@ describe('Run Transaction', function() {
             }
         ];
         const transactionStub = {
+            commit: sandbox.stub().callsFake(function(callback) {
+                callback();
+            }),
             run: sandbox.stub().callsFake(function(callback) {
                 callback();
             }),
-            save: sandbox.stub(),
             delete: sandbox.stub(),
-            commit: sandbox.stub().callsFake(function(callback) {
-                callback();
-            })
+            rollback: sandbox.stub(),
+            save: sandbox.stub(),
         };
         datastore.transactionRun(transactionStub, 'delete', testEntities)
             .then((entities) => {
@@ -502,8 +512,8 @@ describe('Run Transaction', function() {
                 sinon.assert.calledOnce(transactionStub.commit);
                 done();
             })
-            .catch((err) => {
-                throw err;
+            .catch((error) => {
+                throw error;
             });
     });
 });
@@ -534,24 +544,21 @@ describe('Save Entities', function() {
         const rollbackStub = sandbox.stub();
         const dsStub = {
             transaction: sandbox.stub().returns(
-                    {rollback: rollbackStub}
+                    { rollback: rollbackStub }
                 )
         };
         datastore.ds = dsStub;
-        datastore.transactionRun = function() {
-            return new Promise((resolve, reject) => {
-                reject(new Error());
-            });
-        };
+        datastore.transactionRun = sinon.stub().returnsPromise().rejects(new Error('Failed to save entities.'));
         datastore.saveEntities({
             keys: keys,
-            entities: entities,
-            callback: function(err, data) {
-                should.exist(err);
-                sinon.assert.calledOnce(dsStub.transaction);
-                sinon.assert.called(rollbackStub);
-                done();
-            }
+            entities: entities
+        }).then(function () {
+            throw new Error('Expected transaction to fail.');
+        }).catch(function (error) {
+            should.exist(error);
+            sinon.assert.calledOnce(dsStub.transaction);
+            sinon.assert.called(rollbackStub);
+            done();
         });
     });
     it('should successfully save entities', function(done) {
@@ -579,29 +586,64 @@ describe('Save Entities', function() {
         const rollbackStub = sandbox.stub();
         const dsStub = {
             transaction: sandbox.stub().returns(
-                    {rollback: rollbackStub}
+                    { rollback: rollbackStub }
                 )
         };
         datastore.ds = dsStub;
-        datastore.transactionRun = function() {
-            return new Promise((resolve, reject) => {
-                resolve();
-            });
-        };
+        datastore.transactionRun = sinon.stub().returnsPromise().resolves();
         datastore.saveEntities({
             keys: keys,
-            entities: entities,
-            callback: function(err, data) {
-                should.not.exist(err);
-                sinon.assert.calledOnce(dsStub.transaction);
-                sinon.assert.notCalled(rollbackStub);
-                done();
-            }
+            entities: entities
+        }).then(function () {
+            sinon.assert.calledOnce(dsStub.transaction);
+            sinon.assert.notCalled(rollbackStub);
+            done();
+        }).catch(function (error) {
+            throw error;
         });
     });
 });
 
 describe('Write Multiple', function() {
+    it('should fail write multiple entities to datastore', function(done) {
+        const key = 'key';
+        const localIds = ['1', '2', '3', '4'];
+        const entities = [
+            {
+                boolean: true,
+                string: 'test'
+            },
+            {
+                date: new Date()
+            },
+            {
+                boolean: true
+            },
+            {
+                int: 1,
+                boolean: true
+            }
+        ];
+        const dsStub = {
+            key: sandbox.stub().returns(key)
+        };
+        datastore.ds = dsStub;
+        datastore.saveEntities = sinon.stub().returnsPromise().rejects(new Error('Failed to save entities.'));
+        datastore.writeMultiple({
+            kind: kind,
+            namespace: namespace,
+            ids: localIds,
+            entities: entities,
+            excludeFromIndexes: ['boolean', 'date', 'int', 'string']
+        }).then(function () {
+            throw new Error('Expected operation to fail.');
+        }).catch(function (error) {
+            should.exist(error);
+            sinon.assert.calledOnce(datastore.saveEntities);
+            sinon.assert.callCount(dsStub.key, 4);
+            done();
+        });
+    });
     it('should write multiple entities to datastore', function(done) {
         const key = 'key';
         const localIds = ['1', '2', '3', '4'];
@@ -625,30 +667,21 @@ describe('Write Multiple', function() {
             key: sandbox.stub().returns(key)
         };
         datastore.ds = dsStub;
-        datastore.saveEntities = sandbox.stub().callsFake(function(params) {
-            params.callback(
-                null,
-                {
-                    keys:params.keys,
-                    entities: params.entities
-                }
-            );
-        });
+        datastore.saveEntities = sinon.stub().returnsPromise().resolves(entities);
         datastore.writeMultiple({
             kind: kind,
             namespace: namespace,
             ids: localIds,
             entities: entities,
-            excludeFromIndexes: ['boolean', 'date', 'int', 'string'],
-            callback: function (err, data) {
-                should.not.exist(err);
-                data.should.be.a('object');
-                data.keys.should.be.a('array');
-                data.entities.should.be.deep.equal(entities);
-                sinon.assert.calledOnce(datastore.saveEntities);
-                sinon.assert.callCount(dsStub.key, 4);
-                done();
-            }
+            excludeFromIndexes: ['boolean', 'date', 'int', 'string']
+        }).then(function (savedEntities) {
+            savedEntities.should.be.a('array');
+            savedEntities.should.be.deep.equal(entities);
+            sinon.assert.calledOnce(datastore.saveEntities);
+            sinon.assert.callCount(dsStub.key, 4);
+            done();
+        }).catch(function (error) {
+            throw error;
         });
     });
     it('should fail to allocate IDs for the entities', function(done) {
@@ -665,32 +698,53 @@ describe('Write Multiple', function() {
         ];
         const dsStub = {
             key: sandbox.stub().returns(key),
-            allocateIds: sandbox.stub().callsFake(function(incompleteKey, length) {
-                return new Promise((resolve, reject) => {
-                    reject('Failed to allocate IDs.');
-                });
-            })
+            allocateIds: sinon.stub().returnsPromise().rejects(new Error('Failed to allocate IDs.'))
         };
         datastore.ds = dsStub;
-        datastore.saveEntities = sandbox.stub().callsFake(function(params) {
-            params.callback(
-                null,
-                {
-                    keys:params.keys,
-                    entities: params.entities
-                }
-            );
-        });
         datastore.writeMultiple({
             kind: kind,
             namespace: namespace,
-            entities: entities,
-            callback: function (err, data) {
-                should.exist(err);
-                sinon.assert.calledOnce(dsStub.key);
-                sinon.assert.calledOnce(dsStub.allocateIds);
-                done();
+            entities: entities
+        }).then(function () {
+            throw new Error('Expected operation to fail.');
+        }).catch(function (error) {
+            should.exist(error);
+            sinon.assert.calledOnce(dsStub.key);
+            sinon.assert.calledOnce(dsStub.allocateIds);
+            done();
+        });
+    });
+    it('should fail to write multiple entities to datastore, after generating indexes', function(done) {
+        const key = 'key';
+        const localIds = ['1', '2', '3', '4'];
+        const entities = [
+            {
+                int: 2,
+                boolean: false
+            },
+            {
+                boolean: true,
+                int: 5
             }
+        ];
+        const dsStub = {
+            key: sandbox.stub().returns(key),
+            allocateIds: sinon.stub().returnsPromise().resolves([localIds])
+        };
+        datastore.ds = dsStub;
+        datastore.saveEntities = sinon.stub().returnsPromise().rejects(new Error('Failed to save entities.'));
+        datastore.writeMultiple({
+            kind: kind,
+            namespace: namespace,
+            entities: entities
+        }).then(function () {
+            throw new Error('Expected operation to fail.');
+        }).catch(function (error) {
+            should.exist(error);
+            sinon.assert.calledOnce(dsStub.key);
+            sinon.assert.calledOnce(dsStub.allocateIds);
+            sinon.assert.calledOnce(datastore.saveEntities);
+            done();
         });
     });
     it('should write multiple entities to datastore, automatically generating indexes for them', function(done) {
@@ -708,24 +762,21 @@ describe('Write Multiple', function() {
         ];
         const dsStub = {
             key: sandbox.stub().returns(key),
-            allocateIds: sandbox.stub().callsFake(function(incompleteKey, length) {
-                return new Promise((resolve, reject) => {
-                    resolve([localIds]);
-                });
-            })
+            allocateIds: sinon.stub().returnsPromise().resolves([localIds])
         };
         datastore.ds = dsStub;
+        datastore.saveEntities = sinon.stub().returnsPromise().resolves(entities);
         datastore.writeMultiple({
             kind: kind,
             namespace: namespace,
-            entities: entities,
-            callback: function (err, data) {
-                should.not.exist(err);
-                sinon.assert.calledOnce(dsStub.key);
-                sinon.assert.calledOnce(dsStub.allocateIds);
-                sinon.assert.calledOnce(datastore.saveEntities);
-                done();
-            }
+            entities: entities
+        }).then(function () {
+            sinon.assert.calledOnce(dsStub.key);
+            sinon.assert.calledOnce(dsStub.allocateIds);
+            sinon.assert.calledOnce(datastore.saveEntities);
+            done();
+        }).catch(function (error) {
+            throw error;
         });
     });
 });
@@ -742,21 +793,18 @@ describe('Delete Multiple', function() {
                 )
         };
         datastore.ds = dsStub;
-        datastore.transactionRun = function() {
-            return new Promise((resolve, reject) => {
-                reject(new Error());
-            });
-        };
+        datastore.transactionRun = sinon.stub().returnsPromise().rejects(new Error('Failed to delete entities.'));
         datastore.deleteMultiple({
             ids: ids,
             kind: kind,
-            namespace: namespace,
-            callback: function(err, data) {
-                should.exist(err);
-                sinon.assert.calledOnce(dsStub.transaction);
-                sinon.assert.called(rollbackStub);
-                done();
-            }
+            namespace: namespace
+        }).then(function () {
+            throw new Error('Expected operation to fail.');
+        }).catch(function (error) {
+            should.exist(error);
+            sinon.assert.calledOnce(dsStub.transaction);
+            sinon.assert.called(rollbackStub);
+            done();
         });
     });
     it('should successfully delete entities', function(done) {
@@ -770,21 +818,17 @@ describe('Delete Multiple', function() {
                 )
         };
         datastore.ds = dsStub;
-        datastore.transactionRun = function() {
-            return new Promise((resolve, reject) => {
-                resolve();
-            });
-        };
+        datastore.transactionRun = sinon.stub().returnsPromise().resolves();
         datastore.deleteMultiple({
             ids: ids,
             kind: kind,
-            namespace: namespace,
-            callback: function(err, data) {
-                should.not.exist(err);
-                sinon.assert.calledOnce(dsStub.transaction);
-                sinon.assert.notCalled(rollbackStub);
-                done();
-            }
+            namespace: namespace
+        }).then(function () {
+            sinon.assert.calledOnce(dsStub.transaction);
+            sinon.assert.notCalled(rollbackStub);
+            done();
+        }).catch(function (error) {
+            throw error;
         });
     });
 });

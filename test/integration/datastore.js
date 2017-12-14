@@ -45,25 +45,21 @@ function setup(done) {
                 boolean: false,
                 int: 1
             }
-        ],
-        callback: function (err, data) {
-            should.not.exist(err);
-            should.exist(data);
-            ids = ids;
-            done();
-        }
+        ]
+    }).then((data) => {
+        should.exist(data);
+        // ids = ids;
+        done();
+    }).catch((err) => {
+        throw err;
     });
 }
 
 function teardown(done) {
     // Query and delete any entities that remained.
     const query = datastore.createQuery(namespace, kind);
-    datastore.runQuery(
-        query,
-        function(err, data) {
-            if (err) {
-                throw err;
-            }
+    datastore.runQuery(query)
+        .then((data) => {
             let ids =[];
             data.entities.forEach((entity) => {
                 ids.push(entity.id);
@@ -71,15 +67,16 @@ function teardown(done) {
             datastore.deleteMultiple({
                 ids: ids,
                 kind: kind,
-                namespace: namespace,
-                callback: function(err, data) {
-                    should.not.exist(err);
-                    should.exist(data);
+                namespace: namespace
+            }).then(function (data) {
+                should.exist(data);
                     done();
-                }
+            }).catch(function (error) {
+                throw error;
             });
-        }
-    );
+        }).catch((err) => {
+            throw err;
+        });
 }
 
 before(function(done) {
@@ -107,15 +104,15 @@ describe('Write', function() {
             id: 'test-id',
             kind: kind,
             namespace: namespace,
-            data: testData,
-            callback: function(err, returnData) {
-                should.not.exist(err);
-                returnData.should.be.a('object');
+            data: testData
+        }).then(function (returnData) {
+            returnData.should.be.a('object');
                 ids.push(returnData.id);
                 delete returnData.id;
                 returnData.should.be.deep.equal(testData);
                 done();
-            }
+        }).catch(function (error) {
+            throw error;
         });
     });
     it('should write an entity to datastore, generating an id for it', function(done) {
@@ -123,15 +120,15 @@ describe('Write', function() {
             kind: kind,
             namespace: namespace,
             data: testData,
-            excludeFromIndexes: ['array', 'date'],
-            callback: function(err, returnData) {
-                should.not.exist(err);
-                returnData.should.be.a('object');
-                ids.push(returnData.id);
-                delete returnData.id;
-                returnData.should.be.deep.equal(testData);
-                done();
-            }
+            excludeFromIndexes: ['array', 'date']
+        }).then(function (returnData) {
+            returnData.should.be.a('object');
+            ids.push(returnData.id);
+            delete returnData.id;
+            returnData.should.be.deep.equal(testData);
+            done();
+        }).catch(function (error) {
+            throw error;
         });
     });
 });
@@ -145,12 +142,12 @@ describe('Read', function() {
             kind: kind,
             namespace: namespace,
             data: testData,
-            excludeFromIndexes: ['test'],
-            callback: function(err, data) {
-                should.not.exist(err);
-                should.exist(data);
-                done();
-            }
+            excludeFromIndexes: ['test']
+        }).then(function (data) {
+            should.exist(data);
+            done();
+        }).catch(function (error) {
+            throw error;
         });
     });
     after(function(done) {
@@ -161,25 +158,25 @@ describe('Read', function() {
         datastore.read({
             kind: kind,
             namespace: namespace,
-            id: id,
-            callback: function(err, data) {
-                should.not.exist(err);
-                data.id.should.be.equal(id);
-                data.should.be.deep.equal(testData);
-                done();
-            }
+            id: id
+        }).then(function (data) {
+            data.id.should.be.equal(id);
+            data.should.be.deep.equal(testData);
+            done();
+        }).catch(function (error) {
+            throw error;
         });
     });
     it('should fail because there is no entity with the given id', function(done) {
         datastore.read({
             kind: kind,
             namespace: namespace,
-            id: 'wrong-id',
-            callback: function(err, data) {
-                should.exist(err);
-                data.should.be.equal('Not found');
-                done();
-            }
+            id: 'wrong-id'
+        }).then(function (data) {
+            throw new Error('Expected operation to fail.');
+        }).catch(function (error) {
+            error.message.should.be.equal('Not found');
+            done();
         });
     });
 });
@@ -191,35 +188,36 @@ describe('Delete', function() {
             kind: kind,
             namespace: namespace,
             data: {test: 'test'},
-            excludeFromIndexes: ['test'],
-            callback: function(err, data) {
-                should.not.exist(err);
-                should.exist(data);
-                done();
-            }
+            excludeFromIndexes: ['test']
+        }).then(function (data) {
+            should.exist(data);
+            done();
+        }).catch(function (error) {
+            throw error;
         });
     });
     it('should delete an entity', function(done) {
         datastore.del({
             kind: kind,
             namespace: namespace,
-            id: 'test-id',
-            callback: function(err) {
-                should.not.exist(err);
-                done();
-            }
+            id: 'test-id'
+        }).then(function () {
+            done();
+        }).catch(function (error) {
+            throw error;
         });
     });
     it('should not find the entity deleted in the previous step', function(done) {
         datastore.read({
             kind: kind,
             namespace: namespace,
-            id: 'test-id',
-            callback: function(err, data) {
-                should.exist(err);
-                data.should.be.equal('Not found');
-                done();
-            }
+            id: 'test-id'
+        }).then(function (data) {
+            throw new Error('Expected operation to fail.');
+        }).catch(function (error) {
+            should.exist(error);
+            error.message.should.be.equal('Not found');
+            done();
         });
     });
 });
@@ -251,12 +249,12 @@ describe('Write Batch', function() {
             namespace: namespace,
             ids: localIds,
             entities: entities,
-            excludeFromIndexes: ['boolean', 'date', 'int', 'string'],
-            callback: function (err, data) {
-                should.not.exist(err);
-                data.should.be.a('array');
-                done();
-            }
+            excludeFromIndexes: ['boolean', 'date', 'int', 'string']
+        }).then(function (data) {
+            data.should.be.a('array');
+            done();
+        }).catch(function (error) {
+            throw error;
         });
     });
     it('should write multiple entities to datastore, automatically generating indexes for them', function(done) {
@@ -273,15 +271,15 @@ describe('Write Batch', function() {
         datastore.writeMultiple({
             kind: kind,
             namespace: namespace,
-            entities: entities,
-            callback: function (err, data) {
-                should.not.exist(err);
-                data.should.be.a('array');
-                data.forEach((entity) => {
-                    entity.should.be.a('object');
-                });
-                done();
-            }
+            entities: entities
+        }).then(function (data) {
+            data.should.be.a('array');
+            data.forEach((entity) => {
+                entity.should.be.a('object');
+            });
+            done();
+        }).catch(function (error) {
+            throw error;
         });
     });
     it('should write more than 25 entities to datastore, requiring more than 1 transaction', function(done) {
@@ -296,15 +294,15 @@ describe('Write Batch', function() {
         datastore.writeMultiple({
             kind: kind,
             namespace: namespace,
-            entities: entities,
-            callback: function (err, data) {
-                should.not.exist(err);
-                data.should.be.a('array');
-                data.forEach((entity) => {
-                    entity.should.be.a('object');
-                });
-                done();
-            }
+            entities: entities
+        }).then(function (data) {
+            data.should.be.a('array');
+            data.forEach((entity) => {
+                entity.should.be.a('object');
+            });
+            done();
+        }).catch(function (error) {
+            throw error;
         });
     });
 });
@@ -319,74 +317,69 @@ describe('Query', function() {
     it('should find no entities that match the query', function(done) {
         const query = datastore.createQuery(namespace, kind);
         query.filter('int', '=', 0);
-        datastore.runQuery(
-            query,
-            function(err, data) {
-                should.not.exist(err);
+        datastore.runQuery(query)
+            .then(function (data) {
                 data.should.be.deep.equal({ entities: [] });
                 done();
-            }
-        );
+            }).catch(function (error) {
+                throw error;
+            });
     });
     it('should find one entity that matches the query with an equality filter', function(done) {
         const query = datastore.createQuery(namespace, kind);
         query.filter('int', '=', 1);
-        datastore.runQuery(
-            query,
-            function(err, data) {
-                should.not.exist(err);
+        datastore.runQuery(query)
+            .then(function (data) {
                 data.should.be.a('object');
                 data.entities.should.be.a('array');
                 data.entities.length.should.be.equal(1);
                 done();
-            }
-        );
+            }).catch(function (error) {
+                throw error;
+            });
     });
     it('should find multiple entities that match the query with multiple equality filters', function(done) {
         const query = datastore.createQuery(namespace, kind);
         query.filter('int', '=', 2);
         query.filter('boolean', '=', true);
-        datastore.runQuery(
-            query,
-            function(err, data) {
-                should.not.exist(err);
+        datastore.runQuery(query)
+            .then(function (data) {
                 data.should.be.a('object');
                 data.entities.should.be.a('array');
                 data.entities.length.should.be.equal(2);
                 data.entities[0].int.should.be.equal(2);
                 data.entities[0].boolean.should.be.equal(true);
                 done();
-            }
-        );
+            }).catch(function (error) {
+                throw error;
+            });
     });
     it('should find an entity that matches the query with an inequality filter', function(done) {
         const query = datastore.createQuery(namespace, kind);
         query.filter('int', '<', 2);
-        datastore.runQuery(
-            query,
-            function(err, data) {
-                should.not.exist(err);
+        datastore.runQuery(query)
+            .then(function (data) {
                 data.should.be.a('object');
                 data.entities.should.be.a('array');
                 data.entities.length.should.be.equal(1);
                 done();
-            }
-        );
+            }).catch(function (error) {
+                throw error;
+            });
     });
     it('should limit the number of entities returned by the query', function(done) {
         const query = datastore.createQuery(namespace, kind);
         query.filter('int', '>', 0);
         query.limit(2);
-        datastore.runQuery(
-            query,
-            function(err, data) {
-                should.not.exist(err);
+        datastore.runQuery(query)
+            .then(function (data) {
                 data.should.be.a('object');
                 data.entities.should.be.a('array');
                 data.entities.length.should.be.equal(2);
                 done();
-            }
-        );
+            }).catch(function (error) {
+                throw error;
+            });
     });
 });
 
@@ -401,12 +394,12 @@ describe('Delete Batch', function() {
         datastore.deleteMultiple({
             ids: ids,
             kind: kind,
-            namespace: namespace,
-            callback: function(err, data) {
-                should.not.exist(err);
-                should.exist(data);
-                done();
-            }
+            namespace: namespace
+        }).then(function (data) {
+            should.exist(data);
+            done();
+        }).catch(function (error) {
+            throw error;
         });
     });
 });

@@ -6,7 +6,7 @@ const config        = require('../config');
 class Datastore{
 
     constructor(){
-        if (process.env.npm_config_datastore ==='emulated') {
+        if (process.env.npm_config_datastore === 'emulated') {
             // Emulated datastore
             this.ds = gcloudDatastore({
                 projectId: process.env.DATASTORE_PROJECT_ID || config.GCLOUD_PROJECT,
@@ -22,8 +22,8 @@ class Datastore{
     /**
      * Converts strings that represent integers to "Number" type.
      * This is necessary because Datastore always returns entity IDs as strings, even when they are actually numbers.
-     * @param  {(number|string)} id Datastore entity ID.
-     * @return {(number|string)}    Entity ID converted to number if it's a positive integer.
+     * @param   {(number|string)} id Datastore entity ID.
+     * @returns {(number|string)}    Entity ID converted to number if it's a positive integer.
      */
     getId(id) {
         return /^\d+$/.test(id) ? gcloudDatastore.int(id) : id;
@@ -99,11 +99,11 @@ class Datastore{
 
     /**
      * Read an entity from datastore.
-     * @param {Object}   params
-     * @param {String}   params.id        ID of the entity.
-     * @param {String}   params.kind      Entity kind.
-     * @param {String}   params.namespace Entity namespace.
-     * @param {Function} params.callback
+     * @param   {Object}  params
+     * @param   {String}  params.id        ID of the entity.
+     * @param   {String}  params.kind      Entity kind.
+     * @param   {String}  params.namespace Entity namespace.
+     * @returns {Promise}                  Promise that will be resolved or rejected depending on the operation result.
      */
     read(params) {
         const key = this.ds.key({
@@ -111,28 +111,28 @@ class Datastore{
             path: [params.kind, this.getId(params.id)]
         });
 
-        this.ds.get(key, (err, entity) => {
-            if (err) {
-                params.callback(err, entity);
-                return;
-            }
-            if (!entity) {
-                params.callback(new Error('Not found'), 'Not found');
-                return;
-            }
-            params.callback(err, this.fromDatastore(entity));
+        return new Promise((resolve, reject) => {
+            this.ds.get(key, (err, entity) => {
+                if (err) {
+                    reject(err);
+                } else if (!entity) {
+                    reject(new Error('Not found'));
+                } else {
+                    resolve(this.fromDatastore(entity));
+                }
+            });
         });
     }
 
     /**
      * Save an entity to datastore.
-     * @param {Object}   params
-     * @param {String}   [params.id]                 ID of the entity. If not provided will be automatically generated.
-     * @param {String}   params.kind                 Entity kind.
-     * @param {String}   params.namespace            Entity namespace.
-     * @param {Object}   params.data                 Entity data.
-     * @param {Array}    [params.excludeFromIndexes] Optional array of properties that should not be indexed.
-     * @param {Function} params.callback
+     * @param   {Object}  params
+     * @param   {String}  [params.id]                 ID of the entity. If not provided will be automatically generated.
+     * @param   {String}  params.kind                 Entity kind.
+     * @param   {String}  params.namespace            Entity namespace.
+     * @param   {Object}  params.data                 Entity data.
+     * @param   {Array}   [params.excludeFromIndexes] Optional array of properties that should not be indexed.
+     * @returns {Promise}                             Promise that will be resolved or rejected depending on the operation result.
      */
     write(params) {
         let key;
@@ -153,22 +153,28 @@ class Datastore{
             data: this.toDatastore(params.data, params.excludeFromIndexes)
         };
 
-        this.ds.save(
-            entity,
-            (err, entity) => {
-                params.data.id = params.id || entity.mutationResults[0].key.path[0].id;
-                params.callback(err, params.data);
-            }
-        );
+        return new Promise((resolve, reject) => {
+            this.ds.save(
+                entity,
+                (err, entity) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        params.data.id = params.id || entity.mutationResults[0].key.path[0].id;
+                        resolve(params.data);
+                    }
+                }
+            );
+        });
     }
 
     /**
      * Delete an entity from datastore.
-     * @param {Object}   params
-     * @param {String}   params.id        ID of the entity.
-     * @param {String}   params.kind      Entity kind.
-     * @param {String}   params.namespace Entity namespace.
-     * @param {Function} params.callback
+     * @param   {Object}  params
+     * @param   {String}  params.id        ID of the entity.
+     * @param   {String}  params.kind      Entity kind.
+     * @param   {String}  params.namespace Entity namespace.
+     * @returns {Promise}                  Promise that will be resolved or rejected depending on the operation result.
      */
     del(params) {
         const key = this.ds.key({
@@ -176,12 +182,18 @@ class Datastore{
             path: [params.kind, this.getId(params.id)]
         });
 
-        this.ds.delete(
-            key,
-            (err) => {
-                params.callback(err);
-            }
-        );
+        return new Promise((resolve, reject) => {
+            this.ds.delete(
+                key,
+                (err) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve();
+                    }
+                }
+            );
+        });
     }
 
     /**
@@ -192,37 +204,39 @@ class Datastore{
     }
 
     /**
-     * Run a Datastore query and calls the callback function with the query results.
-     * @param {Object}   query    Datastore query to be run.
-     * @param {Function} callback Function to be called after the operation finishes.
+     * Run a Datastore query and returns a promise.
+     * @param   {Object}  query Datastore query to be run.
+     * @returns {Promise}       Promise that will be resolved or rejected depending on the operation result.
      */
-    runQuery(query, callback) {
-        this.ds.runQuery(
-            query,
-            (err, entities, info) => {
-                if (err) {
-                    callback(err);
-                } else {
-                    let data = {};
-                    data.entities = [];
-                    entities.forEach((entity) => {
-                        data.entities.push(this.fromDatastore(entity));
-                    });
-                    // Check if  more results may exist.
-                    if (info.moreResults !== gcloudDatastore.NO_MORE_RESULTS && info.endCursor !== 'CgA=') {
-                        data.more = info.endCursor;
+    runQuery(query) {
+        return new Promise((resolve, reject) => {
+            this.ds.runQuery(
+                query,
+                (err, entities, info) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        let data = {};
+                        data.entities = [];
+                        entities.forEach((entity) => {
+                            data.entities.push(this.fromDatastore(entity));
+                        });
+                        // Check if  more results may exist.
+                        if (info.moreResults !== gcloudDatastore.NO_MORE_RESULTS && info.endCursor !== 'CgA=') {
+                            data.more = info.endCursor;
+                        }
+                        resolve(data);
                     }
-                    callback(err, data);
                 }
-            }
-        );
+            );
+        });
     }
 
     /**
      * Converts Datastore.transaction.run to a promise, so multiple transactions can be run simultaneously.
-     * @param  {Object}  transaction Datastore transaction.
-     * @param  {Array}   entities    Array of entities to be saved.
-     * @return {Promise}             Promise that will be resolved or rejected depending on the transaction result.
+     * @param   {Object}  transaction Datastore transaction.
+     * @param   {Array}   entities Array of entities to be saved.
+     * @returns {Promise}          Promise that will be resolved or rejected depending on the transaction result.
      */
     transactionRun(transaction, operation, entities) {
         return new Promise((resolve, reject) => {
@@ -253,12 +267,12 @@ class Datastore{
     }
 
     /**
-     * @param {Object}   transaction               Datastore transaction.
-     * @param {Object}   params
-     * @param {Array}    params.keys               Array of datastore keys.
-     * @param {Array}    params.entities           Array of entity data to be stored.
-     * @param {Array}    params.excludeFromIndexes Array of properties that should not be indexed.
-     * @param {Function} params.callback
+     * @param   {Object}  transaction               Datastore transaction.
+     * @param   {Object}  params
+     * @param   {Array}   params.keys               Array of datastore keys.
+     * @param   {Array}   params.entities           Array of entity data to be stored.
+     * @param   {Array}   params.excludeFromIndexes Array of properties that should not be indexed.
+     * @returns {Promise}                           Promise that will be resolved or rejected depending on the operation result.
      */
     saveEntities(params) {
         let entity;
@@ -284,64 +298,78 @@ class Datastore{
             const promise = this.transactionRun(transaction, 'save', tempEntities);
             promises.push(promise);
         }
-        Promise.all(promises).then(values => {
+        return Promise.all(promises).then(values => {
             // All transactions succeeded.
-            params.callback(null, params.entities);
+            return params.entities;
         }).catch((err) => {
             // One of the transactions failed. All of them have to be rolled back.
             transactions.forEach(transaction => {
                 transaction.rollback();
             });
-            params.callback(err, params.entities);
+            throw err;
         });
     }
 
     /**
      * Save multiple entities to datastore using a single transaction.
-     * @param {Object}   params
-     * @param {Array}    [params.ids]                Optional array of entity IDs.
-     * @param {String}   params.kind                 Entities kind.
-     * @param {String}   params.namespace            Entities namespace.
-     * @param {Array}    params.entities             Array of entity data to be stored.
-     * @param {Array}    [params.excludeFromIndexes] Optional array of properties that should not be indexed.
-     * @param {Function} params.callback
+     * @param   {Object}  params
+     * @param   {Array}   [params.ids]                Optional array of entity IDs.
+     * @param   {String}  params.kind                 Entities kind.
+     * @param   {String}  params.namespace            Entities namespace.
+     * @param   {Array}   params.entities             Array of entity data to be stored.
+     * @param   {Array}   [params.excludeFromIndexes] Optional array of properties that should not be indexed.
+     * @returns {Promise}                             Promise that will be resolved or rejected depending on the operation result.
      */
     writeMultiple(params) {
         let key;
         let keys = [];
-        if (params.ids) {
-            params.ids.forEach(id => {
-                key = this.ds.key({
+        return new Promise((resolve, reject) => {
+            if (params.ids) {
+                params.ids.forEach(id => {
+                    key = this.ds.key({
+                        namespace: params.namespace,
+                        path: [params.kind, this.getId(id)]
+                    });
+                    keys.push(key);
+                });
+                params.keys = keys;
+                this.saveEntities(params)
+                    .then((entities) => {
+                        resolve(entities);
+                    })
+                    .catch((err) => {
+                        reject(err);
+                    });
+            } else {
+                const incompleteKey = this.ds.key({
                     namespace: params.namespace,
-                    path: [params.kind, this.getId(id)]
+                    path: [params.kind]
                 });
-                keys.push(key);
-            });
-            params.keys = keys;
-            this.saveEntities(params);
-        } else {
-            const incompleteKey = this.ds.key({
-                namespace: params.namespace,
-                path: [params.kind]
-            });
-            this.ds.allocateIds(incompleteKey, params.entities.length)
-                .then((data) => {
-                    params.keys = data[0];
-                    this.saveEntities(params);
-                })
-                .catch((err) => {
-                    params.callback(err);
-                });
-        }
+                this.ds.allocateIds(incompleteKey, params.entities.length)
+                    .then((data) => {
+                        params.keys = data[0];
+                        this.saveEntities(params)
+                            .then((entities) => {
+                                resolve(entities);
+                            })
+                            .catch((err) => {
+                                reject(err);
+                            });
+                    })
+                    .catch((err) => {
+                        reject(err);
+                    });
+            }
+        });
     }
 
     /**
      * Delete multiple entities from datastore using a single transaction.
-     * @param {Object}   params
-     * @param {Array}    params.ids       Array of entity IDs.
-     * @param {String}   params.kind      Entities kind.
-     * @param {String}   params.namespace Entities namespace.
-     * @param {Function} params.callback
+     * @param   {Object}   params
+     * @param   {Array}    params.ids       Array of entity IDs.
+     * @param   {String}   params.kind      Entities kind.
+     * @param   {String}   params.namespace Entities namespace.
+     * @returns {Promise}                  Promise that will be resolved or rejected depending on the operation result.
      */
     deleteMultiple(params) {
         let key;
@@ -366,15 +394,15 @@ class Datastore{
             const promise = this.transactionRun(transaction, 'delete', tempKeys);
             promises.push(promise);
         }
-        Promise.all(promises).then(values => {
+        return Promise.all(promises).then(values => {
             // All transactions succeeded.
-            params.callback(null, params.ids);
+            return params.ids;
         }).catch((err) => {
             // One of the transactions failed. All of them have to be rolled back.
             transactions.forEach(transaction => {
                 transaction.rollback();
             });
-            params.callback(err, params.ids);
+            throw err;
         });
     }
 }
