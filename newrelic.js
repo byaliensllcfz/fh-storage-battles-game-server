@@ -1,5 +1,15 @@
 'use strict';
 
+const appConfig = require('./config');
+
+let name;
+
+if (appConfig.env === 'prod') {
+    name = 'TP ServiceName Server v1';
+} else {
+    name = 'DEV - TP ServiceName Server v1';
+}
+
 /**
  * New Relic agent configuration.
  *
@@ -9,9 +19,8 @@
 exports.config = {
   /**
    * Application name.
-   * 'DEV - TP Service Name Server v1' or 'TP Service Name Server v1'
    */
-  app_name: 'TP Service Name Server v1',
+  app_name: name,
   /**
    * Your New Relic license key.
    */
@@ -22,6 +31,6 @@ exports.config = {
      * issues with the agent, 'info' and higher will impose the least overhead on
      * production applications.
      */
-    level: 'info'
+     enabled: false
   }
 };

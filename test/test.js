@@ -21,8 +21,8 @@ function importTest(name, path) {
 
 function systemTestSetup (done) {
     // Read the Shared Cloud Secret from Datastore
-    const Datastore = require('../models/datastore');
-    const datastore = new Datastore();
+    const Datastore = require('tp-common/datastore');
+    const datastore = new Datastore(config);
     datastore.read({
         id: 'latest',
         kind: 'SharedCloudSecret',
@@ -55,14 +55,9 @@ function systemTestSetup (done) {
 describe('Service Name Tests', function () {
     describe('Unit tests', function () {
         // importTest('Test name', './unit/test-file');
-        importTest('Logging Functions', './unit/logger');
-        importTest('Util Functions', './unit/util');
-        importTest('Middlewares', './unit/middleware');
-        importTest('Datastore', './unit/datastore');
     });
     describe('Integration tests', function () {
         // importTest('Test name', './integration/test-file');
-        importTest('Datastore', './integration/datastore');
     });
     describe('System tests', function () {
         before(function(done) {

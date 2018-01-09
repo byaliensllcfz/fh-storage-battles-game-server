@@ -30,6 +30,7 @@ lib/**/*.css.shim.ts
 lib/**/*.shim.ngstyle.ts
 
 # other
+.idea
 /dist
 /demo/build
 .tmp
@@ -40,8 +41,3 @@ stats.json
 /package-lock.json
 /EmulatedDatastore
 /logagentTailPointers.json
-
-# Config Files
-/app.yaml
-/config.json
-/newrelic.js
