@@ -30,14 +30,15 @@ lib/**/*.css.shim.ts
 lib/**/*.shim.ngstyle.ts
 
 # other
-.idea
 /dist
 /demo/build
+.idea
+.ghpages-tmp
+.scannerwork
 .tmp
 compiled
-/coverage
-.ghpages-tmp
+coverage
+EmulatedDatastore
+logagentTailPointers.json
+package-lock.json
 stats.json
-/package-lock.json
-/EmulatedDatastore
-/logagentTailPointers.json
