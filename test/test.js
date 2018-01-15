@@ -13,7 +13,7 @@ process.on('unhandledRejection', ex => {
     throw ex;
 });
 
-function importTest(name, path) {
+function importTest (name, path) {
     describe(name, function () {
         require(path);
     });
@@ -60,13 +60,13 @@ describe('Service Name Tests', function () {
         // importTest('Test name', './integration/test-file');
     });
     describe('System tests', function () {
-        before(function(done) {
+        before(function (done) {
             systemTestSetup(done);
         });
         // importTest('Test name', './system/test-file');
         importTest('Health Check', './system/health-check');
     });
-    after(function() {
+    after(function () {
         // Remove any leftover logs
         fs.writeFileSync(
             '/var/log/app_engine/custom_logs/app-' + config.NAME + '-notice.json',
@@ -77,11 +77,11 @@ describe('Service Name Tests', function () {
             ''
         );
         fs.writeFileSync(
-            '/var/log/app_engine/custom_logs/app-' + config.NAME +  '-error.json',
+            '/var/log/app_engine/custom_logs/app-' + config.NAME + '-error.json',
             ''
         );
         fs.writeFileSync(
-            '/var/log/app_engine/custom_logs/app-' + config.NAME +  '-alert.json',
+            '/var/log/app_engine/custom_logs/app-' + config.NAME + '-alert.json',
             ''
         );
     });

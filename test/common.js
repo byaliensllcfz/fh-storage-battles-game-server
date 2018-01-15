@@ -3,7 +3,7 @@
 const chai = require('chai');
 chai.should();
 
-function errorChecks(err, res){
+function errorChecks (err, res) {
     if (err) {
         throw err;
     }

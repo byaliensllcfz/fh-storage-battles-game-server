@@ -9,7 +9,7 @@ if [ ! -d ~/.ssh ]; then
 fi
 
 # Load the private key into a file.
-cp ./ssh/id_rsa ~/.ssh/deploy_key
+cp ./ssh/commons_repository_key ~/.ssh/deploy_key
 
 # Change the permissions on the file to
 # be read-write for this user.

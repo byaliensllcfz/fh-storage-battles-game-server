@@ -7,10 +7,10 @@
     "node": ">=8.9.4"
   },
   "dependencies": {
-    "@sematext/logagent": "^2.0.96",
+    "@sematext/logagent": "^2.0.97",
     "body-parser": "^1.18.2",
     "express": "^4.16.2",
-    "newrelic": "^2.5.0",
+    "newrelic": "^2.6.0",
     "tp-common": "git+ssh://git@bitbucket.org/tappshq/tp-nodejs-api-commons.git#1.0.0",
     "uuid": "^3.1.0"
   },
@@ -30,6 +30,6 @@
     "preinstall": "bash ssh/setup-ssh.sh",
     "postinstall": "bash ssh/cleanup-ssh.sh",
     "start": "logagent -c logagent.conf | node server.js",
-    "test": "istanbul cover _mocha -- -b -t 10000 -R spec --exit"
+    "test": "NODE_ENV=test istanbul cover _mocha -- -b -t 10000 -R spec --exit"
   }
 }

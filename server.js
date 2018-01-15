@@ -1,16 +1,16 @@
 'use strict';
 
 // The New Relic require has to be the first thing to run!
-const newrelic   = require('newrelic');
+const newrelic = require('newrelic');
 const bodyParser = require('body-parser');
-const express    = require('express');
+const express = require('express');
 
 const Middleware = require('tp-common/middleware');
-const Logger     = require('tp-common/logger');
+const Logger = require('tp-common/logger');
 
-const config     = require('./config');
+const config = require('./config');
 const middleware = new Middleware(config);
-const logger     = new Logger(config);
+const logger = new Logger(config);
 
 const app = express();
 app.set('trust proxy', true);
@@ -18,7 +18,7 @@ app.set('trust proxy', true);
 // Middlewares
 app.use(middleware.responseTime.bind(middleware));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({extended: false}));
 app.use(middleware.security.bind(middleware));
 
 // API Endpoints
