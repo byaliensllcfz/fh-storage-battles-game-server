@@ -16,15 +16,15 @@
   },
   "devDependencies": {
     "chai": "^4.1.2",
+    "chai-http": "^3.0.0",
     "istanbul": "^0.4.5",
-    "mocha": "^4.1.0",
+    "mocha": "^5.0.0",
     "node-mocks-http": "^1.6.6",
     "rewire": "^3.0.2",
     "sinon": "^4.1.6",
     "sinon-chai": "^2.14.0",
     "sinon-stub-promise": "^4.0.0",
-    "sonarqube-scanner": "^2.0.2",
-    "supertest": "^3.0.0"
+    "sonarqube-scanner": "^2.0.2"
   },
   "scripts": {
     "preinstall": "bash ssh/setup-ssh.sh",

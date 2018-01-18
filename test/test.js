@@ -32,8 +32,8 @@ function systemTestSetup (done) {
         done();
     }).catch(function () {
         const uuid = require('uuid/v4');
-        var key = uuid();
-        var date = new Date().getTime();
+        const key = uuid();
+        let date = new Date().getTime();
         date += (1 * 60 * 60 * 1000);
         datastore.write({
             id: 'latest',
