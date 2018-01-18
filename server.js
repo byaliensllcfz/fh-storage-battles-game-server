@@ -6,11 +6,9 @@ const bodyParser = require('body-parser');
 const express = require('express');
 
 const Middleware = require('tp-common/middleware');
-const Logger = require('tp-common/logger');
 
 const config = require('./config');
 const middleware = new Middleware(config);
-const logger = new Logger(config);
 
 const app = express();
 app.set('trust proxy', true);
@@ -19,6 +17,7 @@ app.set('trust proxy', true);
 app.use(middleware.responseTime.bind(middleware));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
+app.use(middleware.notFoundHandler.bind(middleware));
 app.use(middleware.security.bind(middleware));
 
 // API Endpoints
@@ -29,7 +28,6 @@ app.use('/_ah', require('./routes/health-check'));
 
 // Error Handling Middlewares
 middleware.updateValidRoutes(app);
-app.use(middleware.notFoundHandler.bind(middleware));
 app.use(middleware.errorHandler.bind(middleware));
 
 if (module === require.main) {
