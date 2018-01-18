@@ -6,9 +6,11 @@ const bodyParser = require('body-parser');
 const express = require('express');
 
 const Middleware = require('tp-common/middleware');
-
+const Util = require('tp-common/util');
 const config = require('./config');
+const errors = require('./errors');
 const middleware = new Middleware(config);
+const util = new Util(config);
 
 const app = express();
 app.set('trust proxy', true);
@@ -29,6 +31,8 @@ app.use('/_ah', require('./routes/health-check'));
 // Error Handling Middlewares
 middleware.updateValidRoutes(app);
 app.use(middleware.errorHandler.bind(middleware));
+
+util.addErrors(errors);
 
 if (module === require.main) {
     // Start the server
