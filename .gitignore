@@ -40,4 +40,5 @@ compiled
 coverage
 EmulatedDatastore
 logagentTailPointers.json
+package-lock.json
 stats.json

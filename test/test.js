@@ -40,7 +40,7 @@ function systemTestSetup (done) {
             kind: 'SharedCloudSecret',
             namespace: 'cloud-configs',
             data: {
-                expiration: new Date(date).valueOf(),
+                expiration: new Date(date).getTime(),
                 key: key
             }
         }).then(function () {
@@ -55,6 +55,7 @@ function systemTestSetup (done) {
 describe('Service Name Tests', function () {
     describe('Unit tests', function () {
         // importTest('Test name', './unit/test-file');
+        importTest('Datastore Instrumentation', './unit/datastore-instrumentation');
     });
     describe('Integration tests', function () {
         // importTest('Test name', './integration/test-file');
@@ -69,19 +70,19 @@ describe('Service Name Tests', function () {
     after(function () {
         // Remove any leftover logs
         fs.writeFileSync(
-            '/var/log/app_engine/custom_logs/app-' + config.NAME + '-notice.json',
+            '/var/log/app_engine/custom_logs/app-' + config.service_name + '-notice.json',
             ''
         );
         fs.writeFileSync(
-            '/var/log/app_engine/custom_logs/app-' + config.NAME + '-info.json',
+            '/var/log/app_engine/custom_logs/app-' + config.service_name + '-info.json',
             ''
         );
         fs.writeFileSync(
-            '/var/log/app_engine/custom_logs/app-' + config.NAME + '-error.json',
+            '/var/log/app_engine/custom_logs/app-' + config.service_name + '-error.json',
             ''
         );
         fs.writeFileSync(
-            '/var/log/app_engine/custom_logs/app-' + config.NAME + '-alert.json',
+            '/var/log/app_engine/custom_logs/app-' + config.service_name + '-alert.json',
             ''
         );
     });
