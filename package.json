@@ -12,7 +12,7 @@
     "body-parser": "^1.18.2",
     "express": "^4.16.2",
     "newrelic": "^2.6.1",
-    "tp-common": "git+ssh://git@bitbucket.org/tappshq/tp-nodejs-api-commons.git#1.0.0",
+    "tp-common": "git+https://bitbucket.org/tappshq/tp-nodejs-api-commons.git#1.0.0",
     "uuid": "^3.2.1"
   },
   "devDependencies": {
@@ -28,8 +28,8 @@
     "sonarqube-scanner": "^2.0.2"
   },
   "scripts": {
-    "preinstall": "bash ssh/setup-ssh.sh",
-    "postinstall": "bash ssh/cleanup-ssh.sh",
+    "preinstall": "bash git-setup.sh",
+    "postinstall": "bash git-teardown.sh",
     "start": "logagent -c logagent.conf | node server.js",
     "test": "NODE_ENV=test istanbul cover _mocha -- -b -t 10000 -R spec --exit"
   }
