@@ -1,0 +1,3 @@
+service: servicename-v1
+runtime: nodejs
+env: flex

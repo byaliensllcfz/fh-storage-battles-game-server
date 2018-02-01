@@ -13,7 +13,7 @@ process.on('unhandledRejection', ex => {
     throw ex;
 });
 
-function importTest(name, path) {
+function importTest (name, path) {
     describe(name, function () {
         require(path);
     });
@@ -21,8 +21,8 @@ function importTest(name, path) {
 
 function systemTestSetup (done) {
     // Read the Shared Cloud Secret from Datastore
-    const Datastore = require('../models/datastore');
-    const datastore = new Datastore();
+    const Datastore = require('tp-common/datastore');
+    const datastore = new Datastore(config);
     datastore.read({
         id: 'latest',
         kind: 'SharedCloudSecret',
@@ -32,15 +32,15 @@ function systemTestSetup (done) {
         done();
     }).catch(function () {
         const uuid = require('uuid/v4');
-        var key = uuid();
-        var date = new Date().getTime();
+        const key = uuid();
+        let date = new Date().getTime();
         date += (1 * 60 * 60 * 1000);
         datastore.write({
             id: 'latest',
             kind: 'SharedCloudSecret',
             namespace: 'cloud-configs',
             data: {
-                expiration: new Date(date).valueOf(),
+                expiration: new Date(date).getTime(),
                 key: key
             }
         }).then(function () {
@@ -55,38 +55,34 @@ function systemTestSetup (done) {
 describe('Service Name Tests', function () {
     describe('Unit tests', function () {
         // importTest('Test name', './unit/test-file');
-        importTest('Logging Functions', './unit/logger');
-        importTest('Util Functions', './unit/util');
-        importTest('Middlewares', './unit/middleware');
-        importTest('Datastore', './unit/datastore');
+        importTest('Datastore Instrumentation', './unit/datastore-instrumentation');
     });
     describe('Integration tests', function () {
         // importTest('Test name', './integration/test-file');
-        importTest('Datastore', './integration/datastore');
     });
     describe('System tests', function () {
-        before(function(done) {
+        before(function (done) {
             systemTestSetup(done);
         });
         // importTest('Test name', './system/test-file');
         importTest('Health Check', './system/health-check');
     });
-    after(function() {
+    after(function () {
         // Remove any leftover logs
         fs.writeFileSync(
-            '/var/log/app_engine/custom_logs/app-' + config.NAME + '-notice.json',
+            '/var/log/app_engine/custom_logs/app-' + config.service_name + '-notice.json',
             ''
         );
         fs.writeFileSync(
-            '/var/log/app_engine/custom_logs/app-' + config.NAME + '-info.json',
+            '/var/log/app_engine/custom_logs/app-' + config.service_name + '-info.json',
             ''
         );
         fs.writeFileSync(
-            '/var/log/app_engine/custom_logs/app-' + config.NAME +  '-error.json',
+            '/var/log/app_engine/custom_logs/app-' + config.service_name + '-error.json',
             ''
         );
         fs.writeFileSync(
-            '/var/log/app_engine/custom_logs/app-' + config.NAME +  '-alert.json',
+            '/var/log/app_engine/custom_logs/app-' + config.service_name + '-alert.json',
             ''
         );
     });
