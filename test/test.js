@@ -14,7 +14,7 @@ process.on('unhandledRejection', ex => {
 });
 
 function importTest (name, path) {
-    describe(name, function () {
+    describe(name, () => {
         require(path);
     });
 }
@@ -27,10 +27,10 @@ function systemTestSetup (done) {
         id: 'latest',
         kind: 'SharedCloudSecret',
         namespace: 'cloud-configs'
-    }).then(function (result) {
+    }).then(result => {
         global.baseHeaders['x-tapps-shared-cloud-secret'] = result.key;
         done();
-    }).catch(function () {
+    }).catch(() => {
         const uuid = require('uuid/v4');
         const key = uuid();
         let date = new Date().getTime();
@@ -43,31 +43,31 @@ function systemTestSetup (done) {
                 expiration: new Date(date).getTime(),
                 key: key
             }
-        }).then(function () {
+        }).then(() => {
             global.baseHeaders['x-tapps-shared-cloud-secret'] = key;
             done();
-        }).catch(function (error) {
+        }).catch(error => {
             throw error;
         });
     });
 }
 
-describe('Service Name Tests', function () {
-    describe('Unit tests', function () {
+describe('Service Name Tests', () => {
+    describe('Unit tests', () => {
         // importTest('Test name', './unit/test-file');
         importTest('Datastore Instrumentation', './unit/datastore-instrumentation');
     });
-    describe('Integration tests', function () {
+    describe('Integration tests', () => {
         // importTest('Test name', './integration/test-file');
     });
-    describe('System tests', function () {
-        before(function (done) {
+    describe('System tests', () => {
+        before(done => {
             systemTestSetup(done);
         });
         // importTest('Test name', './system/test-file');
         importTest('Health Check', './system/health-check');
     });
-    after(function () {
+    after(() => {
         // Remove any leftover logs
         fs.writeFileSync(
             '/var/log/app_engine/custom_logs/app-' + config.service_name + '-notice.json',
