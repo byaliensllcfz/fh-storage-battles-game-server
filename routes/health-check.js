@@ -5,7 +5,7 @@ const newrelic = require('newrelic');
 
 const router = express.Router({mergeParams: true});
 
-router.get('/health', function (req, res) {
+router.get('/health', (req, res) => {
     newrelic.setIgnoreTransaction(true);
     res.send('OK');
 });

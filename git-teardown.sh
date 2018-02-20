@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-if [ $GAE_INSTANCE ]
+if [ $CREDENTIALS ]
 then
     rm ~/.git-credentials
+    echo 'Removing git credentials'
 fi

@@ -6,6 +6,17 @@ const DB_OPS = [
     'transaction'
 ];
 
+const CLIENT_OPS =[
+    'allocateIds',
+    'beginTransaction',
+    'commit',
+    'getProjectId',
+    'lookup',
+    'reserveIds',
+    'rollback',
+    'runQuery'
+];
+
 const REQUEST_OPS = [
     'allocateIds',
     'createReadStream',
@@ -43,39 +54,32 @@ const TRANSACTION_OPS = [
     'save'
 ];
 
-function instrument(shim, datastore, moduleName) {
+function recordOperations (shim, datastoreObject, operations) {
+    if (datastoreObject && datastoreObject.prototype) {
+        let proto = datastoreObject.prototype;
+        for (let i = operations.length - 1; i >= 0; i--) {
+            shim.recordOperation(proto, operations[i], {name: operations[i], callback: shim.LAST});
+        }
+    }
+}
+
+function recordQueries (shim, datastoreObject, operations) {
+    if (datastoreObject && datastoreObject.prototype) {
+        let queryProto = datastoreObject.prototype;
+        for (let i = operations.length - 1; i >= 0; i--) {
+            shim.recordQuery(queryProto, operations[i], {name: operations[i], callback: shim.LAST});
+        }
+    }
+}
+
+function instrument (shim, datastore, moduleName) {
     shim.setDatastore('Datastore');
 
-    if (datastore && datastore.prototype) {
-        let proto = datastore.prototype;
-        for (let i = DB_OPS.length - 1; i >= 0; i--) {
-            shim.recordOperation(proto, DB_OPS[i], {name: DB_OPS[i], callback: shim.LAST});
-        }
-    }
-
-    if (datastore.DatastoreRequest && datastore.DatastoreRequest.prototype) {
-        let requestProto = datastore.DatastoreRequest.prototype;
-        for (let i = REQUEST_OPS.length - 1; i >= 0; i--) {
-            shim.recordOperation(requestProto, REQUEST_OPS[i], {name: REQUEST_OPS[i], callback: shim.LAST});
-        }
-    }
-
-    if (datastore.Query && datastore.Query.prototype) {
-        let queryProto = datastore.Query.prototype;
-        for (let i = QUERY_OPS.length - 1; i >= 0; i--) {
-            shim.recordQuery(queryProto, QUERY_OPS[i], {name: QUERY_OPS[i], query: QUERY_OPS[i], callback: shim.LAST});
-        }
-    }
-
-    if (datastore.Transaction && datastore.Transaction.prototype) {
-        let transactionProto = datastore.Transaction.prototype;
-        for (let i = TRANSACTION_OPS.length - 1; i >= 0; i--) {
-            shim.recordOperation(transactionProto, TRANSACTION_OPS[i], {
-                name: TRANSACTION_OPS[i],
-                callback: shim.LAST
-            });
-        }
-    }
+    recordOperations(shim, datastore, DB_OPS);
+    recordOperations(shim, datastore.DatastoreRequest, REQUEST_OPS);
+    recordOperations(shim, datastore.Transaction, TRANSACTION_OPS);
+    recordOperations(shim, datastore.v1.DatastoreClient, CLIENT_OPS);
+    recordQueries(shim, datastore.Query, QUERY_OPS);
 }
 
 module.exports = instrument;

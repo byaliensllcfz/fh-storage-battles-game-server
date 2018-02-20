@@ -30,7 +30,7 @@
   "scripts": {
     "preinstall": "bash git-setup.sh",
     "postinstall": "bash git-teardown.sh",
-    "start": "logagent -c logagent.conf | node server.js",
+    "start": "logagent -e http://localhost:9200 -c logagent.conf | node server.js",
     "test": "NODE_ENV=test istanbul cover _mocha -- -b -t 10000 -R spec --exit"
   }
 }
