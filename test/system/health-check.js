@@ -5,7 +5,12 @@ const chaiHttp = require('chai-http');
 chai.use(chaiHttp);
 
 const common = require('../common');
-const server = require('../../server');
+let server;
+
+before(done => {
+    server = require('../../server');
+    done();
+});
 
 it('should fail because the HTTP method is wrong', done => {
     chai.request(server)
