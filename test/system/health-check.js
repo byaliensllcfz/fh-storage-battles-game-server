@@ -5,15 +5,17 @@ const chaiHttp = require('chai-http');
 chai.use(chaiHttp);
 
 const common = require('../common');
-let server;
+const server = require('../../server');
+
+let serverApp;
 
 before(done => {
-    server = require('../../server');
+    serverApp = server.createApp();
     done();
 });
 
 it('should fail because the HTTP method is wrong', done => {
-    chai.request(server)
+    chai.request(serverApp)
         .post('/_ah/health')
         .end((err, res) => {
             common.errorChecks(err, res, 405);
@@ -21,7 +23,7 @@ it('should fail because the HTTP method is wrong', done => {
         });
 });
 it('should get an OK response', done => {
-    chai.request(server)
+    chai.request(serverApp)
         .get('/_ah/health')
         .end((err, res) => {
             if (err) {
