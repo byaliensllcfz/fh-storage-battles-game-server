@@ -6,7 +6,7 @@ const DB_OPS = [
     'transaction'
 ];
 
-const CLIENT_OPS =[
+const CLIENT_OPS = [
     'allocateIds',
     'beginTransaction',
     'commit',

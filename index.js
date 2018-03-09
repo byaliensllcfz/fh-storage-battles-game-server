@@ -10,6 +10,7 @@ const Logger = require('tp-common/logger');
 
 const config = require('./config');
 const server = require('./server');
+const logShipper = require('./log-shipper');
 
 const logger = new Logger(config);
 
@@ -30,7 +31,7 @@ function spawnWorker () {
     cluster_map.ids[worker.id] = role;
 }
 
-if(cluster.isMaster && process.env.NODE_ENV !== 'test') {
+if (cluster.isMaster && process.env.NODE_ENV !== 'test') {
     let spawners = {
         'server': spawnServer,
         'worker': spawnWorker,
@@ -46,6 +47,9 @@ if(cluster.isMaster && process.env.NODE_ENV !== 'test') {
     // Spawn additional workers.
     // logger.notice('Master cluster setting up a worker.');
     // spawnWorker();
+
+    // Start our log shipper.
+    logShipper.start();
 
     cluster.on('online', worker => {
         let role = cluster_map.ids[worker.id];

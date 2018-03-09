@@ -8,10 +8,10 @@
   },
   "dependencies": {
     "@google-cloud/datastore": "^1.3.4",
-    "@sematext/logagent": "^2.0.106",
+    "@sematext/logagent": "^2.0.108",
     "body-parser": "^1.18.2",
     "express": "^4.16.2",
-    "newrelic": "^2.9.0",
+    "newrelic": "^2.9.1",
     "tp-common": "git+https://bitbucket.org/tappshq/tp-nodejs-api-commons.git#1.1.0",
     "uuid": "^3.2.1"
   },
@@ -19,18 +19,18 @@
     "chai": "^4.1.2",
     "chai-http": "^3.0.0",
     "istanbul": "^0.4.5",
-    "mocha": "^5.0.1",
+    "mocha": "^5.0.3",
     "node-mocks-http": "^1.6.6",
     "rewire": "^3.0.2",
     "sinon": "^4.4.2",
-    "sinon-chai": "^2.14.0",
+    "sinon-chai": "^3.0.0",
     "sinon-stub-promise": "^4.0.0",
     "sonarqube-scanner": "^2.0.2"
   },
   "scripts": {
     "preinstall": "bash git-setup.sh",
     "postinstall": "bash git-teardown.sh",
-    "start": "logagent -c logagent.conf | node index.js",
+    "start": "node index.js",
     "test": "NODE_ENV=test istanbul cover _mocha -- -b -t 10000 -R spec --exit"
   }
 }
