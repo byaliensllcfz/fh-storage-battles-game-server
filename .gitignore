@@ -31,6 +31,8 @@ lib/**/*.css.shim.ts
 lib/**/*.shim.ngstyle.ts
 
 # other
+/app.yaml
+/config.json
 /dist
 /demo/build
 .idea

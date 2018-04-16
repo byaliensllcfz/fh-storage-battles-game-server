@@ -3,10 +3,10 @@
 const DB_OPS = [
     'createQuery',
     'key',
-    'transaction'
+    'transaction',
 ];
 
-const CLIENT_OPS =[
+const CLIENT_OPS = [
     'allocateIds',
     'beginTransaction',
     'commit',
@@ -14,7 +14,7 @@ const CLIENT_OPS =[
     'lookup',
     'reserveIds',
     'rollback',
-    'runQuery'
+    'runQuery',
 ];
 
 const REQUEST_OPS = [
@@ -28,7 +28,7 @@ const REQUEST_OPS = [
     'save',
     'update',
     'upsert',
-    'request_'
+    'request_',
 ];
 
 const QUERY_OPS = [
@@ -42,7 +42,7 @@ const QUERY_OPS = [
     'limit',
     'offset',
     'run',
-    'runStream'
+    'runStream',
 ];
 
 const TRANSACTION_OPS = [
@@ -51,10 +51,10 @@ const TRANSACTION_OPS = [
     'delete',
     'rollback',
     'run',
-    'save'
+    'save',
 ];
 
-function recordOperations (shim, datastoreObject, operations) {
+function recordOperations(shim, datastoreObject, operations) {
     if (datastoreObject && datastoreObject.prototype) {
         let proto = datastoreObject.prototype;
         for (let i = operations.length - 1; i >= 0; i--) {
@@ -63,7 +63,7 @@ function recordOperations (shim, datastoreObject, operations) {
     }
 }
 
-function recordQueries (shim, datastoreObject, operations) {
+function recordQueries(shim, datastoreObject, operations) {
     if (datastoreObject && datastoreObject.prototype) {
         let queryProto = datastoreObject.prototype;
         for (let i = operations.length - 1; i >= 0; i--) {
@@ -72,7 +72,7 @@ function recordQueries (shim, datastoreObject, operations) {
     }
 }
 
-function instrument (shim, datastore, moduleName) {
+function instrument(shim, datastore) {
     shim.setDatastore('Datastore');
 
     recordOperations(shim, datastore, DB_OPS);
