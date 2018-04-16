@@ -1,3 +1,0 @@
-service: servicename-v1
-runtime: custom
-env: flex

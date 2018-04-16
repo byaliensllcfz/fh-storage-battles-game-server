@@ -17,16 +17,14 @@ function createApp () {
     let app = express();
     app.set('trust proxy', true);
 
-    // Middlewares
     app.use(middleware.responseTime.bind(middleware));
+    app.use('/_ah', require('./routes/health-check')); // Only responseTime is needed, to log the application's metrics.
+
+    // Middlewares
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({extended: false}));
     app.use(middleware.notFoundHandler.bind(middleware));
     app.use(middleware.security.bind(middleware));
-
-    // Health Check
-    app.use('/_ah', require('./routes/health-check'));
-    middleware.addAuthenticationExceptionRoute('/_ah/health');
 
     // API Endpoints
     // app.use('/endpoint/route/:var', require('./routes/file-that-contains-the-endpoint'));

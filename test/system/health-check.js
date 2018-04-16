@@ -9,12 +9,12 @@ const server = require('../../server');
 
 let serverApp;
 
-before(done => {
+before(function(done) {
     serverApp = server.createApp();
     done();
 });
 
-it('should fail because the HTTP method is wrong', done => {
+it('should fail because the HTTP method is wrong', function(done) {
     chai.request(serverApp)
         .post('/_ah/health')
         .end((err, res) => {
@@ -22,15 +22,15 @@ it('should fail because the HTTP method is wrong', done => {
             done();
         });
 });
-it('should get an OK response', done => {
+it('should get an OK response', function(done) {
     chai.request(serverApp)
         .get('/_ah/health')
         .end((err, res) => {
             if (err) {
-                throw err;
+                done(err);
             }
-            res.should.have.status(200);
-            res.text.should.eql('OK');
+            common.successChecks(err, res, 200);
+            res.body.should.be.an('object');
             done();
         });
 });

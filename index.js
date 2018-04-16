@@ -2,6 +2,8 @@
 
 // The New Relic require has to be the first thing to run!
 const newrelic = require('newrelic');
+const appmetrics = require('appmetrics');
+appmetrics.start();
 const instrumentation = require('./datastore-instrumentation');
 newrelic.instrumentDatastore('@google-cloud/datastore', instrumentation);
 
@@ -39,13 +41,13 @@ if (cluster.isMaster && process.env.NODE_ENV !== 'test') {
 
     // Spawn a web server for each CPU core.
     let numServerWorkers = require('os').cpus().length;
-    logger.notice('Master cluster setting up ' + numServerWorkers + ' web server worker(s).');
+    logger.info('Master cluster setting up ' + numServerWorkers + ' web server worker(s).');
     for (let i = numServerWorkers; i > 0; i--) {
         spawnServer();
     }
 
     // Spawn additional workers.
-    // logger.notice('Master cluster setting up a worker.');
+    // logger.info('Master cluster setting up a worker.');
     // spawnWorker();
 
     // Start our log shipper.
@@ -53,20 +55,22 @@ if (cluster.isMaster && process.env.NODE_ENV !== 'test') {
 
     cluster.on('online', worker => {
         let role = cluster_map.ids[worker.id];
-        logger.notice(role + ' worker ' + worker.id + ' is online!');
+        logger.info(role + ' worker ' + worker.id + ' is online!');
         cluster_map.workers[role] = cluster_map.workers[role] || {};
         cluster_map.workers[role][worker.id] = worker;
     });
 
     cluster.on('exit', (worker, code, signal) => {
         let role = cluster_map.ids[worker.id];
-        logger.notice(role + ' worker ' + worker.id + ' died with code: ' + code + ', and signal: ' + signal);
-        logger.notice('Starting a new ' + role + ' worker.');
+        logger.info(role + ' worker ' + worker.id + ' died with code: ' + code + ', and signal: ' + signal);
+        logger.info('Starting a new ' + role + ' worker.');
         delete cluster_map.workers[role][worker.id];
         spawners[role]();
     });
 } else {
-    if (process.env.ROLE === 'server') {
-        server.start();
+    switch (process.env.ROLE) {
+        case 'server':
+            server.start();
+            break;
     }
 }

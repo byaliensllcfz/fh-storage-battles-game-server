@@ -1,0 +1,18 @@
+service: servicename-v1
+runtime: custom
+env: flex
+
+health_check:
+  enable_health_check: True
+  check_interval_sec: 60
+  timeout_sec: 4
+  unhealthy_threshold: 2
+  healthy_threshold: 2
+  restart_threshold: 10
+
+automatic_scaling:
+  min_num_instances: 2
+  max_num_instances: 20
+  cool_down_period_sec: 900
+  cpu_utilization:
+    target_utilization: 0.50

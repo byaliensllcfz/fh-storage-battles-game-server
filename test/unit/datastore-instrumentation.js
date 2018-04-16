@@ -8,9 +8,8 @@ chai.should();
 
 let instrumentation = require('../../datastore-instrumentation');
 
-it('should instrument all datastore functions', done => {
+it('should instrument all datastore functions', function() {
     newrelic.instrumentDatastore('@google-cloud/datastore', instrumentation);
     let datastore = require('@google-cloud/datastore');
     datastore.should.have.property('__NR_instrumented');
-    done();
 });

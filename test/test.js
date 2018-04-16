@@ -6,7 +6,7 @@ const config = require('../config');
 
 global.baseHeaders = {
     'content-type': 'application/json',
-    'x-tapps-bundle-id': 'test.bundle.id'
+    'x-tapps-bundle-id': 'test.bundle.id',
 };
 
 process.on('unhandledRejection', ex => {
@@ -14,7 +14,7 @@ process.on('unhandledRejection', ex => {
 });
 
 function importTest (name, path) {
-    describe(name, () => {
+    describe(name, function() {
         require(path);
     });
 }
@@ -26,64 +26,67 @@ function systemTestSetup (done) {
     datastore.read({
         id: 'latest',
         kind: 'SharedCloudSecret',
-        namespace: 'cloud-configs'
+        namespace: 'cloud-configs',
     }).then(result => {
         global.baseHeaders['x-tapps-shared-cloud-secret'] = result.key;
         done();
-    }).catch(() => {
-        const uuid = require('uuid/v4');
-        const key = uuid();
-        let date = new Date().getTime();
-        date += (1 * 60 * 60 * 1000);
-        datastore.write({
-            id: 'latest',
-            kind: 'SharedCloudSecret',
-            namespace: 'cloud-configs',
-            data: {
-                expiration: new Date(date).getTime(),
-                key: key
-            }
-        }).then(() => {
-            global.baseHeaders['x-tapps-shared-cloud-secret'] = key;
-            done();
-        }).catch(error => {
+    }).catch(error => {
+        if (process.env.DATASTORE_EMULATOR_HOST) {
+            const uuid = require('uuid/v4');
+            const key = uuid();
+            let date = new Date().getTime();
+            date += 1 * 60 * 60 * 1000;
+            datastore.write({
+                id: 'latest',
+                kind: 'SharedCloudSecret',
+                namespace: 'cloud-configs',
+                data: {
+                    expiration: date,
+                    key: key,
+                },
+            }).then(function() {
+                global.baseHeaders['x-tapps-shared-cloud-secret'] = key;
+                done();
+            }).catch(error => {
+                throw error;
+            });
+        } else {
             throw error;
-        });
+        }
     });
 }
 
-describe('Service Name Tests', () => {
-    describe('Unit tests', () => {
+describe('Service Name Tests', function() {
+    describe('Unit tests', function() {
         // importTest('Test name', './unit/test-file');
         importTest('Datastore Instrumentation', './unit/datastore-instrumentation');
     });
-    describe('Integration tests', () => {
+    describe('Integration tests', function() {
         // importTest('Test name', './integration/test-file');
     });
-    describe('System tests', () => {
-        before(done => {
+    describe('System tests', function() {
+        before(function(done) {
             systemTestSetup(done);
         });
         // importTest('Test name', './system/test-file');
         importTest('Health Check', './system/health-check');
     });
-    after(() => {
+    after(function(done) {
         // Remove any leftover logs
-        fs.writeFileSync(
-            '/var/log/app_engine/custom_logs/app-' + config.service_name + '-notice.json',
-            ''
-        );
-        fs.writeFileSync(
-            '/var/log/app_engine/custom_logs/app-' + config.service_name + '-info.json',
-            ''
-        );
-        fs.writeFileSync(
-            '/var/log/app_engine/custom_logs/app-' + config.service_name + '-error.json',
-            ''
-        );
-        fs.writeFileSync(
-            '/var/log/app_engine/custom_logs/app-' + config.service_name + '-alert.json',
-            ''
-        );
+        const path = '/var/log/app_engine/custom_logs/';
+        fs.readdir(path, (error, files) => {
+            if (error) {
+                done(error);
+            }
+            const fileBaseName = `app-${config.service_name}-`;
+            const matcher = new RegExp(fileBaseName + '.*');
+            const matchedFiles = files.filter(name => matcher.test(name));
+            matchedFiles.forEach(filename => {
+                fs.unlink(path + filename, error => {
+                    done(error);
+                });
+            });
+            done();
+        });
     });
 });
