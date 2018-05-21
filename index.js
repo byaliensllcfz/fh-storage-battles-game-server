@@ -8,35 +8,39 @@ const instrumentation = require('./datastore-instrumentation');
 newrelic.instrumentDatastore('@google-cloud/datastore', instrumentation);
 
 const cluster = require('cluster');
-const Logger = require('tp-common/logger');
+const tpCommon = require('tp-common');
 
 const config = require('./config');
 const server = require('./server');
 const logShipper = require('./log-shipper');
 
-const logger = new Logger(config);
+const logger = new tpCommon.Logger(config);
 
-let cluster_map = {
+let clusterMap = {
     ids: {},
     workers: {},
 };
 
-function spawnServer () {
+function spawnServer() {
     const role = 'server';
-    let server = cluster.fork({ROLE: role});
-    cluster_map.ids[server.id] = role;
+    let server = cluster.fork({
+        ROLE: role,
+    });
+    clusterMap.ids[server.id] = role;
 }
 
-function spawnWorker () {
+function spawnWorker() {
     const role = 'worker';
-    let worker = cluster.fork({ROLE: role});
-    cluster_map.ids[worker.id] = role;
+    let worker = cluster.fork({
+        ROLE: role,
+    });
+    clusterMap.ids[worker.id] = role;
 }
 
 if (cluster.isMaster && process.env.NODE_ENV !== 'test') {
     let spawners = {
-        'server': spawnServer,
-        'worker': spawnWorker,
+        server: spawnServer,
+        worker: spawnWorker,
     };
 
     // Spawn a web server for each CPU core.
@@ -46,25 +50,21 @@ if (cluster.isMaster && process.env.NODE_ENV !== 'test') {
         spawnServer();
     }
 
-    // Spawn additional workers.
-    // logger.info('Master cluster setting up a worker.');
-    // spawnWorker();
-
     // Start our log shipper.
     logShipper.start();
 
     cluster.on('online', worker => {
-        let role = cluster_map.ids[worker.id];
+        let role = clusterMap.ids[worker.id];
         logger.info(role + ' worker ' + worker.id + ' is online!');
-        cluster_map.workers[role] = cluster_map.workers[role] || {};
-        cluster_map.workers[role][worker.id] = worker;
+        clusterMap.workers[role] = clusterMap.workers[role] || {};
+        clusterMap.workers[role][worker.id] = worker;
     });
 
     cluster.on('exit', (worker, code, signal) => {
-        let role = cluster_map.ids[worker.id];
+        let role = clusterMap.ids[worker.id];
         logger.info(role + ' worker ' + worker.id + ' died with code: ' + code + ', and signal: ' + signal);
         logger.info('Starting a new ' + role + ' worker.');
-        delete cluster_map.workers[role][worker.id];
+        delete clusterMap.workers[role][worker.id];
         spawners[role]();
     });
 } else {

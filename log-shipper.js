@@ -1,10 +1,10 @@
 'use strict';
 
 const childProcess = require('child_process');
-const Logger = require('tp-common/logger');
+const tpCommon = require('tp-common');
 
 const config = require('./config');
-const logger = new Logger(config);
+const logger = new tpCommon.Logger(config);
 
 let running = false;
 
