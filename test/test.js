@@ -21,8 +21,8 @@ function importTest (name, path) {
 
 function systemTestSetup (done) {
     // Read the Shared Cloud Secret from Datastore
-    const Datastore = require('tp-common/datastore');
-    const datastore = new Datastore(config);
+    const tpCommon = require('tp-common');
+    const datastore = new tpCommon.Datastore(config);
     datastore.read({
         id: 'latest',
         kind: 'SharedCloudSecret',
@@ -35,7 +35,7 @@ function systemTestSetup (done) {
             const uuid = require('uuid/v4');
             const key = uuid();
             let date = new Date().getTime();
-            date += 1 * 60 * 60 * 1000;
+            date += 60 * 60 * 1000;
             datastore.write({
                 id: 'latest',
                 kind: 'SharedCloudSecret',

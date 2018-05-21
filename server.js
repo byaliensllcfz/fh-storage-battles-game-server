@@ -2,29 +2,29 @@
 
 const bodyParser = require('body-parser');
 const express = require('express');
-const Logger = require('tp-common/logger');
-const Middleware = require('tp-common/middleware');
-const Util = require('tp-common/util');
+const tpCommon = require('tp-common');
 
 const config = require('./config');
 const errors = require('./errors');
 
-const logger = new Logger(config);
-const middleware = new Middleware(config);
-const util = new Util(config);
+const logger = new tpCommon.Logger(config);
+const middleware = new tpCommon.Middleware(config);
+const util = new tpCommon.Util(config);
 
 function createApp () {
     let app = express();
     app.set('trust proxy', true);
 
-    app.use(middleware.responseTime.bind(middleware));
-    app.use('/_ah', require('./routes/health-check')); // Only responseTime is needed, to log the application's metrics.
+    app.use('/_ah', require('./routes/health-check'));
 
     // Middlewares
+    app.use(middleware.responseTime.bind(middleware));
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({extended: false}));
     app.use(middleware.notFoundHandler.bind(middleware));
     app.use(middleware.security.bind(middleware));
+    app.use(middleware.authenticateTPServer.bind(middleware));
+    // app.use(middleware.authenticateGameServer.bind(middleware));
 
     // API Endpoints
     // app.use('/endpoint/route/:var', require('./routes/file-that-contains-the-endpoint'));
@@ -38,7 +38,7 @@ function createApp () {
     return app;
 }
 
-function start () {
+function start() {
     const app = createApp();
     // Start the server
     const server = app.listen(process.env.PORT || config.port, () => {
