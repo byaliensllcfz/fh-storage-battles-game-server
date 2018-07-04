@@ -19,8 +19,8 @@ function createApp () {
 
     // Middlewares
     app.use(middleware.responseTime.bind(middleware));
-    app.use(bodyParser.json());
-    app.use(bodyParser.urlencoded({extended: false}));
+    app.use(bodyParser.json({limit: '10mb'}));
+    app.use(bodyParser.urlencoded({limit: '10mb', extended: false}));
     app.use(middleware.notFoundHandler.bind(middleware));
     app.use(middleware.security.bind(middleware));
     app.use(middleware.authenticateTPServer.bind(middleware));

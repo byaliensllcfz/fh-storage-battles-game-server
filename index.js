@@ -12,8 +12,9 @@ const tpCommon = require('tp-common');
 
 const config = require('./config');
 const server = require('./server');
-const logShipper = require('./log-shipper');
 
+const logShipper = tpCommon.logShipper;
+const metrics = tpCommon.metrics;
 const logger = new tpCommon.Logger(config);
 
 let clusterMap = {
@@ -51,7 +52,10 @@ if (cluster.isMaster && process.env.NODE_ENV !== 'test') {
     }
 
     // Start our log shipper.
-    logShipper.start();
+    logShipper.start(config);
+
+    // Start monitoring the applications's metrics.
+    metrics.start(config);
 
     cluster.on('online', worker => {
         let role = clusterMap.ids[worker.id];
@@ -72,5 +76,7 @@ if (cluster.isMaster && process.env.NODE_ENV !== 'test') {
         case 'server':
             server.start();
             break;
+        default:
+            throw new Error(`Attempting to start a worker with unknown role: ${process.env.ROLE}.`);
     }
 }

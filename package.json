@@ -7,27 +7,26 @@
     "node": ">=8.9.4"
   },
   "dependencies": {
-    "@google-cloud/datastore": "^1.4.0",
-    "@sematext/logagent": "^2.0.110",
-    "appmetrics": "^3.1.3",
+    "@google-cloud/datastore": "^1.4.1",
+    "appmetrics": "^4.0.0",
     "body-parser": "^1.18.3",
     "express": "^4.16.3",
-    "newrelic": "^4.1.1",
-    "tp-common": "git+https://bitbucket.org/tappshq/tp-nodejs-api-commons.git#3.2.0",
-    "uuid": "^3.2.1"
+    "newrelic": "^4.2.1",
+    "tp-common": "git+https://bitbucket.org/tappshq/tp-nodejs-api-commons.git#3.6.0",
+    "uuid": "^3.3.1"
   },
   "devDependencies": {
     "chai": "^4.1.2",
     "chai-http": "^4.0.0",
-    "cross-env": "^5.1.5",
-    "eslint": "^4.19.1",
+    "cross-env": "^5.2.0",
+    "eslint": "^5.0.1",
     "eslint-plugin-mocha": "^5.0.0",
     "istanbul": "^0.4.5",
     "mocha": "^5.2.0",
     "node-mocks-http": "^1.7.0",
     "rewire": "^4.0.1",
-    "sinon": "^5.0.7",
-    "sinon-chai": "^3.0.0",
+    "sinon": "^6.1.0",
+    "sinon-chai": "^3.2.0",
     "sinon-stub-promise": "^4.0.0",
     "sonarqube-scanner": "^2.0.2"
   },
@@ -36,6 +35,9 @@
     "preinstall": "bash git-setup.sh",
     "postinstall": "bash git-teardown.sh",
     "start": "node index.js",
-    "test": "cross-env NODE_ENV=test istanbul cover node_modules/mocha/bin/_mocha -- -b -t 10000 -R spec --exit && npm run lint"
+    "main-test": "cross-env NODE_ENV=test NEW_RELIC_ENABLED=false nyc --silent --temp-directory=./.nyc_output mocha ./test/test.js -t 60000 -R spec --exit",
+    "monitoring-test": "cross-env NODE_ENV=test NEW_RELIC_ENABLED=true nyc --no-clean --silent --temp-directory=./.nyc_output mocha ./test/test-datastore-instrumentation.js -t 60000 -R spec --exit",
+    "report": "nyc --no-clean --temp-directory=./.nyc_output report --reporter=text --reporter=html --reporter=lcov",
+    "test": "retval=0 npm run main-test || retval=$?; npm run monitoring-test || retval=$?; npm run report || retval=$?; npm run lint || retval=$?; exit $retval"
   }
 }
