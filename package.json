@@ -21,9 +21,9 @@
     "cross-env": "^5.2.0",
     "eslint": "^5.0.1",
     "eslint-plugin-mocha": "^5.0.0",
-    "istanbul": "^0.4.5",
     "mocha": "^5.2.0",
     "node-mocks-http": "^1.7.0",
+    "nyc": "^12.0.2",
     "rewire": "^4.0.1",
     "sinon": "^6.1.0",
     "sinon-chai": "^3.2.0",
@@ -36,7 +36,7 @@
     "postinstall": "bash git-teardown.sh",
     "start": "node index.js",
     "main-test": "cross-env NODE_ENV=test NEW_RELIC_ENABLED=false nyc --silent --temp-directory=./.nyc_output mocha ./test/test.js -t 60000 -R spec --exit",
-    "monitoring-test": "cross-env NODE_ENV=test NEW_RELIC_ENABLED=true nyc --no-clean --silent --temp-directory=./.nyc_output mocha ./test/test-datastore-instrumentation.js -t 60000 -R spec --exit",
+    "monitoring-test": "cross-env NODE_ENV=test NEW_RELIC_ENABLED=true nyc --no-clean --silent --temp-directory=./.nyc_output mocha ./test/unit/datastore-instrumentation.js -t 60000 -R spec --exit",
     "report": "nyc --no-clean --temp-directory=./.nyc_output report --reporter=text --reporter=html --reporter=lcov",
     "test": "retval=0 npm run main-test || retval=$?; npm run monitoring-test || retval=$?; npm run report || retval=$?; npm run lint || retval=$?; exit $retval"
   }

@@ -35,6 +35,7 @@ lib/**/*.shim.ngstyle.ts
 /config.json
 /dist
 /demo/build
+.nyc_output
 .idea
 .ghpages-tmp
 .scannerwork
