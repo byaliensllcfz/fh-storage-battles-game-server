@@ -46,11 +46,11 @@ function deleteLogs(done) {
         const matcher = new RegExp(fileBaseName + '.*');
         const matchedFiles = files.filter(name => matcher.test(name));
         matchedFiles.forEach(filename => {
-            fs.unlink(path + filename, error => {
-                done(error);
+            fs.unlink(path + filename, err => {
+                error = err;
             });
         });
-        done();
+        done(error);
     });
 }
 
@@ -89,9 +89,9 @@ function systemTestSetup(config, done) {
     promises.push(assertDatastoreKey(datastore, serviceAccountKey));
     promises.push(assertDatastoreKey(datastore, sharedCloudSecret));
     Promise.all(promises).then(([serviceAccountKey, sharedCloudSecret]) => {
-        global.baseHeaders['x-tapps-service-account-key'] = serviceAccountKey;
+        global.baseHeaders['x-tapps-service-account-key'] = serviceAccountKey.key;
         global.serviceAccountKey = serviceAccountKey;
-        global.baseHeaders['x-tapps-shared-cloud-secret'] = sharedCloudSecret;
+        global.baseHeaders['x-tapps-shared-cloud-secret'] = sharedCloudSecret.key;
         global.sharedCloudSecret = sharedCloudSecret;
         done();
     }).catch(done);
