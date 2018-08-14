@@ -4,12 +4,11 @@
 const newrelic = require('newrelic');
 const appmetrics = require('appmetrics');
 appmetrics.start();
-const instrumentation = require('./datastore-instrumentation');
-newrelic.instrumentDatastore('@google-cloud/datastore', instrumentation);
+
+const tpCommon = require('tp-common');
+newrelic.instrumentDatastore('@google-cloud/datastore', tpCommon.datastoreInstrumentation);
 
 const cluster = require('cluster');
-const tpCommon = require('tp-common');
-
 const config = require('./config');
 const server = require('./server');
 
@@ -38,7 +37,7 @@ function spawnWorker() {
     clusterMap.ids[worker.id] = role;
 }
 
-if (cluster.isMaster && process.env.NODE_ENV !== 'test') {
+if (cluster.isMaster && process.env.NODE_ENV === 'production') {
     let spawners = {
         server: spawnServer,
         worker: spawnWorker,
@@ -46,7 +45,7 @@ if (cluster.isMaster && process.env.NODE_ENV !== 'test') {
 
     // Spawn a web server for each CPU core.
     let numServerWorkers = require('os').cpus().length;
-    logger.info('Master cluster setting up ' + numServerWorkers + ' web server worker(s).');
+    logger.info(`Master cluster setting up ${numServerWorkers} web server worker(s).`);
     for (let i = numServerWorkers; i > 0; i--) {
         spawnServer();
     }
@@ -59,23 +58,35 @@ if (cluster.isMaster && process.env.NODE_ENV !== 'test') {
 
     cluster.on('online', worker => {
         let role = clusterMap.ids[worker.id];
-        logger.info(role + ' worker ' + worker.id + ' is online!');
+        logger.info(`${role} worker ${worker.id} is online!`);
         clusterMap.workers[role] = clusterMap.workers[role] || {};
         clusterMap.workers[role][worker.id] = worker;
     });
 
     cluster.on('exit', (worker, code, signal) => {
         let role = clusterMap.ids[worker.id];
-        logger.info(role + ' worker ' + worker.id + ' died with code: ' + code + ', and signal: ' + signal);
-        logger.info('Starting a new ' + role + ' worker.');
+        logger.info(`${role} worker ${worker.id} died with code: ${code}, and signal: ${signal}.`);
+        logger.info(`Starting a new ${role} worker.`);
         delete clusterMap.workers[role][worker.id];
         spawners[role]();
     });
 } else {
     switch (process.env.ROLE) {
-        case 'server':
-            server.start();
+        case 'server': {
+            server.createApp()
+                .then(app => {
+                    server.start(app);
+                })
+                .catch(error => {
+                    logger.error({
+                        error: error,
+                        message: 'Failed to create app server. Aborting...',
+                    });
+
+                    throw error;
+                });
             break;
+        }
         default:
             throw new Error(`Attempting to start a worker with unknown role: ${process.env.ROLE}.`);
     }

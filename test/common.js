@@ -7,6 +7,11 @@ const fs = require('fs');
 chai.use(chaiHttp);
 chai.should();
 
+global.baseHeaders = {
+    'content-type': 'application/json',
+    'x-tapps-bundle-id': 'test.bundle.id',
+};
+
 function successChecks(err, res, status) {
     if (res.statusCode !== status) {
         console.error(res.body); // eslint-disable-line no-console
@@ -30,12 +35,6 @@ function errorChecks(err, res, status) {
     }
 }
 
-function importTest(name, path) {
-    describe(name, function() {
-        require(path);
-    });
-}
-
 function deleteLogs(done) {
     const path = '/var/log/app_engine/custom_logs/';
     fs.readdir(path, (error, files) => {
@@ -54,53 +53,48 @@ function deleteLogs(done) {
     });
 }
 
-function assertDatastoreKey(datastore, object) {
-    return datastore.read(object)
-        .catch(error => {
-            if (process.env.DATASTORE_EMULATOR_HOST) {
-                const uuid = require('uuid/v4');
-                object.data = {
-                    key: uuid(),
-                };
-                return datastore.write(object);
-            } else {
-                throw error;
-            }
-        });
-}
-
-function systemTestSetup(config, done) {
-    global.baseHeaders = {
-        'content-type': 'application/json',
-    };
+async function assertDatastoreKey(config, object) {
     const tpCommon = require('tp-common');
     const datastore = new tpCommon.Datastore(config);
-    const promises = [];
-    const serviceAccountKey = {
-        id: 'adminkey',
-        kind: 'ServiceAccountKeys',
-        namespace: config.service_name,
-    };
-    const sharedCloudSecret = {
+    try {
+        return await datastore.read(object);
+    } catch (error) {
+        if (process.env.DATASTORE_EMULATOR_HOST === 'localhost:8081') {
+            const uuid = require('uuid/v4');
+            object.data = {
+                key: uuid(),
+            };
+            return datastore.write(object);
+        } else {
+            throw error;
+        }
+    }
+}
+
+async function assertSharedCloudSecret(config) {
+    const sharedCloudSecret = await assertDatastoreKey(config, {
         id: 'latest',
         kind: 'SharedCloudSecret',
         namespace: 'cloud-configs',
-    };
-    promises.push(assertDatastoreKey(datastore, serviceAccountKey));
-    promises.push(assertDatastoreKey(datastore, sharedCloudSecret));
-    Promise.all(promises).then(([serviceAccountKey, sharedCloudSecret]) => {
-        global.baseHeaders['x-tapps-service-account-key'] = serviceAccountKey.key;
-        global.serviceAccountKey = serviceAccountKey;
-        global.baseHeaders['x-tapps-shared-cloud-secret'] = sharedCloudSecret.key;
-        global.sharedCloudSecret = sharedCloudSecret;
-        done();
-    }).catch(done);
+    });
+    global.baseHeaders['x-tapps-shared-cloud-secret'] = sharedCloudSecret.key;
+    global.sharedCloudSecret = sharedCloudSecret;
+}
+
+async function assertServiceAccountKey(config) {
+    const serviceAccountKey = await assertDatastoreKey(config, {
+        id: config.service_name,
+        kind: 'ServiceAccountKeys',
+        namespace: 'cloud-configs',
+    });
+    global.baseHeaders['x-tapps-service-account-key'] = serviceAccountKey.key;
+    global.serviceAccountKey = serviceAccountKey;
 }
 
 module.exports = {
+    assertServiceAccountKey,
+    assertSharedCloudSecret,
     deleteLogs,
     errorChecks,
-    importTest,
     successChecks,
-    systemTestSetup,
 };
