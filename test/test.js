@@ -7,23 +7,19 @@ process.on('unhandledRejection', ex => {
     throw ex;
 });
 
-global.baseHeaders = {
-    'content-type': 'application/json',
-    'x-tapps-bundle-id': 'test.bundle.id',
-};
-
 describe('Unit tests', function() {
-    // common.importTest('Test name', './unit/test-file');
+    // describe('Test Name (/path/to/file/being/tested.js)', require('./path/to/test/file'));
 });
+
 describe('Integration tests', function() {
-    // common.importTest('Test name', './integration/test-file');
-});
-describe('System tests', function() {
-    before(function(done) {
-        common.systemTestSetup(config, done);
+
+    before(async function() {
+        process.env.DATASTORE_EMULATOR_HOST.should.be.equal('localhost:8081');
+        await common.assertSharedCloudSecret(config); // FIXME: TP Server Services only
+        await common.assertServiceAccountKey(config); // FIXME: Game Servers only
     });
-    // common.importTest('Test name', './system/test-file');
-    common.importTest('Health Check', './system/health-check');
+
+    // describe('Test Name', require('./path/to/test/file'));
 });
 
 after(common.deleteLogs);
