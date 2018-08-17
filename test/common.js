@@ -12,17 +12,18 @@ global.baseHeaders = {
     'x-tapps-bundle-id': 'test.bundle.id',
 };
 
-function successChecks(err, res, status) {
+process.on('unhandledRejection', ex => {
+    throw ex;
+});
+
+function successChecks(res, status) {
     if (res.statusCode !== status) {
         console.error(res.body); // eslint-disable-line no-console
-    }
-    if (err) {
-        throw err;
     }
     res.should.have.status(status);
 }
 
-function errorChecks(err, res, status) {
+function errorChecks(res, status) {
     const expected = {
         status: status,
         type: res.body.type ? res.body.type : 'Invalid',
@@ -30,9 +31,6 @@ function errorChecks(err, res, status) {
         detail: res.body.detail ? res.body.detail : 'Invalid',
     };
     res.body.should.be.deep.equal(expected);
-    if (err) {
-        throw err;
-    }
 }
 
 function deleteLogs(done) {
@@ -64,7 +62,7 @@ async function assertDatastoreKey(config, object) {
             object.data = {
                 key: uuid(),
             };
-            return datastore.write(object);
+            return await datastore.write(object);
         } else {
             throw error;
         }

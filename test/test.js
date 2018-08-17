@@ -3,10 +3,6 @@
 const common = require('./common');
 const config = require('../config');
 
-process.on('unhandledRejection', ex => {
-    throw ex;
-});
-
 describe('Unit tests', function() {
     // describe('Test Name (/path/to/file/being/tested.js)', require('./path/to/test/file'));
 });
