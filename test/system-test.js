@@ -3,9 +3,11 @@
 const common = require('./common');
 const config = require('../config');
 
-describe('System tests', function() {
+describe('System tests', function () {
 
-    before(async function() {
+    before(async function () {
+        config.env.should.be.equal('dev');
+
         delete process.env.DATASTORE_EMULATOR_HOST;
         delete process.env.DATASTORE_PROJECT_ID;
         global.hostname = `https://${config.service_deploy_id}-dot-${config.gcloud_project}.appspot.com`;

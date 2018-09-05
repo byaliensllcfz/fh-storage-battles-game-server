@@ -15,8 +15,8 @@ async function createApp () {
     let app = express();
     app.set('trust proxy', true);
 
-    app.use('/_ah', tpCommon.routers.healthCheck());
-    app.use('', tpCommon.routers.resourceStatus(config));
+    app.use('/_ah/health', tpCommon.routers.healthCheck());
+    app.use('/resource-status', tpCommon.routers.resourceStatus(config));
 
     // Middlewares
     app.use(middleware.responseTime.bind(middleware));

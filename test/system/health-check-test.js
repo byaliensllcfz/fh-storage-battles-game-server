@@ -10,7 +10,8 @@ module.exports = function () {
     it('should get an OK response', async function () {
         const res = await chai.request(global.hostname)
             .get('/_ah/health');
+
         common.successChecks(res, 200);
-        res.body.should.be.equal('OK');
+        res.text.should.be.equal('OK');
     });
 };
