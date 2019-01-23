@@ -7,28 +7,31 @@
     "node": ">=8.9.4"
   },
   "dependencies": {
-    "@google-cloud/datastore": "^1.4.1",
     "appmetrics": "^4.0.0",
     "body-parser": "^1.18.3",
     "express": "^4.16.3",
     "newrelic": "^4.7.0",
-    "tp-common": "git+https://bitbucket.org/tappshq/tp-nodejs-api-commons.git#3.10.0",
+    "tp-common": "git+https://bitbucket.org/tappshq/tp-nodejs-api-commons.git#3.11.11",
     "uuid": "^3.3.2"
   },
   "devDependencies": {
-    "chai": "^4.1.2",
+    "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
     "chai-http": "^4.0.0",
+    "chai-roughly": "^1.0.0",
     "cross-env": "^5.2.0",
     "eslint": "^5.3.0",
     "eslint-plugin-mocha": "^5.2.0",
     "mocha": "^5.2.0",
     "node-mocks-http": "^1.7.0",
+    "npm-run-all": "^4.1.5",
     "nyc": "^12.0.2",
     "rewire": "^4.0.1",
-    "sinon": "^6.1.5",
-    "sinon-chai": "^3.2.0",
+    "sinon": "^6.3.5",
+    "sinon-chai": "^3.3.0",
     "sinon-stub-promise": "^4.0.0",
-    "sonarqube-scanner": "^2.1.0"
+    "sonarqube-scanner": "^2.1.0",
+    "vcontrol": "git+https://bitbucket.org/tappshq/vcontrol#1.0.0"
   },
   "scripts": {
     "lint": "eslint .",
@@ -38,6 +41,6 @@
     "main-test": "cross-env NODE_ENV=test NEW_RELIC_ENABLED=false nyc -a --silent --temp-directory=./.nyc_output mocha ./test/test.js -t 60000 -R spec --exit",
     "system-test": "cross-env NODE_ENV=test NEW_RELIC_ENABLED=false nyc -a --no-clean --silent --temp-directory=./.nyc_output mocha ./test/system-test.js -t 60000 -R spec --exit",
     "report": "nyc --no-clean --temp-directory=./.nyc_output report --reporter=text --reporter=html --reporter=lcov",
-    "test": "retval=0 npm run main-test || retval=$?; npm run report || retval=$?; npm run lint || retval=$?; exit $retval"
+    "test": "npm-run-all main-test report lint"
   }
 }
