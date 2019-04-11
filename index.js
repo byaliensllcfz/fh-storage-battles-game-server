@@ -1,19 +1,24 @@
 'use strict';
 
-// The New Relic require has to be the first thing to run!
-const newrelic = require('newrelic');
-const appmetrics = require('appmetrics');
-appmetrics.start();
-
-const tpCommon = require('tp-common');
-newrelic.instrumentDatastore('@google-cloud/datastore', tpCommon.datastoreInstrumentation);
+// The Datadog require has to be the first thing to run!
+const config = require('./config');
+require('dd-trace').init({
+    tags: {
+        instance: process.env.GAE_INSTANCE,
+        project: config.gcloud_project,
+        project_id: config.gcloud_project,
+        version: config.service_deploy_version,
+    },
+    enabled: true,
+    env: config.env,
+    service: config.service_deploy_id,
+});
 
 const cluster = require('cluster');
-const config = require('./config');
+const datadogHandler = require('./lib/datadog-handler');
 const server = require('./server');
+const tpCommon = require('tp-common');
 
-const logShipper = tpCommon.logShipper;
-const metrics = tpCommon.metrics;
 const logger = new tpCommon.Logger(config);
 
 let clusterMap = {
@@ -50,11 +55,9 @@ if (cluster.isMaster && process.env.NODE_ENV === 'production') {
         spawnServer();
     }
 
-    // Start our log shipper.
-    logShipper.start(config);
-
-    // Start monitoring the applications's metrics.
-    metrics.start(config);
+    // Start our datadog agent and trace agent.
+    datadogHandler.startDatadogAgent(config);
+    datadogHandler.startTraceAgent(config);
 
     cluster.on('online', worker => {
         let role = clusterMap.ids[worker.id];

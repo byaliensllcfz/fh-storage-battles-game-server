@@ -7,11 +7,37 @@ module.exports = function () {
 
     const common = require('../common');
 
-    it('should get an OK response', async function () {
-        const res = await chai.request(global.hostname)
-            .get('/_ah/health');
+    describe('Liveness Check', function () {
+        it('should fail because the HTTP method is wrong', async function () {
+            const res = await chai.request(serverApp)
+                .post('/liveness-check');
 
-        common.successChecks(res, 200);
-        res.text.should.be.equal('OK');
+            common.errorChecks(res, 403);
+        });
+
+        it('should get an OK response', async function () {
+            const res = await chai.request(serverApp)
+                .get('/liveness-check');
+
+            common.successChecks(res, 200);
+            res.body.should.be.an('object');
+        });
+    });
+
+    describe('Readiness Check', function () {
+        it('should fail because the HTTP method is wrong', async function () {
+            const res = await chai.request(serverApp)
+                .post('/readiness-check');
+
+            common.errorChecks(res, 403);
+        });
+
+        it('should get an OK response', async function () {
+            const res = await chai.request(serverApp)
+                .get('/readiness-check');
+
+            common.successChecks(res, 200);
+            res.body.should.be.an('object');
+        });
     });
 };

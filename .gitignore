@@ -33,6 +33,7 @@ lib/**/*.shim.ngstyle.ts
 # other
 /app.yaml
 /config.json
+/datadog.yaml
 /dist
 /demo/build
 .nyc_output

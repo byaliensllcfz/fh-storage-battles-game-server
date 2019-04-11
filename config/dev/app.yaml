@@ -2,10 +2,23 @@ service: servicename-v1
 runtime: custom
 env: flex
 
-health_check:
-  enable_health_check: True
-  check_interval_sec: 150
+liveness_check:
+  path: "/liveness-check"
+  check_interval_sec: 60
+  timeout_sec: 2
+  failure_threshold: 4
+  success_threshold: 2
+  initial_delay_sec: 900
+
+readiness_check:
+  path: "/readiness-check"
+  check_interval_sec: 180
   timeout_sec: 4
-  unhealthy_threshold: 2
-  healthy_threshold: 2
-  restart_threshold: 10
+  failure_threshold: 4
+  success_threshold: 2
+  app_start_timeout_sec: 900
+
+env_variables:
+  DD_ENV: 'dev'
+  DD_TRACE_ENABLED: True
+  DD_SERVICE_NAME: 'servicename-v1'
