@@ -4,6 +4,12 @@
     "node": true,
     "mocha": true
   },
+  "globals": {
+    "expect": true,
+    "sinon": true,
+    "srcRequire": true,
+    "srcRewire": true
+  },
   "extends": "eslint:recommended",
   "parserOptions": {
     "sourceType": "module",
@@ -36,6 +42,7 @@
     "mocha/no-pending-tests": "warn",
     "mocha/no-sibling-hooks": "error",
     "mocha/no-skipped-tests": "error",
+    "no-trailing-spaces": "error",
     "no-unused-vars": [
       "error",
       {
@@ -47,7 +54,10 @@
     ],
     "quotes": [
       "error",
-      "single"
+      "single",
+      {
+        "avoidEscape": true
+      }
     ],
     "semi": [
       "error",

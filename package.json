@@ -7,13 +7,17 @@
         "node": ">=10.0.0"
     },
     "dependencies": {
+        "@tapps/core": "git+https://bitbucket.org/tappshq/tp-nodejs-core-commons.git#1.0.0",
+        "@tapps/logging": "git+https://bitbucket.org/tappshq/tp-nodejs-logging-commons.git#1.0.0",
         "body-parser": "^1.18.3",
-        "dd-trace": "^0.10.0",
+        "dd-trace": "^0.11.0",
         "express": "^4.16.3",
-        "tp-common": "git+https://bitbucket.org/tappshq/tp-nodejs-api-commons.git#3.12.2",
+        "tp-common": "git+https://bitbucket.org/tappshq/tp-nodejs-api-commons.git#3.12.4",
         "uuid": "^3.3.2"
     },
     "devDependencies": {
+        "@tapps/magic-mock": "git+https://bitbucket.org/tappshq/tp-nodejs-magic-mock.git#2.0.0",
+        "@tapps/test": "git+https://bitbucket.org/tappshq/tp-nodejs-test-commons.git#1.0.0",
         "chai": "^4.2.0",
         "chai-as-promised": "^7.1.1",
         "chai-http": "^4.2.1",
@@ -33,13 +37,15 @@
         "vcontrol": "git+https://bitbucket.org/tappshq/vcontrol#stable"
     },
     "scripts": {
-        "lint": "eslint .",
         "preinstall": "bash git-setup.sh",
         "postinstall": "bash git-teardown.sh",
-        "start": "node index.js",
-        "main-test": "cross-env NODE_ENV=test DD_TRACE_ENABLED=false nyc -a --silent --temp-directory=./.nyc_output mocha ./test/test.js -t 60000 -R spec --exit",
-        "system-test": "cross-env NODE_ENV=test DD_TRACE_ENABLED=false nyc -a --no-clean --silent --temp-directory=./.nyc_output mocha ./test/system-test.js -t 60000 -R spec --exit",
-        "report": "nyc --no-clean --temp-directory=./.nyc_output report --reporter=text --reporter=html --reporter=lcov",
-        "test": "npm-run-all main-test report lint"
+        "lint": "./node_modules/.bin/eslint .",
+        "docs:clean": "del-cli ./docs/*",
+        "docs:generate": "esdoc",
+        "test:system": "cross-env NODE_ENV=test DD_TRACE_ENABLED=false nyc -a --no-clean --silent --temp-directory=./.nyc_output mocha ./test/system-test.js -t 60000 -R spec --exit",
+        "test:run": "cross-env NODE_ENV=test DD_TRACE_ENABLED=false nyc --silent --temp-directory=./.nyc_output mocha --opts=.mocha.opts",
+        "test:report": "nyc --no-clean --temp-directory=./.nyc_output report --reporter=text --reporter=html --reporter=lcov",
+        "test": "npm-run-all test:run test:report lint",
+        "start": "node index.js"
     }
 }
