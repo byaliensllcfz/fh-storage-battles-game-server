@@ -13,6 +13,18 @@ require('dd-trace').init({
     env: config.env,
     service: config.service_deploy_id,
 });
+const StatsD = require('hot-shots');
+new StatsD({
+    port: 8125,
+    globalTags: {
+        instance: process.env.GAE_INSTANCE,
+        project: config.gcloud_project,
+        project_id: config.gcloud_project,
+        version: config.service_deploy_version,
+        service: config.service_deploy_id,
+    },
+    prefix: `tapps.${config.service_name}.`,
+});
 
 const cluster = require('cluster');
 const datadogHandler = require('./lib/datadog-handler');

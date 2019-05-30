@@ -1,11 +1,7 @@
 'use strict';
 
-const chai = require('chai');
-const chaiHttp = require('chai-http');
 const config = require('../config');
 const fs = require('fs');
-chai.use(chaiHttp);
-chai.should();
 
 global.baseHeaders = {
     'content-type': 'application/json',
@@ -15,23 +11,6 @@ global.baseHeaders = {
 process.on('unhandledRejection', ex => {
     throw ex;
 });
-
-function successChecks(res, status) {
-    if (res.statusCode !== status) {
-        console.error(res.body); // eslint-disable-line no-console
-    }
-    res.should.have.status(status);
-}
-
-function errorChecks(res, status) {
-    const expected = {
-        status: status,
-        type: res.body.type ? res.body.type : 'Invalid',
-        title: res.body.title ? res.body.title : 'Invalid',
-        detail: res.body.detail ? res.body.detail : 'Invalid',
-    };
-    res.body.should.be.deep.equal(expected);
-}
 
 function deleteLogs(done) {
     const path = '/var/log/app_engine/custom_logs/';
@@ -93,6 +72,4 @@ module.exports = {
     assertServiceAccountKey,
     assertSharedCloudSecret,
     deleteLogs,
-    errorChecks,
-    successChecks,
 };
