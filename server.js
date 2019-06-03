@@ -45,6 +45,7 @@ function start(app) {
         const port = server.address().port;
         logger.notice(`Process ${process.pid} is listening to incoming requests on port ${port}.`);
     });
+
     return server;
 }
 
