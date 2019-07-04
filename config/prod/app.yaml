@@ -1,4 +1,4 @@
-service: servicename-v1
+service: service-name-v1
 runtime: custom
 env: flex
 
@@ -28,4 +28,4 @@ automatic_scaling:
 env_variables:
   DD_ENV: 'prod'
   DD_TRACE_ENABLED: True
-  DD_SERVICE_NAME: 'scores-v1'
+  DD_SERVICE_NAME: 'service-name-v1'

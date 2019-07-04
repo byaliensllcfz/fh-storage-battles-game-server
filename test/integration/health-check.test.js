@@ -1,16 +1,22 @@
 'use strict';
 
 const chai = require('chai');
-const { assertions } = require('@tapps/test');
+const { assertions } = require('@tapps-games/test');
 
-const server = require('../../server');
+const { createServer } = require('../../src/server');
 
-let serverApp;
+let server, serverApp;
 
 describe('Integration Test - Health Check', function () {
 
     before(async function () {
-        serverApp = await server.createApp();
+        server = await createServer();
+        serverApp = server.app;
+        server._startChild();
+    });
+
+    after(function () {
+        server.server.close();
     });
 
     describe('Liveness Check', function () {
