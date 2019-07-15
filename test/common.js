@@ -1,6 +1,7 @@
 'use strict';
 
-const config = require('../config');
+const { config } = require('@tapps-games/core');
+const { Datastore } = require('@tapps-games/datastore');
 const fs = require('fs');
 
 global.baseHeaders = {
@@ -18,7 +19,7 @@ function deleteLogs(done) {
         if (error) {
             done(error);
         }
-        const fileBaseName = `app-${config.service_name}-`;
+        const fileBaseName = `app-${config.get('serviceName')}-`;
         const matcher = new RegExp(fileBaseName + '.*');
         const matchedFiles = files.filter(name => matcher.test(name));
         matchedFiles.forEach(filename => {
@@ -30,26 +31,30 @@ function deleteLogs(done) {
     });
 }
 
-async function assertDatastoreKey(config, object) {
-    const tpCommon = require('tp-common');
-    const datastore = new tpCommon.Datastore(config);
-    try {
-        return await datastore.read(object);
-    } catch (error) {
+async function assertDatastoreKey(object) {
+    const datastore = new Datastore();
+
+    const data = await datastore.read(object);
+
+    if (data) {
+        return data;
+
+    } else {
         if (process.env.DATASTORE_EMULATOR_HOST === 'localhost:8081') {
             const uuid = require('uuid/v4');
-            object.data = {
+            object.entity = {
                 key: uuid(),
             };
-            return await datastore.write(object);
+            return datastore.write(object);
+
         } else {
-            throw error;
+            throw new Error(`No entity found in datastore with id: ${object.id}, in kind: ${object.kind} and namespace: ${object.namespace}.`);
         }
     }
 }
 
-async function assertSharedCloudSecret(config) {
-    const sharedCloudSecret = await assertDatastoreKey(config, {
+async function assertSharedCloudSecret() {
+    const sharedCloudSecret = await assertDatastoreKey({
         id: 'latest',
         kind: 'SharedCloudSecret',
         namespace: 'cloud-configs',
@@ -58,18 +63,7 @@ async function assertSharedCloudSecret(config) {
     global.sharedCloudSecret = sharedCloudSecret;
 }
 
-async function assertServiceAccountKey(config) {
-    const serviceAccountKey = await assertDatastoreKey(config, {
-        id: config.service_name,
-        kind: 'ServiceAccountKeys',
-        namespace: 'cloud-configs',
-    });
-    global.baseHeaders['x-tapps-service-account-key'] = serviceAccountKey.key;
-    global.serviceAccountKey = serviceAccountKey;
-}
-
 module.exports = {
-    assertServiceAccountKey,
     assertSharedCloudSecret,
     deleteLogs,
 };

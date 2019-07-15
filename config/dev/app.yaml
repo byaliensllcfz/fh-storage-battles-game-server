@@ -1,4 +1,4 @@
-service: servicename-v1
+service: service-name-v1
 runtime: custom
 env: flex
 
@@ -21,4 +21,4 @@ readiness_check:
 env_variables:
   DD_ENV: 'dev'
   DD_TRACE_ENABLED: True
-  DD_SERVICE_NAME: 'servicename-v1'
+  DD_SERVICE_NAME: 'service-name-v1'

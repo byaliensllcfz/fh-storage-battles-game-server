@@ -8,10 +8,8 @@ FROM gcr.io/google_appengine/nodejs
 RUN /usr/local/bin/install_node '>=8.9.4'
 COPY . /app/
 
-RUN git config --global credential.helper 'store'
-RUN echo "REPLACE_CREDENTIALS" >> ~/.git-credentials
-
 ENV NODE_ENV production
+ENV NPM_TOKEN "REPLACE_NPM_TOKEN"
 
 # Install DataDog
 RUN DD_API_KEY=dummy-key DD_INSTALL_ONLY=true bash -c "$(curl -L https://raw.githubusercontent.com/DataDog/datadog-agent/master/cmd/agent/install_script.sh)"
@@ -29,7 +27,5 @@ RUN yarn --unsafe-perms --frozen-lockfile || \
   ((if [ -f yarn-debug.log ]; then \
       cat yarn-debug.log; \
     fi) && false)
-
-RUN rm ~/.git-credentials
 
 CMD npm start

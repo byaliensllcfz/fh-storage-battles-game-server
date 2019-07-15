@@ -1,16 +1,22 @@
 'use strict';
 
 const chai = require('chai');
-const { assertions } = require('@tapps/test');
+const { assertions } = require('@tapps-games/test');
 
-const server = require('../../server');
+const { createServer } = require('../../src/server');
 
-let serverApp;
+let server, serverApp;
 
 describe('Integration Test - Resource Status', function () {
 
     before(async function () {
-        serverApp = await server.createApp();
+        server = await createServer();
+        serverApp = server.app;
+        server._startChild();
+    });
+
+    after(function () {
+        server.server.close();
     });
 
     it('should fail because the HTTP method is wrong', async function () {
@@ -21,15 +27,15 @@ describe('Integration Test - Resource Status', function () {
     });
 
     it('should get the server version', async function () {
-        const config = require('../../config');
+        const { config } = require('@tapps-games/core');
 
         const res = await chai.request(serverApp)
             .get('/resource-status');
 
         assertions.successChecks(res, 200);
         expect(res.body).to.be.an('object');
-        expect(res.body.name).to.be.equal(config.service_name);
-        expect(res.body.env).to.be.equal(config.env);
-        expect(res.body.version).to.be.equal(config.service_deploy_version);
+        expect(res.body.name).to.be.equal(config.get('serviceName'));
+        expect(res.body.env).to.be.equal(config.get('env'));
+        expect(res.body.version).to.be.equal(config.get('serviceDeployVersion'));
     });
 });

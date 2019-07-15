@@ -1,11 +1,2 @@
 {
-  "service_name": "service-name",
-  "service_deploy_id": "service-name-v1",
-  "service_major_version": "1",
-  "service_version": "1.0.0",
-  "service_deploy_version": "local",
-  "port": 8080,
-  "data_backend": "datastore",
-  "env": "dev",
-  "gcloud_project": "tpserver-dev-env"
 }
