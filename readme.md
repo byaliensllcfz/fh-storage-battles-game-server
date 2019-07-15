@@ -16,7 +16,7 @@ You can find the installer here:
 
 Or get it from the terminal:
 
-    curl -sL https://deb.nodesource.com/setup_8.x | bash -
+    curl -sL https://deb.nodesource.com/setup_10.x | bash -
     apt-get install -y nodejs
 
 ### Installing
@@ -25,7 +25,7 @@ After installing Node.js open a terminal, change to the folder containing the ap
 
     yarn
 
-This will intall all of the package's dependencies.
+This will install all of the package's dependencies.
 
 ## Running the application
 
