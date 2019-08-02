@@ -8,17 +8,18 @@
             "type": "node",
             "request": "launch",
             "name": "Launch",
-            "program": "${workspaceFolder}/index.js",
+            "program": "${workspaceFolder}/src/index.js",
+            "runtimeArgs": ["-r", "dotenv/config"],
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen",
             "env": {
                 "NODE_ENV": "development",
                 "ROLE": "server",
-                "DATASTORE_DATASET": "dumbprojectid",
+                "DATASTORE_DATASET": "tpserver-dev-env",
                 "DATASTORE_EMULATOR_HOST": "localhost:8081",
                 "DATASTORE_EMULATOR_HOST_PATH": "localhost:8081/datastore",
                 "DATASTORE_HOST": "http://localhost:8081",
-                "DATASTORE_PROJECT_ID": "dumbprojectid"
+                "DATASTORE_PROJECT_ID": "tpserver-dev-env"
             }
         },
         {
@@ -32,11 +33,11 @@
             "env": {
                 "NODE_ENV": "test",
                 "ROLE": "server",
-                "DATASTORE_DATASET": "dumbprojectid",
+                "DATASTORE_DATASET": "tpserver-dev-env",
                 "DATASTORE_EMULATOR_HOST": "localhost:8081",
                 "DATASTORE_EMULATOR_HOST_PATH": "localhost:8081/datastore",
                 "DATASTORE_HOST": "http://localhost:8081",
-                "DATASTORE_PROJECT_ID": "dumbprojectid"
+                "DATASTORE_PROJECT_ID": "tpserver-dev-env"
             }
         },
         {
@@ -50,11 +51,11 @@
             "env": {
                 "NODE_ENV": "test",
                 "ROLE": "server",
-                "DATASTORE_DATASET": "dumbprojectid",
+                "DATASTORE_DATASET": "tpserver-dev-env",
                 "DATASTORE_EMULATOR_HOST": "localhost:8081",
                 "DATASTORE_EMULATOR_HOST_PATH": "localhost:8081/datastore",
                 "DATASTORE_HOST": "http://localhost:8081",
-                "DATASTORE_PROJECT_ID": "dumbprojectid"
+                "DATASTORE_PROJECT_ID": "tpserver-dev-env"
             }
         },
         {
@@ -68,11 +69,11 @@
             "env": {
                 "NODE_ENV": "test",
                 "ROLE": "server",
-                "DATASTORE_DATASET": "dumbprojectid",
+                "DATASTORE_DATASET": "tpserver-dev-env",
                 "DATASTORE_EMULATOR_HOST": "localhost:8081",
                 "DATASTORE_EMULATOR_HOST_PATH": "localhost:8081/datastore",
                 "DATASTORE_HOST": "http://localhost:8081",
-                "DATASTORE_PROJECT_ID": "dumbprojectid"
+                "DATASTORE_PROJECT_ID": "tpserver-dev-env"
             }
         }
     ]
