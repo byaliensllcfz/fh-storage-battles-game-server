@@ -1,4 +1,4 @@
 {
   "serverEnableDatadog": false,
-  "enableConsoleLog": true
+  "loggingEnableConsole": true
 }
