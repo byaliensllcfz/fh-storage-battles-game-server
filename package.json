@@ -1,16 +1,18 @@
 {
-    "name": "tp-service-name-server",
-    "description": "RESTful API.",
+    "name": "bidpvp-alpha-game-server",
+    "description": "Bid PvP Alpha Colyseus Server",
     "version": "1.0.0",
     "private": true,
     "engines": {
         "node": ">=10.0.0"
     },
     "dependencies": {
-        "@tapps-games/server": "^1.1.9",
+        "@colyseus/monitor": "^0.11.5",
+        "colyseus": "^0.11.11",
+        "@tapps-games/server": "^1.1.10",
         "body-parser": "^1.18.3",
-        "dotenv": "^8.0.0",
-        "express": "^4.16.3",
+        "express": "^4.17.1",
+        "json-stringify-safe": "^5.0.1",
         "lodash": "^4.17.14",
         "uuid": "^3.3.2"
     },
@@ -30,8 +32,6 @@
         "sonarqube-scanner": "^2.4.0"
     },
     "scripts": {
-        "preinstall": "bash git-setup.sh",
-        "postinstall": "bash git-teardown.sh",
         "lint": "./node_modules/.bin/eslint .",
         "docs:clean": "del-cli ./docs/*",
         "docs:generate": "esdoc",

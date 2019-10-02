@@ -1,32 +1,54 @@
 'use strict';
 
+const COLYSEUS_PORT = 2567;
+
+const { Logger } = require('@tapps-games/logging');
+const logger = new Logger();
+
 async function createServer () {
-    // Configuration
     const { config } = require('@tapps-games/core');
     await config.load('env');
     await config.load('json', 'config.json');
 
-    // Server
-    const { AutoServer, middlewares } = require('@tapps-games/server');
+    const { middlewares, routes } = require('@tapps-games/server');
+
+    const express = require('express');
     const bodyParser = require('body-parser');
 
-    const server = new AutoServer();
+    const http = require('http');
+    const { Server } = require('colyseus');
+    const monitor = require('@colyseus/monitor').monitor;
 
-    server.pre(bodyParser.json({limit: '10mb'}));
-    server.pre(middlewares.validateSharedCloudSecret());
-    server.pre(middlewares.validateUserIdAndServiceAccountName());
-    server.pre(middlewares.validateBundleId());
+    const BidPvpRoom = require('./bidpvp-room');
 
-    // Use OpenAPI to validate requests and responses.
-    // await server.openApi({
-    //     specFilePath: 'api-spec/[service-name].yaml',
-    //     handlers: routes,
-    // });
+    const app = express();
 
-    // Add server routers/routes without OpenAPI validation.
-    // server.route('/path', routes);
+    app.disable('x-powered-by');
+    app.enable('trust proxy');
 
-    return server;
+    const gameServer = new Server({
+        server: http.createServer(app),
+        express: app,
+    });
+
+    gameServer.define('bidpvp', BidPvpRoom);
+
+    app.use(bodyParser.json({limit: '10mb'}));
+
+    app.use('/liveness-check', routes.livenessCheck());
+    app.use('/readiness-check', routes.readinessCheck());
+    app.use('/resource-status', routes.resourceStatus());
+    app.use(middlewares.responseTime());
+
+    // register colyseus monitor AFTER registering your room handlers
+    app.use('/colyseus', monitor(gameServer));
+
+    app.use(middlewares.notFoundHandler());
+    app.use(middlewares.errorHandler());
+    app.listen(8080);
+
+    gameServer.listen(COLYSEUS_PORT);
+    logger.info(`Listening on ws://localhost:${COLYSEUS_PORT}`);
 }
 
 module.exports = {
