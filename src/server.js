@@ -19,7 +19,10 @@ async function createServer () {
     const { Server } = require('colyseus');
     const monitor = require('@colyseus/monitor').monitor;
 
-    const BidPvpRoom = require('./bidpvp-room');
+    const BidPvpRoom = require('./rooms/bidpvp/bidpvp-room');
+    const LobbyRoom = require('./rooms/lobby/lobby-room');
+
+    const configService = require('./services/config-service');
 
     const app = express();
 
@@ -32,6 +35,7 @@ async function createServer () {
     });
 
     gameServer.define('bidpvp', BidPvpRoom);
+    gameServer.define('lobby', LobbyRoom);
 
     app.use(bodyParser.json({limit: '10mb'}));
 
@@ -39,6 +43,9 @@ async function createServer () {
     app.use('/readiness-check', routes.readinessCheck());
     app.use('/resource-status', routes.resourceStatus());
     app.use(middlewares.responseTime());
+
+    //gets all DB configs and cache it
+    await configService.loadAllData();
 
     // register colyseus monitor AFTER registering your room handlers
     app.use('/colyseus', monitor(gameServer));

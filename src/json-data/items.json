@@ -1,0 +1,962 @@
+{
+  "item100": {
+      "id": "item100",
+      "name": "Spray Paint",
+      "archive": "air_compressor_spray_paint",
+      "category": "hobby",
+      "rarity": "Common",
+      "price": 30
+  },
+  "item101": {
+      "id": "item101",
+      "name": "Angel Statue",
+      "archive": "angel_statue",
+      "category": "decoration",
+      "rarity": "Common",
+      "price": 600
+  },
+  "item102": {
+      "id": "item102",
+      "name": "Anime Action Figure",
+      "archive": "anime_figure",
+      "category": "toy",
+      "rarity": "Rare",
+      "price": 1300
+  },
+  "item103": {
+      "id": "item103",
+      "name": "Antique Furniture",
+      "archive": "antique_furniture",
+      "category": "furniture",
+      "rarity": "Rare",
+      "price": 1200
+  },
+  "item104": {
+      "id": "item104",
+      "name": "Vintage Pinball Machine",
+      "archive": "antique_pinball_machine",
+      "category": "technology",
+      "rarity": "Common",
+      "price": 800
+  },
+  "item105": {
+      "id": "item105",
+      "name": "Armchair",
+      "archive": "armchair",
+      "category": "furniture",
+      "rarity": "Common",
+      "price": 300
+  },
+  "item106": {
+      "id": "item106",
+      "name": "Armored Cruiser",
+      "archive": "armored_cruiser",
+      "category": "hobby",
+      "rarity": "Common",
+      "price": 120
+  },
+  "item107": {
+      "id": "item107",
+      "name": "Autographed Jersey",
+      "archive": "autographed_jersey",
+      "category": "sport",
+      "rarity": "Epic",
+      "price": 2000
+  },
+  "item108": {
+      "id": "item108",
+      "name": "Backpack",
+      "archive": "backpack",
+      "category": "clothing",
+      "rarity": "Common",
+      "price": 100
+  },
+  "item109": {
+      "id": "item109",
+      "name": "Eagle Statue",
+      "archive": "bald_eagle_statue",
+      "category": "decoration",
+      "rarity": "Common",
+      "price": 950
+  },
+  "item110": {
+      "id": "item110",
+      "name": "Basket Ball",
+      "archive": "basket_ball",
+      "category": "sport",
+      "rarity": "Common",
+      "price": 90
+  },
+  "item111": {
+      "id": "item111",
+      "name": "BBQ Grill",
+      "archive": "bbq_grill",
+      "category": "hobby",
+      "rarity": "Common",
+      "price": 80
+  },
+  "item112": {
+      "id": "item112",
+      "name": "Beach Chair",
+      "archive": "beach_chair",
+      "category": "furniture",
+      "rarity": "Common",
+      "price": 120
+  },
+  "item113": {
+      "id": "item113",
+      "name": "Nightstand",
+      "archive": "bedside_table",
+      "category": "furniture",
+      "rarity": "Common",
+      "price": 100
+  },
+  "item114": {
+      "id": "item114",
+      "name": "Bench Saw",
+      "archive": "bench_saw",
+      "category": "hobby",
+      "rarity": "Common",
+      "price": 100
+  },
+  "item115": {
+      "id": "item115",
+      "name": "File Cabinet",
+      "archive": "big_file_cabinet",
+      "category": "furniture",
+      "rarity": "Common",
+      "price": 900
+  },
+  "item116": {
+      "id": "item116",
+      "name": "Biker Jacket",
+      "archive": "biker_jacket",
+      "category": "clothing",
+      "rarity": "Common",
+      "price": 170
+  },
+  "item117": {
+      "id": "item117",
+      "name": "Stylish Hat",
+      "archive": "billy-the-kid_hat",
+      "category": "clothing",
+      "rarity": "Common",
+      "price": 80
+  },
+  "item118": {
+      "id": "item118",
+      "name": "Lather Jacket",
+      "archive": "blackpanther_jacket",
+      "category": "clothing",
+      "rarity": "Common",
+      "price": 130
+  },
+  "item119": {
+      "id": "item119",
+      "name": "Boombox",
+      "archive": "boombox",
+      "category": "hobby",
+      "rarity": "Common",
+      "price": 80
+  },
+  "item120": {
+      "id": "item120",
+      "name": "Box of Records",
+      "archive": "box_of_records",
+      "category": "hobby",
+      "rarity": "Common",
+      "price": 100
+  },
+  "item121": {
+      "id": "item121",
+      "name": "Butterfly Display",
+      "archive": "butterfly_display",
+      "category": "decoration",
+      "rarity": "Common",
+      "price": 350
+  },
+  "item122": {
+      "id": "item122",
+      "name": "Traditional Kimono",
+      "archive": "chinese_kimono",
+      "category": "clothing",
+      "rarity": "Epic",
+      "price": 2100
+  },
+  "item123": {
+      "id": "item123",
+      "name": "Christmas Tree",
+      "archive": "christmas_tree",
+      "category": "decoration",
+      "rarity": "Common",
+      "price": 170
+  },
+  "item124": {
+      "id": "item124",
+      "name": "Folded Clothes",
+      "archive": "clothes",
+      "category": "clothing",
+      "rarity": "Common",
+      "price": 50
+  },
+  "item125": {
+      "id": "item125",
+      "name": "Ride Horse",
+      "archive": "coinop_horse",
+      "category": "toy",
+      "rarity": "Common",
+      "price": 350
+  },
+  "item126": {
+      "id": "item126",
+      "name": "Cook Books",
+      "archive": "cook_books",
+      "category": "hobby",
+      "rarity": "Common",
+      "price": 40
+  },
+  "item127": {
+      "id": "item127",
+      "name": "Costume Rack",
+      "archive": "costume_rack",
+      "category": "clothing",
+      "rarity": "Common",
+      "price": 190
+  },
+  "item128": {
+      "id": "item128",
+      "name": "Dart Board",
+      "archive": "dart_board",
+      "category": "hobby",
+      "rarity": "Common",
+      "price": 90
+  },
+  "item129": {
+      "id": "item129",
+      "name": "Modern Chair",
+      "archive": "design_chair",
+      "category": "furniture",
+      "rarity": "Common",
+      "price": 750
+  },
+  "item130": {
+      "id": "item130",
+      "name": "Denim Jeans",
+      "archive": "design_jeans",
+      "category": "clothing",
+      "rarity": "Common",
+      "price": 90
+  },
+  "item131": {
+      "id": "item131",
+      "name": "Desk",
+      "archive": "desk",
+      "category": "furniture",
+      "rarity": "Common",
+      "price": 450
+  },
+  "item132": {
+      "id": "item132",
+      "name": "Cat Statue",
+      "archive": "egyptian_cat_statue",
+      "category": "decoration",
+      "rarity": "Common",
+      "price": 900
+  },
+  "item133": {
+      "id": "item133",
+      "name": "ECG",
+      "archive": "electrocardiogram",
+      "category": "technology",
+      "rarity": "Common",
+      "price": 550
+  },
+  "item134": {
+      "id": "item134",
+      "name": "Espresso Machine",
+      "archive": "espresso_machine",
+      "category": "household",
+      "rarity": "Common",
+      "price": 500
+  },
+  "item135": {
+      "id": "item135",
+      "name": "Fan",
+      "archive": "fan",
+      "category": "household",
+      "rarity": "Common",
+      "price": 30
+  },
+  "item136": {
+      "id": "item136",
+      "name": "Overpriced Food Mixer",
+      "archive": "food_mixer",
+      "category": "household",
+      "rarity": "Common",
+      "price": 400
+  },
+  "item137": {
+      "id": "item137",
+      "name": "Fridge Penguin",
+      "archive": "fridge_penguin",
+      "category": "decoration",
+      "rarity": "Common",
+      "price": 50
+  },
+  "item138": {
+      "id": "item138",
+      "name": "Faux Fur Coat",
+      "archive": "fur_coat",
+      "category": "clothing",
+      "rarity": "Common",
+      "price": 430
+  },
+  "item139": {
+      "id": "item139",
+      "name": "Gamer Chair",
+      "archive": "gamer_chair",
+      "category": "technology",
+      "rarity": "Common",
+      "price": 450
+  },
+  "item140": {
+      "id": "item140",
+      "name": "Gaming PC",
+      "archive": "gaming_pc",
+      "category": "technology",
+      "rarity": "Common",
+      "price": 850
+  },
+  "item141": {
+      "id": "item141",
+      "name": "Garden Flamingo",
+      "archive": "garden_flamingo",
+      "category": "decoration",
+      "rarity": "Common",
+      "price": 110
+  },
+  "item142": {
+      "id": "item142",
+      "name": "Garden Gnome",
+      "archive": "garden_gnome",
+      "category": "decoration",
+      "rarity": "Common",
+      "price": 90
+  },
+  "item143": {
+      "id": "item143",
+      "name": "Beer Pint Mug",
+      "archive": "german_beer_stein",
+      "category": "household",
+      "rarity": "Common",
+      "price": 50
+  },
+  "item144": {
+      "id": "item144",
+      "name": "Globe",
+      "archive": "globe",
+      "category": "household",
+      "rarity": "Common",
+      "price": 40
+  },
+  "item145": {
+      "id": "item145",
+      "name": "Candle Holder",
+      "archive": "gold_candelabra",
+      "category": "decoration",
+      "rarity": "Common",
+      "price": 200
+  },
+  "item146": {
+      "id": "item146",
+      "name": "Golf Club Set",
+      "archive": "golf_clubs",
+      "category": "sport",
+      "rarity": "Rare",
+      "price": 1250
+  },
+  "item147": {
+      "id": "item147",
+      "name": "Antique Clock",
+      "archive": "grandfather_clock",
+      "category": "decoration",
+      "rarity": "Epic",
+      "price": 2400
+  },
+  "item148": {
+      "id": "item148",
+      "name": "Gym Bike",
+      "archive": "gym_bike",
+      "category": "sport",
+      "rarity": "Common",
+      "price": 300
+  },
+  "item149": {
+      "id": "item149",
+      "name": "Old Harley",
+      "archive": "harley_davidson",
+      "category": "hobby",
+      "rarity": "Epic",
+      "price": 2900
+  },
+  "item150": {
+      "id": "item150",
+      "name": "High Heels",
+      "archive": "high_heels_shoes",
+      "category": "clothing",
+      "rarity": "Common",
+      "price": 280
+  },
+  "item151": {
+      "id": "item151",
+      "name": "Ice Skates",
+      "archive": "ice_skates",
+      "category": "sport",
+      "rarity": "Common",
+      "price": 120
+  },
+  "item152": {
+      "id": "item152",
+      "name": "Kids Tricycle",
+      "archive": "kids_tricycle",
+      "category": "toy",
+      "rarity": "Common",
+      "price": 70
+  },
+  "item153": {
+      "id": "item153",
+      "name": "Dog Statue",
+      "archive": "labrador_statue",
+      "category": "decoration",
+      "rarity": "Common",
+      "price": 450
+  },
+  "item154": {
+      "id": "item154",
+      "name": "Fully Loaded Basket",
+      "archive": "large_clothes_basket",
+      "category": "clothing",
+      "rarity": "Common",
+      "price": 100
+  },
+  "item155": {
+      "id": "item155",
+      "name": "Laundry Basket",
+      "archive": "laundry_basket",
+      "category": "clothing",
+      "rarity": "Common",
+      "price": 50
+  },
+  "item156": {
+      "id": "item156",
+      "name": "Lava Lamp",
+      "archive": "lava_lamp",
+      "category": "decoration",
+      "rarity": "Common",
+      "price": 60
+  },
+  "item157": {
+      "id": "item157",
+      "name": "Leather Tote Bag",
+      "archive": "leather_tote_bag",
+      "category": "clothing",
+      "rarity": "Common",
+      "price": 800
+  },
+  "item158": {
+      "id": "item158",
+      "name": "Bar Stool",
+      "archive": "metal_bar_stool",
+      "category": "furniture",
+      "rarity": "Common",
+      "price": 60
+  },
+  "item159": {
+      "id": "item159",
+      "name": "Mini Fridge",
+      "archive": "mini_fridge",
+      "category": "household",
+      "rarity": "Rare",
+      "price": 1000
+  },
+  "item160": {
+      "id": "item160",
+      "name": "Model Ship",
+      "archive": "model_ship",
+      "category": "hobby",
+      "rarity": "Common",
+      "price": 70
+  },
+  "item161": {
+      "id": "item161",
+      "name": "Vintage Movie Camera",
+      "archive": "movie_camera",
+      "category": "technology",
+      "rarity": "Common",
+      "price": 150
+  },
+  "item162": {
+      "id": "item162",
+      "name": "Chairman's Chair",
+      "archive": "office_chair",
+      "category": "furniture",
+      "rarity": "Common",
+      "price": 270
+  },
+  "item163": {
+      "id": "item163",
+      "name": "Old PC",
+      "archive": "old_computer",
+      "category": "technology",
+      "rarity": "Common",
+      "price": 190
+  },
+  "item164": {
+      "id": "item164",
+      "name": "Old Fridge",
+      "archive": "old_fridge",
+      "category": "household",
+      "rarity": "Common",
+      "price": 270
+  },
+  "item165": {
+      "id": "item165",
+      "name": "Vintage Game Console",
+      "archive": "old_video_game",
+      "category": "technology",
+      "rarity": "Common",
+      "price": 90
+  },
+  "item166": {
+      "id": "item166",
+      "name": "80s Robot",
+      "archive": "omnibot_2000",
+      "category": "technology",
+      "rarity": "Epic",
+      "price": 2200
+  },
+  "item167": {
+      "id": "item167",
+      "name": "Pidgeon Mask",
+      "archive": "pidgeon_mask",
+      "category": "clothing",
+      "rarity": "Common",
+      "price": 10
+  },
+  "item168": {
+      "id": "item168",
+      "name": "Toy Battleship",
+      "archive": "plastic_battleship",
+      "category": "toy",
+      "rarity": "Common",
+      "price": 30
+  },
+  "item169": {
+      "id": "item169",
+      "name": "Playhouse",
+      "archive": "playhouse",
+      "category": "toy",
+      "rarity": "Common",
+      "price": 250
+  },
+  "item170": {
+      "id": "item170",
+      "name": " Toy Clown",
+      "archive": "porcelain_clown",
+      "category": "toy",
+      "rarity": "Common",
+      "price": 20
+  },
+  "item171": {
+      "id": "item171",
+      "name": "Electric Scooter",
+      "archive": "portable_electric_scooter",
+      "category": "sport",
+      "rarity": "Common",
+      "price": 600
+  },
+  "item172": {
+      "id": "item172",
+      "name": "Fiddle Leaf Fig",
+      "archive": "potted_plant",
+      "category": "decoration",
+      "rarity": "Common",
+      "price": 500
+  },
+  "item173": {
+      "id": "item173",
+      "name": "Professional Camera",
+      "archive": "professional_camera",
+      "category": "technology",
+      "rarity": "Rare",
+      "price": 1000
+  },
+  "item174": {
+      "id": "item174",
+      "name": "Projector",
+      "archive": "projector",
+      "category": "technology",
+      "rarity": "Common",
+      "price": 400
+  },
+  "item175": {
+      "id": "item175",
+      "name": "Projector Screen",
+      "archive": "projector_screen",
+      "category": "technology",
+      "rarity": "Common",
+      "price": 40
+  },
+  "item176": {
+      "id": "item176",
+      "name": "Puncking Dummy",
+      "archive": "punching_dummy",
+      "category": "sport",
+      "rarity": "Common",
+      "price": 600
+  },
+  "item177": {
+      "id": "item177",
+      "name": "Bottle of Whisky",
+      "archive": "rare_whisky",
+      "category": "hobby",
+      "rarity": "Common",
+      "price": 20
+  },
+  "item178": {
+      "id": "item178",
+      "name": "Remote Control Car",
+      "archive": "rc_car",
+      "category": "toy",
+      "rarity": "Common",
+      "price": 40
+  },
+  "item179": {
+      "id": "item179",
+      "name": "Rocking Horse",
+      "archive": "rocking_horse",
+      "category": "toy",
+      "rarity": "Common",
+      "price": 200
+  },
+  "item180": {
+      "id": "item180",
+      "name": "Hand Saw",
+      "archive": "saw_movie_saw",
+      "category": "household",
+      "rarity": "Common",
+      "price": 30
+  },
+  "item181": {
+      "id": "item181",
+      "name": "Sewing Machine",
+      "archive": "sewing_machine",
+      "category": "hobby",
+      "rarity": "Common",
+      "price": 50
+  },
+  "item182": {
+      "id": "item182",
+      "name": "Silverware Set",
+      "archive": "silverware_box",
+      "category": "household",
+      "rarity": "Epic",
+      "price": 1900
+  },
+  "item183": {
+      "id": "item183",
+      "name": "Skateboard",
+      "archive": "skateboard",
+      "category": "sport",
+      "rarity": "Common",
+      "price": 150
+  },
+  "item184": {
+      "id": "item184",
+      "name": "Slide",
+      "archive": "slide",
+      "category": "toy",
+      "rarity": "Common",
+      "price": 100
+  },
+  "item185": {
+      "id": "item185",
+      "name": "Used Smart Car",
+      "archive": "smart_car",
+      "category": "hobby",
+      "rarity": "Rare",
+      "price": 2300
+  },
+  "item186": {
+      "id": "item186",
+      "name": "Smart Watch",
+      "archive": "smart_watch",
+      "category": "technology",
+      "rarity": "Common",
+      "price": 200
+  },
+  "item187": {
+      "id": "item187",
+      "name": "Smartphone",
+      "archive": "smartphone",
+      "category": "technology",
+      "rarity": "Common",
+      "price": 750
+  },
+  "item188": {
+      "id": "item188",
+      "name": "Snow Globe",
+      "archive": "snow_globe",
+      "category": "decoration",
+      "rarity": "Common",
+      "price": 70
+  },
+  "item189": {
+      "id": "item189",
+      "name": "Soccer Ball",
+      "archive": "soccer_ball",
+      "category": "sport",
+      "rarity": "Common",
+      "price": 50
+  },
+  "item190": {
+      "id": "item190",
+      "name": "Speaker",
+      "archive": "speaker",
+      "category": "hobby",
+      "rarity": "Common",
+      "price": 20
+  },
+  "item191": {
+      "id": "item191",
+      "name": "Plastic Chairs",
+      "archive": "stakable_chairs",
+      "category": "furniture",
+      "rarity": "Common",
+      "price": 30
+  },
+  "item192": {
+      "id": "item192",
+      "name": "Stepladder",
+      "archive": "stepladder",
+      "category": "household",
+      "rarity": "Common",
+      "price": 100
+  },
+  "item193": {
+      "id": "item193",
+      "name": "Red Stilettos",
+      "archive": "stilettos",
+      "category": "clothing",
+      "rarity": "Rare",
+      "price": 1100
+  },
+  "item194": {
+      "id": "item194",
+      "name": "Stove Oven",
+      "archive": "stove",
+      "category": "household",
+      "rarity": "Common",
+      "price": 700
+  },
+  "item195": {
+      "id": "item195",
+      "name": "Surfboard",
+      "archive": "surfboard",
+      "category": "sport",
+      "rarity": "Common",
+      "price": 500
+  },
+  "item196": {
+      "id": "item196",
+      "name": "Toy Train",
+      "archive": "tank_engine",
+      "category": "toy",
+      "rarity": "Common",
+      "price": 20
+  },
+  "item197": {
+      "id": "item197",
+      "name": "Threadmill",
+      "archive": "threadmill",
+      "category": "sport",
+      "rarity": "Common",
+      "price": 800
+  },
+  "item198": {
+      "id": "item198",
+      "name": "Toaster",
+      "archive": "toaster",
+      "category": "household",
+      "rarity": "Common",
+      "price": 250
+  },
+  "item199": {
+      "id": "item199",
+      "name": "Toy Box",
+      "archive": "toy_chest",
+      "category": "toy",
+      "rarity": "Common",
+      "price": 40
+  },
+  "item200": {
+      "id": "item200",
+      "name": "Wind-up Monkey",
+      "archive": "toy_monkey",
+      "category": "toy",
+      "rarity": "Common",
+      "price": 70
+  },
+  "item201": {
+      "id": "item201",
+      "name": "Toy Robot",
+      "archive": "toy_robot",
+      "category": "toy",
+      "rarity": "Common",
+      "price": 80
+  },
+  "item202": {
+      "id": "item202",
+      "name": "Bunch of Toys",
+      "archive": "toys",
+      "category": "toy",
+      "rarity": "Common",
+      "price": 150
+  },
+  "item203": {
+      "id": "item203",
+      "name": "Transmorpher Action Figure",
+      "archive": "transmorpher_action_figure",
+      "category": "toy",
+      "rarity": "Epic",
+      "price": 2800
+  },
+  "item204": {
+      "id": "item204",
+      "name": "Tv Remote",
+      "archive": "tv_remote",
+      "category": "household",
+      "rarity": "Common",
+      "price": 20
+  },
+  "item205": {
+      "id": "item205",
+      "name": "Typewriter",
+      "archive": "typewriter",
+      "category": "decoration",
+      "rarity": "Rare",
+      "price": 1200
+  },
+  "item206": {
+      "id": "item206",
+      "name": "VHS Player",
+      "archive": "vintage_cassette_player",
+      "category": "technology",
+      "rarity": "Common",
+      "price": 50
+  },
+  "item207": {
+      "id": "item207",
+      "name": "Road Bike",
+      "archive": "vintage_road_bike",
+      "category": "sport",
+      "rarity": "Common",
+      "price": 700
+  },
+  "item208": {
+      "id": "item208",
+      "name": "Vintage Table",
+      "archive": "vintage_table",
+      "category": "furniture",
+      "rarity": "Epic",
+      "price": 1800
+  },
+  "item209": {
+      "id": "item209",
+      "name": "Wardrobe",
+      "archive": "wardrobe",
+      "category": "furniture",
+      "rarity": "Common",
+      "price": 520
+  },
+  "item210": {
+      "id": "item210",
+      "name": "Washing Machine",
+      "archive": "washing_machine",
+      "category": "household",
+      "rarity": "Common",
+      "price": 300
+  },
+  "item211": {
+      "id": "item211",
+      "name": "Weights",
+      "archive": "weights",
+      "category": "sport",
+      "rarity": "Common",
+      "price": 550
+  },
+  "item212": {
+      "id": "item212",
+      "name": "Weights Bench",
+      "archive": "weigths_bench",
+      "category": "sport",
+      "rarity": "Common",
+      "price": 150
+  },
+  "item213": {
+      "id": "item213",
+      "name": "Electric Personal Transportation",
+      "archive": "wheel_electric_scooter",
+      "category": "technology",
+      "rarity": "Common",
+      "price": 80
+  },
+  "item214": {
+      "id": "item214",
+      "name": "Wheelbarrow",
+      "archive": "wheelbarrow",
+      "category": "household",
+      "rarity": "Common",
+      "price": 60
+  },
+  "item215": {
+      "id": "item215",
+      "name": "Wood Chair",
+      "archive": "wood_chair",
+      "category": "furniture",
+      "rarity": "Common",
+      "price": 180
+  },
+  "item216": {
+      "id": "item216",
+      "name": "Shoji Screen",
+      "archive": "wooden_divider",
+      "category": "furniture",
+      "rarity": "Common",
+      "price": 800
+  },
+  "item217": {
+      "id": "item217",
+      "name": "Native American Statue",
+      "archive": "wooden_indian",
+      "category": "furniture",
+      "rarity": "Common",
+      "price": 400
+  },
+  "item218": {
+      "id": "item218",
+      "name": "Wooden Keg",
+      "archive": "wooden_keg",
+      "category": "hobby",
+      "rarity": "Common",
+      "price": 60
+  },
+  "item219": {
+      "id": "item219",
+      "name": "Yoga Ball",
+      "archive": "yoga_ball",
+      "category": "sport",
+      "rarity": "Common",
+      "price": 60
+  }
+}
