@@ -45,25 +45,20 @@ const serverService = {
 
     console.log('Connecting to server ....');
     serverService.client = new Colyseus.Client('ws://localhost:2567');
-    await serverService.client.joinOrCreate('bidpvp').then(room => {
+    await serverService.client.joinOrCreate('lobby').then(room => {
         console.log(`joined ${JSON.stringify(room)}`);
         serverService.room = room;
     });
+
+    serverService._addListeners();
   },
 
   _addListeners() {
-    serverService.room.onMessage.add((message) => {
-      console.log("server just sent this message:");
+    serverService.room.onMessage((message) => {
+      console.log("server just sent this message:" + message);
       serverService.serverData = message;
     });
-
-    serverService.room.onJoin.add(() => {
-      console.log('Joined on room', serverService.room.id);
-    });
-
-    serverService.room.onLeave.add(() => {
-      console.log("Left room", arguments);
-    });
+    
   }
 };
 
