@@ -37,6 +37,10 @@ class BidPvpRoom extends Room {
 
     onMessage (client, message) {
         logger.info(`Client: ${client.id} sent message ${JSON.stringify(message)}`, { room: this.roomId });
+
+        if(this.locked) {
+            auctionHandler(this, client.id, message);
+        }
     }
 
     async onLeave (client, consented) {

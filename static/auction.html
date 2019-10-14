@@ -28,6 +28,7 @@
 
         <v-container>
           <v-card class="d-flex">
+            <v-btn text @click="onBid" class="ml-2" :disabled="!canBid">Bid</v-btn>
             <pre>{{state}}</pre>
           </v-card>
         </v-container>
@@ -90,6 +91,11 @@ let app = new Vue({
     },
 
     computed: {
+      canBid() {
+        if (this.state.auction) {
+          return this.state.auction.bidOwner !== this.clientId;
+        }
+      }
     },
 
     methods: {
@@ -97,11 +103,15 @@ let app = new Vue({
             await serverService.connect();
 
             this.connected = true;
-            this.clientId = serverService.client.id;
+            this.clientId = serverService.room.sessionId;
             serverService.room.onStateChange((state) => {
                 const plainState = JSON.parse(JSON.stringify(state));
                 Vue.set(this, 'state', plainState);
             });
+        },
+
+        async onBid() {
+            await serverService.sendMessage('AUCTION_BID');
         }
     },
 
