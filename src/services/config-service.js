@@ -3,7 +3,7 @@
 const { Logger } = require('@tapps-games/logging');
 const logger = new Logger();
 
-const itemsJson = require('../json-data/items.json');
+const itemsJson = require('../data/items.json');
 
 let allItems;
 async function loadAllData() {

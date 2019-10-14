@@ -5,6 +5,12 @@ const logger = new Logger();
 
 const { Room } = require('colyseus');
 const { GlobalState } = require('./schemas/global-state');
+const { PlayerState } = require('./schemas/player-state');
+const { AuctionController } = require('./controllers/auction-controller');
+const { auctionHandler } = require('./handlers/auction-handler');
+
+const config = require('../../data/game.json');
+const commands = require('../../data/commands.json');
 
 class BidPvpRoom extends Room {
     onCreate (options) {
@@ -13,13 +19,20 @@ class BidPvpRoom extends Room {
         this.setState(new GlobalState());
         this.setPatchRate(1000 / 20);
 
+        this.auctionController = new AuctionController(this);
+
         /** @type {number} */
-        this.maxClients = 2;
+        this.maxClients = config.maxPlayers;
     }
 
     onJoin (client, options) {
-        logger.info(`Client: ${client} joined. ${JSON.stringify(options)}`, { room: this.roomId });
+        logger.info(`Client: ${client.id} joined. ${JSON.stringify(options)}`, { room: this.roomId });
 
+        this.state.players[client.id] = new PlayerState({ id: client.id });
+
+        if (this.locked) {
+            auctionHandler(this, null, { command: commands.AUCTION_START });
+        }
     }
 
     onMessage (client, message) {

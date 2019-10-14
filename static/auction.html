@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Welcome to Vue</title>
+  <script type="text/javascript" src="https://raw.githack.com/colyseus/colyseus.js/0.11.3/dist/colyseus.js"></script>
+
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/@mdi/font@3.x/css/materialdesignicons.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.15/lodash.min.js"></script>
+</head>
+<body>
+  <div id="app">
+    <v-app>
+      <v-content>
+
+        <!-- TOOLBAR -->
+        <v-toolbar>
+          <v-toolbar-title>Bid PVP</v-toolbar-title>
+          <v-toolbar-items>
+            <v-btn text @click="onGameJoin" class="ml-2" :disabled="connected">Join</v-btn>
+          </v-toolbar-items>
+        </v-toolbar>
+        <!-- END TOOLBAR -->
+
+        <v-container>
+          <v-card class="d-flex">
+            <pre>{{state}}</pre>
+          </v-card>
+        </v-container>
+      </v-content>
+    </v-app>
+  </div>
+</body>
+</html>
+
+<script>
+
+const lodash = _;
+
+const serverService = {
+  client: null,
+  room: null,
+  connected: false,
+  serverData: null,
+
+  sendMessage(command, args) {
+    serverService.room.send({ command, args, commandIndex: 0 });
+    console.log('command', command, args);
+  },
+
+  async connect() {
+    if (serverService.connected) return;
+
+    serverService.client = new Colyseus.Client('ws://localhost:2567');
+    serverService.room = await serverService.client.joinOrCreate('bidpvp');
+    serverService.connected = true;
+    serverService._addListeners();
+  },
+
+  _addListeners() {
+    serverService.room.onMessage((message) => {
+      console.log("server just sent this message:");
+      serverService.serverData = message;
+    });
+
+    serverService.room.onJoin(() => {
+      console.log('Joined on room', serverService.room.id);
+    });
+
+    serverService.room.onLeave(() => {
+      console.log("Left room", arguments);
+    });
+  }
+};
+
+let app = new Vue({
+    el: '#app',
+    vuetify: new Vuetify(),
+
+    data() {
+      return {
+          connected: false,
+          clientId: null,
+          state: {},
+      }
+    },
+
+    computed: {
+    },
+
+    methods: {
+        async onGameJoin() {
+            await serverService.connect();
+
+            this.connected = true;
+            this.clientId = serverService.client.id;
+            serverService.room.onStateChange((state) => {
+                const plainState = JSON.parse(JSON.stringify(state));
+                Vue.set(this, 'state', plainState);
+            });
+        }
+    },
+
+    created() {
+    }
+
+})
+</script>
