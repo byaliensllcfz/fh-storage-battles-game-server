@@ -1,4 +1,7 @@
 {
     "maxPlayers": 2,
-    "bidIncrement": 100
+    "bidIncrement": 100,
+    "auctionInitialDuration": 5000,
+    "auctionAfterBidDuration": 3000,
+    "auctionDoleDuration": 2000
 }

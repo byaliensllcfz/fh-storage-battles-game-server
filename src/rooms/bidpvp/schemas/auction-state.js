@@ -11,11 +11,15 @@ class AuctionState extends Schema {
 
         /** @type {string} */
         this.bidOwner = options.bidOwner || '';
+
+        /** @type {number} */
+        this.dole = 0;
     }
 }
 
 type('int32')(AuctionState.prototype, 'bidValue');
 type('string')(AuctionState.prototype, 'bidOwner');
+type('int8')(AuctionState.prototype, 'dole');
 
 module.exports = {
     AuctionState,

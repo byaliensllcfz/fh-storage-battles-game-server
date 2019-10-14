@@ -28,8 +28,10 @@
 
         <v-container>
           <v-card class="d-flex">
-            <v-btn text @click="onBid" class="ml-2" :disabled="!canBid">Bid</v-btn>
-            <pre>{{state}}</pre>
+            <v-card-text>
+              <p><v-btn text @click="onBid" class="ml-2" :disabled="!canBid">Bid</v-btn></p>
+              <pre>{{state}}</pre>
+            </v-card-text>
           </v-card>
         </v-container>
       </v-content>
@@ -92,9 +94,7 @@ let app = new Vue({
 
     computed: {
       canBid() {
-        if (this.state.auction) {
-          return this.state.auction.bidOwner !== this.clientId;
-        }
+        return this.state.status === 'PLAY' && this.state.auction.bidOwner !== this.clientId;
       }
     },
 
