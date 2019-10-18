@@ -13,6 +13,15 @@ class AuctionController {
         this.auctionEndTimeout = null;
     }
 
+    drawItems(itemAmount){
+        let itemsStart = new MapSchema();
+        let playableItems = configService.getAllItems();
+        for (let i = 0; i < itemAmount; i++) {
+            itemsStart[i] = lodash.sample(playableItems).id;
+        }
+        this.state.auction.items = itemsStart;
+    }
+
     startAuction() {
         lodash.each(this.state.players, (player) => {
             player.money = 1000 + Math.floor(Math.random()*1000);
@@ -22,14 +31,7 @@ class AuctionController {
         this.state.status = 'PLAY';
 
         this.auctionEndTimeout = this.room.clock.setTimeout(() => this._runDole(), config.auctionInitialDuration);
-
-        let playableItems = configService.getAllItems();
-        const itemAmount = lodash.random(5,8);
-        let itemsStart = new MapSchema();
-        for (let i = 0; i < itemAmount; i++) {
-            itemsStart[i] = lodash.sample(playableItems);
-        }
-        this.items = itemsStart;
+        this.drawItems(lodash.random(5,8));
     }
 
     bid(playerId) {
