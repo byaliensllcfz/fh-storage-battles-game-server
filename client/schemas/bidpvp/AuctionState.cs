@@ -16,5 +16,8 @@ public class AuctionState : Schema {
 
 	[Type(2, "int8")]
 	public int dole = 0;
+
+	[Type(3, "map", "string")]
+	public MapSchema<string> items = new MapSchema<string>();
 }
 

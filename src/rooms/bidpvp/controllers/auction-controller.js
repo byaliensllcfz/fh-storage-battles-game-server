@@ -2,6 +2,8 @@
 
 const lodash = require('lodash');
 const config = require('../../../data/game.json');
+const {MapSchema} = require('@colyseus/schema');
+const configService = require('../../../services/config-service');
 
 class AuctionController {
     constructor(room) {
@@ -20,6 +22,14 @@ class AuctionController {
         this.state.status = 'PLAY';
 
         this.auctionEndTimeout = this.room.clock.setTimeout(() => this._runDole(), config.auctionInitialDuration);
+
+        let playableItems = configService.getAllItems();
+        const itemAmount = lodash.random(5,8);
+        let itemsStart = new MapSchema();
+        for (let i = 0; i < itemAmount; i++) {
+            itemsStart[i] = lodash.sample(playableItems);
+        }
+        this.items = itemsStart;
     }
 
     bid(playerId) {
