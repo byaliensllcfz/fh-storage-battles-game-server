@@ -19,7 +19,7 @@ class AuctionController {
         lodash.each(this.state.players, (player) => {
             player.money = 1000 + Math.floor(Math.random()*1000);
         });
-        
+
         // const ids = this.state.players.map(p => p.id);
         // const profiles = await profileDao.getProfiles(ids);
 
