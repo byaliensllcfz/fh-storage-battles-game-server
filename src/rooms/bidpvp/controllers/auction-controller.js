@@ -10,18 +10,22 @@ class AuctionController {
     constructor(room) {
         this.room = room;
         this.state = room.state;
+        this.randomSeed = lodash.random(-100000, 100000);
         this.auctionEndTimeout = null;
 
         this.configs = configHelper.get();
     }
 
     async startAuction() {
+        const ids = lodash.map(this.state.players, player => player.id);
+        const profiles = await profileDao.getProfiles(ids);
+
         lodash.each(this.state.players, (player) => {
+            let profile = lodash.find(profiles, profile => profile.id === player.id);
+            player.name = profile.name;
+            player.photoUrl = profile.picture;
             player.money = 1000 + Math.floor(Math.random()*1000);
         });
-
-        // const ids = this.state.players.map(p => p.id);
-        // const profiles = await profileDao.getProfiles(ids);
 
         this.state.auction.bidValue = this.configs.game.bidIncrement;
         this.state.status = 'PLAY';

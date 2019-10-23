@@ -11,7 +11,12 @@ public class PlayerState : Schema {
 	[Type(0, "string")]
 	public string id = "";
 
-	[Type(1, "int32")]
+	[Type(1, "string")]
+	public string name = "";
+
+	[Type(2, "string")]
+	public string photoUrl = "";
+
+	[Type(3, "int32")]
 	public int money = 0;
 }
-

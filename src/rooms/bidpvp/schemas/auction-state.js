@@ -17,6 +17,9 @@ class AuctionState extends Schema {
 
         /** @type {Object<string, string>} */
         this.items = new MapSchema();
+
+        /** @type {number} */
+        this.randomSeed;
     }
 }
 
@@ -24,6 +27,7 @@ type('int32')(AuctionState.prototype, 'bidValue');
 type('string')(AuctionState.prototype, 'bidOwner');
 type('int8')(AuctionState.prototype, 'dole');
 type({map: 'string'})(AuctionState.prototype, 'items');
+type('int32')(AuctionState.prototype, 'randomSeed');
 
 module.exports = {
     AuctionState,
