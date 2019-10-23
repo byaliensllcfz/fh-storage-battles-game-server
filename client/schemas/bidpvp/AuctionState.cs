@@ -19,5 +19,8 @@ public class AuctionState : Schema {
 
 	[Type(3, "map", "string")]
 	public MapSchema<string> items = new MapSchema<string>();
+
+	[Type(4, "int32")]
+	public int randomSeed = 0;
 }
 
