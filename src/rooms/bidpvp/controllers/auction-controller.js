@@ -24,6 +24,8 @@ class AuctionController {
 
     startAuction() {
         lodash.each(this.state.players, (player) => {
+            player.name = "PLAYER NAME";
+            player.photoUrl = "https://upload.wikimedia.org/wikipedia/en/1/16/Drevil_million_dollars.jpg";
             player.money = 1000 + Math.floor(Math.random()*1000);
         });
 
