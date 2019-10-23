@@ -9,8 +9,8 @@ const { PlayerState } = require('./schemas/player-state');
 const { AuctionController } = require('./controllers/auction-controller');
 const { auctionHandler } = require('./handlers/auction-handler');
 
-const config = require('../../data/game.json');
-const commands = require('../../data/commands.json');
+const configHelper = require('../../helpers/config-helper');
+const { commands } = require('../../types');
 
 class BidPvpRoom extends Room {
     onCreate (options) {
@@ -22,7 +22,8 @@ class BidPvpRoom extends Room {
         this.auctionController = new AuctionController(this);
 
         /** @type {number} */
-        this.maxClients = config.maxPlayers;
+        const configs = configHelper.get();
+        this.maxClients = configs.game.maxPlayers;
     }
 
     onJoin (client, options) {

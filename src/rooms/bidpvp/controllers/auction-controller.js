@@ -1,21 +1,23 @@
 'use strict';
 
 const lodash = require('lodash');
-const config = require('../../../data/game.json');
 const {MapSchema} = require('@colyseus/schema');
-const configService = require('../../../services/config-service');
+
+const configHelper = require('../../../helpers/config-helper');
 
 class AuctionController {
     constructor(room) {
         this.room = room;
         this.state = room.state;
-
         this.auctionEndTimeout = null;
+        
+        this.configs = configHelper.get();
     }
 
     drawItems(itemAmount){
+
         let itemsStart = new MapSchema();
-        let playableItems = configService.getAllItems();
+        let playableItems = this.configs.items;
         for (let i = 0; i < itemAmount; i++) {
             itemsStart[i] = lodash.sample(playableItems).id;
         }
@@ -27,10 +29,10 @@ class AuctionController {
             player.money = 1000 + Math.floor(Math.random()*1000);
         });
 
-        this.state.auction.bidValue = config.bidIncrement;
+        this.state.auction.bidValue = this.configs.game.bidIncrement;
         this.state.status = 'PLAY';
 
-        this.auctionEndTimeout = this.room.clock.setTimeout(() => this._runDole(), config.auctionInitialDuration);
+        this.auctionEndTimeout = this.room.clock.setTimeout(() => this._runDole(), this.configs.game.auctionInitialDuration);
         this.drawItems(lodash.random(5,8));
     }
 
@@ -38,7 +40,7 @@ class AuctionController {
         let nextBid = this.state.auction.bidValue;
 
         if (this.state.auction.bidOwner !== '') {
-            nextBid += config.bidIncrement;
+            nextBid += this.configs.game.bidIncrement;
         }
 
         if (this.state.auction.bidOwner !== playerId && nextBid <= this.state.players[playerId].money) {
@@ -50,7 +52,7 @@ class AuctionController {
             this.state.auction.dole = 0;
             this.auctionEndTimeout.clear();
         }
-        this.auctionEndTimeout = this.room.clock.setTimeout(() => this._runDole(), config.auctionAfterBidDuration);
+        this.auctionEndTimeout = this.room.clock.setTimeout(() => this._runDole(), this.configs.game.auctionAfterBidDuration);
     }
 
     _runDole() {
@@ -58,7 +60,7 @@ class AuctionController {
             this.state.status = 'FINISHED';
         } else {
             this.state.auction.dole++;
-            this.auctionEndTimeout = this.room.clock.setTimeout(() => this._runDole(), config.auctionDoleDuration);
+            this.auctionEndTimeout = this.room.clock.setTimeout(() => this._runDole(), this.configs.game.auctionDoleDuration);
         }
     }
 }

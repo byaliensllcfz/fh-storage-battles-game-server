@@ -1,6 +1,6 @@
 'use strict';
 
-const commands = require('../../../data/commands.json');
+const { commands } = require('../../../types');
 
 function auctionHandler(room, playerId, message = {}) {
     if (message.command === commands.AUCTION_START) {
