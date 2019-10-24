@@ -9,7 +9,7 @@ class AuctionController {
     constructor(room) {
         this.room = room;
         this.state = room.state;
-        this.randomSeed = lodash.random(-100000, 100000);
+        this.state.randomSeed = lodash.random(-100000, 100000);
         this.auctionEndTimeout = null;
     }
 
