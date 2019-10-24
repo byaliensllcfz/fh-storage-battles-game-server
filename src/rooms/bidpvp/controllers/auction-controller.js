@@ -5,6 +5,7 @@ const {MapSchema} = require('@colyseus/schema');
 
 const configHelper = require('../../../helpers/config-helper');
 const profileDao = require('../../../daos/profile-dao');
+const rewardDao = require('../../../daos/reward-dao');
 
 class AuctionController {
     constructor(room) {
@@ -64,11 +65,40 @@ class AuctionController {
 
     _runDole() {
         if (this.state.auction.dole === 3) {
-            this.state.status = 'FINISHED';
+            this._finishAuction();
         } else {
             this.state.auction.dole++;
             this.auctionEndTimeout = this.room.clock.setTimeout(() => this._runDole(), this.configs.game.auctionDoleDuration);
         }
+    }
+
+    async _finishAuction() {
+        if (this.state.auction.bidOwner) {
+            const winner = this.state.auction.bidOwner;
+            const rewards = {};
+
+            lodash.each(this.state.players, player => {
+                if (player.id === winner) {
+                    const items = {};
+                    lodash.each(this.state.auction.items, itemId => {
+                        items[itemId] = (items[itemId] || 0) + 1;
+                    }),
+                    // TODO: setup the correct rewards
+                    rewards[player.id] = {
+                        trophies: 20,
+                        items,
+                    };
+                } else {
+                    rewards[player.id] = {
+                        trophies: 10,
+                    };
+                }
+            });
+
+            await rewardDao.saveRewards(rewards);
+        }
+
+        this.state.status = 'FINISHED';
     }
 }
 
