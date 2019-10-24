@@ -1,8 +1,9 @@
 'use strict';
 
+const { BidInterval } = require('.BidInterval');
 const lodash = require('lodash');
 const config = require('../../../data/game.json');
-const {MapSchema} = require('@colyseus/schema');
+const { MapSchema } = require('@colyseus/schema');
 const configService = require('../../../services/config-service');
 
 class AuctionController {
@@ -11,6 +12,8 @@ class AuctionController {
         this.state = room.state;
         this.state.randomSeed = lodash.random(-100000, 100000);
         this.auctionEndTimeout = null;
+        this.bidInterval = null;
+        this.bidIntervalTimeout = null;
     }
 
     drawItems(itemAmount){
@@ -36,17 +39,23 @@ class AuctionController {
         this.drawItems(lodash.random(5,8));
     }
 
-    bid(playerId) {
-        let nextBid = this.state.auction.bidValue;
-
+    getNextBidValue(){
+        let bidValue = this.state.auction.bidValue;
         if (this.state.auction.bidOwner !== '') {
-            nextBid += config.bidIncrement;
+            bidValue += config.bidIncrement;
         }
+        return bidValue;
+    }
 
-        if (this.state.auction.bidOwner !== playerId && nextBid <= this.state.players[playerId].money) {
-            this.state.auction.bidValue = nextBid;
-            this.state.auction.bidOwner = playerId;
-        }
+    finishBidInterval(){
+        const bidValue = this.getNextBidValue();
+        this.state.auction.bidValue = bidValue;
+        this.state.auction.bidOwner = this.bidInterval.getWinner();
+        lodash.forEach(this.bidInterval.drawPlayers, function(playerId){
+            this.state.players[playerId].lastBid = bidValue;
+        });
+        this.bidInterval = null;
+        this.bidIntervalTimeout = null;
 
         if (this.auctionEndTimeout) {
             this.state.auction.dole = 0;
@@ -55,9 +64,26 @@ class AuctionController {
         this.auctionEndTimeout = this.room.clock.setTimeout(() => this._runDole(), config.auctionAfterBidDuration);
     }
 
+    bid(playerId) {
+        if(this.state.auction.bidOwner === playerId){return;}
+        if(this.state.players[playerId].money < this.getNextBidValue()){return;}
+
+        if(this.bidInterval === null){
+            this.bidInterval = new BidInterval();
+            this.bidIntervalTimeout = this.room.clock.setTimeout(this.finishBidInterval, config.bidTimeTolerance);
+        }
+        this.bidInterval.addBid(playerId);
+    }
+
+
     _runDole() {
         if (this.state.auction.dole === 3) {
-            this.state.status = 'FINISHED';
+            if(this.bidIntervalTimeout !== null){
+                this.bidIntervalTimeout.clear;
+                this.finishBidInterval();
+            }else{
+                this.state.status = 'FINISHED';
+            }
         } else {
             this.state.auction.dole++;
             this.auctionEndTimeout = this.room.clock.setTimeout(() => this._runDole(), config.auctionDoleDuration);

@@ -19,4 +19,7 @@ public class PlayerState : Schema {
 
 	[Type(3, "int32")]
 	public int money = 0;
+
+	[Type(3, "int32")]
+	public int lastBid = 0;
 }
