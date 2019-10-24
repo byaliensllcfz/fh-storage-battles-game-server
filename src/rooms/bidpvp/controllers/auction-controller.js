@@ -18,11 +18,11 @@ class AuctionController {
     }
 
     async startAuction() {
-        const ids = lodash.map(this.state.players, player => player.id);
+        const ids = lodash.map(this.state.players, player => player.firebaseId);
         const profiles = await profileDao.getProfiles(ids);
 
         lodash.each(this.state.players, (player) => {
-            let profile = lodash.find(profiles, profile => profile.id === player.id);
+            let profile = lodash.find(profiles, profile => profile.id === player.firebaseId);
             player.name = profile.name;
             player.photoUrl = profile.picture;
             player.money = 1000 + Math.floor(Math.random()*1000);
@@ -84,12 +84,12 @@ class AuctionController {
                         items[itemId] = (items[itemId] || 0) + 1;
                     }),
                     // TODO: setup the correct rewards
-                    rewards[player.id] = {
+                    rewards[player.firebaseId] = {
                         trophies: 20,
                         items,
                     };
                 } else {
-                    rewards[player.id] = {
+                    rewards[player.firebaseId] = {
                         trophies: 10,
                     };
                 }

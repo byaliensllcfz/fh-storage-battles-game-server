@@ -13,7 +13,7 @@ const configHelper = require('../../helpers/config-helper');
 const { commands } = require('../../types');
 
 class BidPvpRoom extends Room {
-    onCreate (options) {
+    onCreate(options) {
         logger.info(`Room Init ${JSON.stringify(options)} - ${this.roomId}`, { room: this.roomId });
 
         this.setState(new GlobalState());
@@ -26,17 +26,22 @@ class BidPvpRoom extends Room {
         this.maxClients = configs.game.maxPlayers;
     }
 
-    onJoin (client, options) {
+    async onAuth(_client, _options) {
+        // validate here
+        return true;
+    }
+
+    onJoin(client, options) {
         logger.info(`Client: ${client.id} joined. ${JSON.stringify(options)}`, { room: this.roomId });
 
-        this.state.players[client.id] = new PlayerState({ id: client.id });
+        this.state.players[client.id] = new PlayerState({ id: client.id, firebaseId: options.userId });
 
         if (this.locked) {
             auctionHandler(this, null, { command: commands.AUCTION_START });
         }
     }
 
-    onMessage (client, message) {
+    onMessage(client, message) {
         logger.info(`Client: ${client.id} sent message ${JSON.stringify(message)}`, { room: this.roomId });
 
         if(this.locked) {
@@ -44,7 +49,7 @@ class BidPvpRoom extends Room {
         }
     }
 
-    async onLeave (client, consented) {
+    async onLeave(client, consented) {
         logger.info(`Client: ${client} left. consented? ${consented}`, { room: this.roomId });
 
         try {
@@ -63,7 +68,7 @@ class BidPvpRoom extends Room {
         }
     }
 
-    onDispose () {
+    onDispose() {
 
     }
 }
