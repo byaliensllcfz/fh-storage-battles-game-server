@@ -13,17 +13,24 @@ class AuctionController {
         this.state = room.state;
         this.randomSeed = lodash.random(-100000, 100000);
         this.auctionEndTimeout = null;
+        this._started = false;
 
         this.configs = configHelper.get();
     }
 
     async startAuction() {
+        // Trying to avoid duplicated calls to start auction
+        if (this._started) {
+            return;
+        }
+        this._started = true;
+
         const ids = lodash.map(this.state.players, player => player.firebaseId);
         const profiles = await profileDao.getProfiles(ids);
 
         lodash.each(this.state.players, (player) => {
             let profile = lodash.find(profiles, profile => profile.id === player.firebaseId);
-            player.name = profile.name;
+            player.name = profile.alias;
             player.photoUrl = profile.picture;
             player.money = 1000 + Math.floor(Math.random()*1000);
         });
