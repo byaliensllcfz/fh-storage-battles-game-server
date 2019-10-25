@@ -6,7 +6,7 @@ const logger = new Logger();
 const { Room } = require('colyseus');
 const { LobbyState } = require('./schemas/lobby-state');
 
-const configService = require('../../services/config-service');
+const configHelper = require('../../helpers/config-helper');
 
 class LobbyRoom extends Room {
     onCreate (options) {
@@ -37,7 +37,7 @@ class LobbyRoom extends Room {
     sendConfig(client) {
         const startingConfig = {
             roomId: this.roomId,
-            items: configService.getAllItems(),
+            items: configHelper.get().items,
         };
 
         this.send(client, JSON.stringify(startingConfig));

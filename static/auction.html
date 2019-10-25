@@ -11,6 +11,7 @@
   <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.15/lodash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
 </head>
 <body>
   <div id="app">
@@ -18,18 +19,42 @@
       <v-content>
 
         <!-- TOOLBAR -->
-        <v-toolbar>
+        <!-- <v-toolbar>
           <v-toolbar-title>Bid PVP</v-toolbar-title>
           <v-toolbar-items>
-            <v-btn text @click="onGameJoin" class="ml-2" :disabled="connected">Join</v-btn>
           </v-toolbar-items>
-        </v-toolbar>
+        </v-toolbar> -->
         <!-- END TOOLBAR -->
 
         <v-container>
           <v-card class="d-flex">
             <v-card-text>
+              <v-row class="pt-1">
+                <v-col cols="12" sm="1">
+                  <v-btn
+                    text
+                    x-large
+                    block
+                    @click="onGameJoin"
+                    :disabled="connected">
+                    Join
+                  </v-btn>
+                </v-col>
+                <v-col cols="12" sm="2">
+                  <v-text-field
+                    v-model="firebaseId"
+                    label="Firebase ID"
+                    outlined
+                    append-icon="mdi-reload"
+                    @click:append="reloadId"
+                    :disabled="connected">
+                  </v-text-field>
+                </v-col>
+              </v-row>
+              <v-divider></v-divider>
+              
               <p><v-btn text @click="onBid" class="ml-2" :disabled="!canBid">Bid</v-btn></p>
+              <v-divider></v-divider>
               <pre>{{state}}</pre>
             </v-card-text>
           </v-card>
@@ -55,11 +80,14 @@ const serverService = {
     console.log('command', command, args);
   },
 
-  async connect() {
+  async connect(firebaseId) {
     if (serverService.connected) return;
 
     serverService.client = new Colyseus.Client('ws://localhost:2567');
-    serverService.room = await serverService.client.joinOrCreate('bidpvp');
+    serverService.room = await serverService.client.joinOrCreate('bidpvp', {
+      // userIdToken: null,
+      userId: firebaseId
+    });
     serverService.connected = true;
     serverService._addListeners();
   },
@@ -86,9 +114,10 @@ let app = new Vue({
 
     data() {
       return {
-          connected: false,
-          clientId: null,
-          state: {},
+        connected: false,
+        clientId: null,
+        firebaseId: '',
+        state: {},
       }
     },
 
@@ -99,23 +128,41 @@ let app = new Vue({
     },
 
     methods: {
-        async onGameJoin() {
-            await serverService.connect();
+      async onGameJoin() {
+        await serverService.connect(this.firebaseId);
 
-            this.connected = true;
-            this.clientId = serverService.room.sessionId;
-            serverService.room.onStateChange((state) => {
-                const plainState = JSON.parse(JSON.stringify(state));
-                Vue.set(this, 'state', plainState);
-            });
-        },
+        this.connected = true;
+        this.clientId = serverService.room.sessionId;
+        serverService.room.onStateChange((state) => {
+          const plainState = JSON.parse(JSON.stringify(state));
+          Vue.set(this, 'state', plainState);
+        });
+      },
 
-        async onBid() {
-            await serverService.sendMessage('AUCTION_BID');
-        }
+      async onBid() {
+        await serverService.sendMessage('AUCTION_BID');
+      },
+
+      reloadId() {
+        this.firebaseId = '' + Math.random().toString(36).substr(2, 9);
+        window.localStorage.setItem('firebaseId', this.firebaseId);
+      }
+    },
+    
+    watch: {
+      firebaseId() {
+        window.localStorage.setItem('firebaseId', this.firebaseId);
+      }
     },
 
     created() {
+      const id = window.localStorage.getItem('firebaseId');
+      if (id) {
+        this.firebaseId = id;
+      } else {
+        this.firebaseId = '' + Math.random().toString(36).substr(2, 9);
+        window.localStorage.setItem('firebaseId', this.firebaseId);
+      }
     }
 
 })

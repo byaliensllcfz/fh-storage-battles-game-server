@@ -7,6 +7,9 @@ class PlayerState extends Schema {
         super();
 
         /** @type {string} */
+        this.firebaseId = options.firebaseId || '';
+
+        /** @type {string} */
         this.id = options.id || '';
 
         /** @type {string} */
