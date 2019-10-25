@@ -37,8 +37,13 @@ class BidPvpRoom extends Room {
         }
     }
 
-    onJoin(client, options) {
+    async onJoin(client, options) {
         logger.info(`Client: ${client.id} joined. ${JSON.stringify(options)}`, { room: this.roomId });
+
+        if (options.userToken) {
+            const data = await authDao.validateToken(options.userToken);
+            options.userId = data['game-user-id-data'].uid;
+        }
 
         this.state.players[client.id] = new PlayerState({ id: client.id, firebaseId: options.userId });
 
