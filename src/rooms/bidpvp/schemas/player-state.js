@@ -17,6 +17,9 @@ class PlayerState extends Schema {
 
         /** @type {number} */
         this.money = options.money || 0;
+
+        /** @type {number} */
+        this.lastBid;
     }
 }
 
@@ -24,6 +27,7 @@ type('string')(PlayerState.prototype, 'id');
 type('string')(PlayerState.prototype, 'name');
 type('string')(PlayerState.prototype, 'photoUrl');
 type('int32')(PlayerState.prototype, 'money');
+type('int32')(PlayerState.prototype, 'lastBid');
 
 module.exports = {
     PlayerState,

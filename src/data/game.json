@@ -3,5 +3,6 @@
     "bidIncrement": 100,
     "auctionInitialDuration": 5000,
     "auctionAfterBidDuration": 3000,
+    "bidTimeTolerance":2000,
     "auctionDoleDuration": 2000
 }
