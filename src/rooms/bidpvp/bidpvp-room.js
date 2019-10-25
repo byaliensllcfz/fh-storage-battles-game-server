@@ -9,6 +9,7 @@ const { PlayerState } = require('./schemas/player-state');
 const { AuctionController } = require('./controllers/auction-controller');
 const { auctionHandler } = require('./handlers/auction-handler');
 
+const authDao = require('../../daos/auth-dao');
 const configHelper = require('../../helpers/config-helper');
 const { commands } = require('../../types');
 
@@ -26,9 +27,14 @@ class BidPvpRoom extends Room {
         this.maxClients = configs.game.maxPlayers;
     }
 
-    async onAuth(_client, _options) {
-        // validate here
-        return true;
+    async onAuth(_client, options) {
+        if (options.clientWeb) {
+            return true;
+        }
+
+        if (options.userToken) {
+            return await authDao.validateToken(options.userToken);
+        }
     }
 
     onJoin(client, options) {

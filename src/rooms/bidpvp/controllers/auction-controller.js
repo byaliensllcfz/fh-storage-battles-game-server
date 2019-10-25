@@ -35,7 +35,7 @@ class AuctionController {
             let profile = lodash.find(profiles, profile => profile.id === player.firebaseId);
             player.name = profile.alias;
             player.photoUrl = profile.picture;
-            player.money = 1000 + Math.floor(Math.random()*1000);
+            player.money = profile.softCurrency;
         });
 
         this.state.auction.bidValue = this.configs.game.bidIncrement;

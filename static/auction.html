@@ -86,7 +86,8 @@ const serverService = {
     serverService.client = new Colyseus.Client('ws://localhost:2567');
     serverService.room = await serverService.client.joinOrCreate('bidpvp', {
       // userIdToken: null,
-      userId: firebaseId
+      userId: firebaseId,
+      clientWeb: true,
     });
     serverService.connected = true;
     serverService._addListeners();
