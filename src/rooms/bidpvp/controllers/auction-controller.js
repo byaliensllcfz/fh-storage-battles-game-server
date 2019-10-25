@@ -6,13 +6,16 @@ const {MapSchema} = require('@colyseus/schema');
 const configHelper = require('../../../helpers/config-helper');
 const profileDao = require('../../../daos/profile-dao');
 const rewardDao = require('../../../daos/reward-dao');
+const { BidInterval } = require('../../../helpers/bid-interval');
 
 class AuctionController {
     constructor(room) {
         this.room = room;
         this.state = room.state;
-        this.randomSeed = lodash.random(-100000, 100000);
+        this.state.randomSeed = lodash.random(-100000, 100000);
         this.auctionEndTimeout = null;
+        this.bidInterval = null;
+        this.bidIntervalTimeout = null;
         this._started = false;
 
         this.configs = configHelper.get();
@@ -42,17 +45,23 @@ class AuctionController {
         this._drawItems(lodash.random(5,8));
     }
 
-    bid(playerId) {
-        let nextBid = this.state.auction.bidValue;
-
+    getNextBidValue() {
+        let bidValue = this.state.auction.bidValue;
         if (this.state.auction.bidOwner !== '') {
-            nextBid += this.configs.game.bidIncrement;
+            bidValue += this.configs.game.bidIncrement;
         }
+        return bidValue;
+    }
 
-        if (this.state.auction.bidOwner !== playerId && nextBid <= this.state.players[playerId].money) {
-            this.state.auction.bidValue = nextBid;
-            this.state.auction.bidOwner = playerId;
-        }
+    finishBidInterval() {
+        const bidValue = this.getNextBidValue();
+        this.state.auction.bidValue = bidValue;
+        this.state.auction.bidOwner = this.bidInterval.getWinner();
+        lodash.forEach(this.bidInterval.drawPlayers, (playerId) => {
+            this.state.players[playerId].lastBid = bidValue;
+        });
+        this.bidInterval = null;
+        this.bidIntervalTimeout = null;
 
         if (this.auctionEndTimeout) {
             this.state.auction.dole = 0;
@@ -70,9 +79,26 @@ class AuctionController {
         this.state.auction.items = itemsStart;
     }
 
+    bid(playerId) {
+        if(this.state.auction.bidOwner === playerId){return;}
+        if(this.state.players[playerId].money < this.getNextBidValue()){return;}
+
+        if(this.bidInterval === null){
+            this.bidInterval = new BidInterval();
+            this.bidIntervalTimeout = this.room.clock.setTimeout(() => this.finishBidInterval(), this.configs.game.bidTimeTolerance);
+        }
+        this.bidInterval.addBid(playerId);
+    }
+
+
     _runDole() {
         if (this.state.auction.dole === 3) {
-            this._finishAuction();
+            if (this.bidIntervalTimeout !== null) {
+                this.bidIntervalTimeout.clear();
+                this.finishBidInterval();
+            } else {
+                this._finishAuction();
+            }
         } else {
             this.state.auction.dole++;
             this.auctionEndTimeout = this.room.clock.setTimeout(() => this._runDole(), this.configs.game.auctionDoleDuration);
