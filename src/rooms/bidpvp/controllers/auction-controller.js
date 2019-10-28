@@ -106,6 +106,8 @@ class AuctionController {
     }
 
     async _finishAuction() {
+        this.state.status = 'FINISHED';
+
         if (this.state.auction.bidOwner) {
             const winner = this.state.auction.bidOwner;
             const rewards = {};
@@ -118,6 +120,7 @@ class AuctionController {
                     }),
                     // TODO: setup the correct rewards
                     rewards[player.firebaseId] = {
+                        price: this.state.auction.bidValue,
                         trophies: 20,
                         items,
                     };
@@ -130,8 +133,6 @@ class AuctionController {
 
             await rewardDao.saveRewards(rewards);
         }
-
-        this.state.status = 'FINISHED';
     }
 }
 
