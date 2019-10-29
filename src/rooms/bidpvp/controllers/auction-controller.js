@@ -127,6 +127,11 @@ class AuctionController {
     _finishLot(lotIndex){
         let endingLot = this.state.lots[lotIndex];
         endingLot.status = 'FINISHED';
+
+        lodash.each(this.state.players, player => {
+            player.lastBid = 0;
+        });
+
         if (endingLot.bidOwner) {
             let bidOwnerState = this.state.players[endingLot.bidOwner];
             bidOwnerState.money = (Number(bidOwnerState.money)  || 0) - endingLot.bidValue;
