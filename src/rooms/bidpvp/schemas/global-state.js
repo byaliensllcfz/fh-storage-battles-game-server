@@ -16,7 +16,7 @@ class GlobalState extends Schema {
         this.players = new MapSchema();
 
         /** @type {Array<AuctionState>} */
-        this.auction = new ArraySchema();
+        this.lots = new ArraySchema();
 
         /**@type {number} */
         this.currentLot = 0;
@@ -24,7 +24,7 @@ class GlobalState extends Schema {
 }
 
 type('string')(GlobalState.prototype, 'status');
-type([AuctionState])(GlobalState.prototype, 'auction');
+type([AuctionState])(GlobalState.prototype, 'lots');
 type({map: PlayerState})(GlobalState.prototype, 'players');
 type('uint8')(GlobalState.prototype, 'currentLot');
 

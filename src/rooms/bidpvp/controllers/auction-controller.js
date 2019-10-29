@@ -38,7 +38,7 @@ class AuctionController {
             player.photoUrl = profile.picture;
             player.money = profile.softCurrency;
         });
-        this.state.auction.push(new AuctionState());
+        this.state.lots.push(new AuctionState());
         this._getCurrentLot().bidValue = this.configs.game.bidIncrement;
         this.state.status = 'PLAY';
 
@@ -55,7 +55,7 @@ class AuctionController {
     }
 
     _getCurrentLot(){
-        return this.state.auction[this.state.currentLot];
+        return this.state.lots[this.state.currentLot];
     }
 
     finishBidInterval() {
