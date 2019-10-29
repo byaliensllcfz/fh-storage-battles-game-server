@@ -39,19 +39,15 @@ class AuctionController {
             player.money = profile.softCurrency;
         });
         this._generateLots(5);
-        
-        this._getCurrentLot().bidValue = this.configs.game.bidIncrement;
+
+        //this._getCurrentLot().bidValue = this.configs.game.bidIncrement;
         this.state.status = 'PLAY';
 
         this.auctionEndTimeout = this.room.clock.setTimeout(() => this._runDole(), this.configs.game.auctionInitialDuration);
     }
 
     getNextBidValue() {
-        let bidValue = this._getCurrentLot().bidValue;
-        if (this._getCurrentLot().bidOwner !== '') {
-            bidValue += this.configs.game.bidIncrement;
-        }
-        return bidValue;
+        return this._getCurrentLot().bidValue + this.configs.game.bidIncrement;
     }
 
     _generateLots(lotAmount){
