@@ -128,34 +128,35 @@ class AuctionController {
         this.state.lots[lotIndex].status = 'FINISHED';
     }
 
+    _calculateRewards(){
+        const rewards = {};
+        lodash.each(this.state.players, player => {
+            rewards[player.firebaseId] = {
+                // TODO: setup the correct rewards
+                trophies: 10,
+                price: 0,
+                items: {},
+            };
+        });
+
+        lodash.each(this.state.lots, lotState => {
+            if(lotState.bidOwner){
+                let winnerRewards = rewards[lotState.bidOwner.firebaseId];
+                // TODO: setup the correct rewards
+                winnerRewards.trophies = 20;
+                winnerRewards.price += lotState.bidValue;
+                lodash.each(lotState.items, itemId => {
+                    winnerRewards.items[itemId] = (winnerRewards.items[itemId] || 0) + 1;
+                });
+            }
+        });
+        return rewards;
+    }
+
     async _finishAuction() {
         this.state.status = 'FINISHED';
 
-        if (this._getCurrentLot().bidOwner) {
-            const winner = this._getCurrentLot().bidOwner;
-            const rewards = {};
-
-            lodash.each(this.state.players, player => {
-                if (player.id === winner) {
-                    const items = {};
-                    lodash.each(this._getCurrentLot().items, itemId => {
-                        items[itemId] = (items[itemId] || 0) + 1;
-                    }),
-                    // TODO: setup the correct rewards
-                    rewards[player.firebaseId] = {
-                        price: this._getCurrentLot().bidValue,
-                        trophies: 20,
-                        items,
-                    };
-                } else {
-                    rewards[player.firebaseId] = {
-                        trophies: 10,
-                    };
-                }
-            });
-
-            await rewardDao.saveRewards(rewards);
-        }
+        await rewardDao.saveRewards(this._calculateRewards());
     }
 }
 
