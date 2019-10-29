@@ -4,7 +4,7 @@ const { Logger } = require('@tapps-games/logging');
 const logger = new Logger();
 
 const { Room } = require('colyseus');
-const { GlobalState } = require('./schemas/global-state');
+const { AuctionState } = require('./schemas/auction-state');
 const { PlayerState } = require('./schemas/player-state');
 const { AuctionController } = require('./controllers/auction-controller');
 const { auctionHandler } = require('./handlers/auction-handler');
@@ -17,7 +17,7 @@ class BidPvpRoom extends Room {
     onCreate(options) {
         logger.info(`Room Init ${JSON.stringify(options)} - ${this.roomId}`, { room: this.roomId });
 
-        this.setState(new GlobalState());
+        this.setState(new AuctionState());
         this.setPatchRate(1000 / 20);
 
         this.auctionController = new AuctionController(this);

@@ -7,7 +7,7 @@
 
 using Colyseus.Schema;
 
-public class GlobalState : Schema {
+public class AuctionState : Schema {
 	[Type(0, "string")]
 	public string status = "";
 
