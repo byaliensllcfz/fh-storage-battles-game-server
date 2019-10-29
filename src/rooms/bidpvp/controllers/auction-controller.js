@@ -7,6 +7,7 @@ const configHelper = require('../../../helpers/config-helper');
 const profileDao = require('../../../daos/profile-dao');
 const rewardDao = require('../../../daos/reward-dao');
 const { BidInterval } = require('../../../helpers/bid-interval');
+const {AuctionState} = require('../schemas/auction-state');
 
 class AuctionController {
     constructor(room) {
@@ -37,8 +38,8 @@ class AuctionController {
             player.photoUrl = profile.picture;
             player.money = profile.softCurrency;
         });
-
-        this.state.auction.bidValue = this.configs.game.bidIncrement;
+        this.state.auction.push(new AuctionState());
+        this.state.auction[0].bidValue = this.configs.game.bidIncrement;
         this.state.status = 'PLAY';
 
         this.auctionEndTimeout = this.room.clock.setTimeout(() => this._runDole(), this.configs.game.auctionInitialDuration);
@@ -46,8 +47,8 @@ class AuctionController {
     }
 
     getNextBidValue() {
-        let bidValue = this.state.auction.bidValue;
-        if (this.state.auction.bidOwner !== '') {
+        let bidValue = this.state.auction[0].bidValue;
+        if (this.state.auction[0].bidOwner !== '') {
             bidValue += this.configs.game.bidIncrement;
         }
         return bidValue;
@@ -55,8 +56,8 @@ class AuctionController {
 
     finishBidInterval() {
         const bidValue = this.getNextBidValue();
-        this.state.auction.bidValue = bidValue;
-        this.state.auction.bidOwner = this.bidInterval.getWinner();
+        this.state.auction[0].bidValue = bidValue;
+        this.state.auction[0].bidOwner = this.bidInterval.getWinner();
         lodash.forEach(this.bidInterval.drawPlayers, (playerId) => {
             this.state.players[playerId].lastBid = bidValue;
         });
@@ -64,7 +65,7 @@ class AuctionController {
         this.bidIntervalTimeout = null;
 
         if (this.auctionEndTimeout) {
-            this.state.auction.dole = 0;
+            this.state.auction[0].dole = 0;
             this.auctionEndTimeout.clear();
         }
         this.auctionEndTimeout = this.room.clock.setTimeout(() => this._runDole(), this.configs.game.auctionAfterBidDuration);
@@ -76,11 +77,11 @@ class AuctionController {
         for (let i = 0; i < itemAmount; i++) {
             itemsStart[i] = lodash.sample(playableItems).id;
         }
-        this.state.auction.items = itemsStart;
+        this.state.auction[0].items = itemsStart;
     }
 
     bid(playerId) {
-        if(this.state.auction.bidOwner === playerId){return;}
+        if(this.state.auction[0].bidOwner === playerId){return;}
         if(this.state.players[playerId].money < this.getNextBidValue()){return;}
 
         if(this.bidInterval === null){
@@ -92,7 +93,7 @@ class AuctionController {
 
 
     _runDole() {
-        if (this.state.auction.dole === 3) {
+        if (this.state.auction[0].dole === 3) {
             if (this.bidIntervalTimeout !== null) {
                 this.bidIntervalTimeout.clear();
                 this.finishBidInterval();
@@ -100,7 +101,7 @@ class AuctionController {
                 this._finishAuction();
             }
         } else {
-            this.state.auction.dole++;
+            this.state.auction[0].dole++;
             this.auctionEndTimeout = this.room.clock.setTimeout(() => this._runDole(), this.configs.game.auctionDoleDuration);
         }
     }
@@ -108,19 +109,19 @@ class AuctionController {
     async _finishAuction() {
         this.state.status = 'FINISHED';
 
-        if (this.state.auction.bidOwner) {
-            const winner = this.state.auction.bidOwner;
+        if (this.state.auction[0].bidOwner) {
+            const winner = this.state.auction[0].bidOwner;
             const rewards = {};
 
             lodash.each(this.state.players, player => {
                 if (player.id === winner) {
                     const items = {};
-                    lodash.each(this.state.auction.items, itemId => {
+                    lodash.each(this.state.auction[0].items, itemId => {
                         items[itemId] = (items[itemId] || 0) + 1;
                     }),
                     // TODO: setup the correct rewards
                     rewards[player.firebaseId] = {
-                        price: this.state.auction.bidValue,
+                        price: this.state.auction[0].bidValue,
                         trophies: 20,
                         items,
                     };
