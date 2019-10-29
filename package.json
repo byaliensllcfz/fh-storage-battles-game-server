@@ -1,7 +1,7 @@
 {
     "name": "bidpvp-alpha-game-server",
     "description": "Bid PvP Alpha Colyseus Server",
-    "version": "1.0.6",
+    "version": "1.0.7",
     "private": true,
     "engines": {
         "node": ">=10.0.0"
