@@ -17,13 +17,16 @@ class GlobalState extends Schema {
 
         /** @type {Array<AuctionState>} */
         this.auction = new ArraySchema();
+
+        /**@type {number} */
+        this.currentLot = 0;
     }
 }
 
 type('string')(GlobalState.prototype, 'status');
 type([AuctionState])(GlobalState.prototype, 'auction');
 type({map: PlayerState})(GlobalState.prototype, 'players');
-
+type('uint8')(GlobalState.prototype, 'currentLot');
 
 module.exports = {
     GlobalState,

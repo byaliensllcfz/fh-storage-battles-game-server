@@ -39,7 +39,7 @@ class AuctionController {
             player.money = profile.softCurrency;
         });
         this.state.auction.push(new AuctionState());
-        this.state.auction[0].bidValue = this.configs.game.bidIncrement;
+        this._getCurrentLot().bidValue = this.configs.game.bidIncrement;
         this.state.status = 'PLAY';
 
         this.auctionEndTimeout = this.room.clock.setTimeout(() => this._runDole(), this.configs.game.auctionInitialDuration);
@@ -47,17 +47,21 @@ class AuctionController {
     }
 
     getNextBidValue() {
-        let bidValue = this.state.auction[0].bidValue;
-        if (this.state.auction[0].bidOwner !== '') {
+        let bidValue = this._getCurrentLot().bidValue;
+        if (this._getCurrentLot().bidOwner !== '') {
             bidValue += this.configs.game.bidIncrement;
         }
         return bidValue;
     }
 
+    _getCurrentLot(){
+        return this.state.auction[this.state.currentLot];
+    }
+
     finishBidInterval() {
         const bidValue = this.getNextBidValue();
-        this.state.auction[0].bidValue = bidValue;
-        this.state.auction[0].bidOwner = this.bidInterval.getWinner();
+        this._getCurrentLot().bidValue = bidValue;
+        this._getCurrentLot().bidOwner = this.bidInterval.getWinner();
         lodash.forEach(this.bidInterval.drawPlayers, (playerId) => {
             this.state.players[playerId].lastBid = bidValue;
         });
@@ -65,7 +69,7 @@ class AuctionController {
         this.bidIntervalTimeout = null;
 
         if (this.auctionEndTimeout) {
-            this.state.auction[0].dole = 0;
+            this._getCurrentLot().dole = 0;
             this.auctionEndTimeout.clear();
         }
         this.auctionEndTimeout = this.room.clock.setTimeout(() => this._runDole(), this.configs.game.auctionAfterBidDuration);
@@ -77,11 +81,11 @@ class AuctionController {
         for (let i = 0; i < itemAmount; i++) {
             itemsStart[i] = lodash.sample(playableItems).id;
         }
-        this.state.auction[0].items = itemsStart;
+        this._getCurrentLot().items = itemsStart;
     }
 
     bid(playerId) {
-        if(this.state.auction[0].bidOwner === playerId){return;}
+        if(this._getCurrentLot().bidOwner === playerId){return;}
         if(this.state.players[playerId].money < this.getNextBidValue()){return;}
 
         if(this.bidInterval === null){
@@ -93,7 +97,7 @@ class AuctionController {
 
 
     _runDole() {
-        if (this.state.auction[0].dole === 3) {
+        if (this._getCurrentLot().dole === 3) {
             if (this.bidIntervalTimeout !== null) {
                 this.bidIntervalTimeout.clear();
                 this.finishBidInterval();
@@ -101,7 +105,7 @@ class AuctionController {
                 this._finishAuction();
             }
         } else {
-            this.state.auction[0].dole++;
+            this._getCurrentLot().dole++;
             this.auctionEndTimeout = this.room.clock.setTimeout(() => this._runDole(), this.configs.game.auctionDoleDuration);
         }
     }
@@ -109,19 +113,19 @@ class AuctionController {
     async _finishAuction() {
         this.state.status = 'FINISHED';
 
-        if (this.state.auction[0].bidOwner) {
-            const winner = this.state.auction[0].bidOwner;
+        if (this._getCurrentLot().bidOwner) {
+            const winner = this._getCurrentLot().bidOwner;
             const rewards = {};
 
             lodash.each(this.state.players, player => {
                 if (player.id === winner) {
                     const items = {};
-                    lodash.each(this.state.auction[0].items, itemId => {
+                    lodash.each(this._getCurrentLot().items, itemId => {
                         items[itemId] = (items[itemId] || 0) + 1;
                     }),
                     // TODO: setup the correct rewards
                     rewards[player.firebaseId] = {
-                        price: this.state.auction[0].bidValue,
+                        price: this._getCurrentLot().bidValue,
                         trophies: 20,
                         items,
                     };
