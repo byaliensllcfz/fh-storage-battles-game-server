@@ -22,5 +22,8 @@ public class AuctionState : Schema {
 
 	[Type(4, "int32")]
 	public int randomSeed = 0;
+
+	[Type(5, "string")]
+	public string bidOwner = "";
 }
 
