@@ -7,17 +7,17 @@
 
 using Colyseus.Schema;
 
-public class AuctionState : Schema {
-	[Type(0, "string")]
+public class AuctionState : Schema
+{
+    [Type(0, "string")] 
 	public string status = "";
 
-	[Type(1, "array", typeof(ArraySchema<LotState>))]
-	public ArraySchema<LotState> lots = new ArraySchema<LotState>();
+    [Type(1, "array", typeof(ArraySchema<LotState>))]
+    public ArraySchema<LotState> lots = new ArraySchema<LotState>();
 
-	[Type(2, "map", typeof(MapSchema<PlayerState>))]
-	public MapSchema<PlayerState> players = new MapSchema<PlayerState>();
+    [Type(2, "map", typeof(MapSchema<PlayerState>))]
+    public MapSchema<PlayerState> players = new MapSchema<PlayerState>();
 
-	[Type(3, "uint8")]
-	public int currentLot = "";
+    [Type(3, "uint8")] 
+	public uint currentLot = 0;
 }
-
