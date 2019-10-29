@@ -38,12 +38,12 @@ class AuctionController {
             player.photoUrl = profile.picture;
             player.money = profile.softCurrency;
         });
-        this.state.lots.push(new AuctionState());
+        this._generateLots();
+        
         this._getCurrentLot().bidValue = this.configs.game.bidIncrement;
         this.state.status = 'PLAY';
 
         this.auctionEndTimeout = this.room.clock.setTimeout(() => this._runDole(), this.configs.game.auctionInitialDuration);
-        this._drawItems(lodash.random(5,8));
     }
 
     getNextBidValue() {
@@ -52,6 +52,12 @@ class AuctionController {
             bidValue += this.configs.game.bidIncrement;
         }
         return bidValue;
+    }
+
+    _generateLots(){
+        let newLot  = new AuctionState();
+        this.state.lots.push(newLot);
+        this._drawItems(lodash.random(5,8), newLot);
     }
 
     _getCurrentLot(){
@@ -75,13 +81,13 @@ class AuctionController {
         this.auctionEndTimeout = this.room.clock.setTimeout(() => this._runDole(), this.configs.game.auctionAfterBidDuration);
     }
 
-    _drawItems(itemAmount){
+    _drawItems(itemAmount, lot){
         let itemsStart = new MapSchema();
         let playableItems = this.configs.items;
         for (let i = 0; i < itemAmount; i++) {
             itemsStart[i] = lodash.sample(playableItems).id;
         }
-        this._getCurrentLot().items = itemsStart;
+        lot.items = itemsStart;
     }
 
     bid(playerId) {
