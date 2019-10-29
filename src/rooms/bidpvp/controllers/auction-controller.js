@@ -38,7 +38,7 @@ class AuctionController {
             player.photoUrl = profile.picture;
             player.money = profile.softCurrency;
         });
-        this._generateLots();
+        this._generateLots(5);
         
         this._getCurrentLot().bidValue = this.configs.game.bidIncrement;
         this.state.status = 'PLAY';
@@ -54,10 +54,12 @@ class AuctionController {
         return bidValue;
     }
 
-    _generateLots(){
-        let newLot  = new AuctionState();
-        this.state.lots.push(newLot);
-        this._drawItems(lodash.random(5,8), newLot);
+    _generateLots(lotAmount){
+        for (let index = 0; index < lotAmount; index++) {
+            let newLot  = new AuctionState();
+            this.state.lots.push(newLot);
+            this._drawItems(lodash.random(5,8), newLot);
+        }
     }
 
     _getCurrentLot(){
