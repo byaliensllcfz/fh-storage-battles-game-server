@@ -21,6 +21,8 @@ class AuctionController {
         this.lotsAmount = 5;
 
         this.configs = configHelper.get();
+
+        this._generateLots(this.lotsAmount);
     }
 
     async startAuction() {
@@ -39,8 +41,6 @@ class AuctionController {
             player.photoUrl = profile.picture;
             player.money = profile.softCurrency;
         });
-
-        this._generateLots(this.lotsAmount);
         this.state.status = 'PLAY';
         this._startLot(0);
     }
