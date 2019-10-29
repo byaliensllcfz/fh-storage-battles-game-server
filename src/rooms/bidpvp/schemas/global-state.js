@@ -1,6 +1,6 @@
 'use strict';
 
-const { Schema, type, MapSchema } = require('@colyseus/schema');
+const { Schema, type, MapSchema, ArraySchema } = require('@colyseus/schema');
 
 const { PlayerState } = require('./player-state');
 const { AuctionState } = require('./auction-state');
@@ -15,15 +15,18 @@ class GlobalState extends Schema {
         /** @type {Object<string, PlayerState>} */
         this.players = new MapSchema();
 
-        /** @type {AuctionState} */
-        this.auction = new AuctionState();
+        /** @type {Array<AuctionState>} */
+        this.lots = new ArraySchema();
+
+        /**@type {number} */
+        this.currentLot = 0;
     }
 }
 
 type('string')(GlobalState.prototype, 'status');
-type(AuctionState)(GlobalState.prototype, 'auction');
+type([AuctionState])(GlobalState.prototype, 'lots');
 type({map: PlayerState})(GlobalState.prototype, 'players');
-
+type('uint8')(GlobalState.prototype, 'currentLot');
 
 module.exports = {
     GlobalState,

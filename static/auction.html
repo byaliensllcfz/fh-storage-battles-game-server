@@ -123,7 +123,7 @@ let app = new Vue({
 
     computed: {
       canBid() {
-        return this.state.status === 'PLAY' && this.state.auction.bidOwner !== this.clientId;
+        return this.state.status === 'PLAY' && this.state.lots[this.state.currentLot].bidOwner !== this.clientId;
       }
     },
 
