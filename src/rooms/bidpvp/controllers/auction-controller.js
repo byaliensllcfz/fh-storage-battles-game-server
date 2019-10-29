@@ -7,7 +7,7 @@ const configHelper = require('../../../helpers/config-helper');
 const profileDao = require('../../../daos/profile-dao');
 const rewardDao = require('../../../daos/reward-dao');
 const { BidInterval } = require('../../../helpers/bid-interval');
-const { AuctionState } = require('../schemas/auction-state');
+const { LotState } = require('../schemas/lot-state');
 
 class AuctionController {
     constructor(room) {
@@ -51,7 +51,7 @@ class AuctionController {
 
     _generateLots(lotAmount){
         for (let index = 0; index < lotAmount; index++) {
-            let newLot  = new AuctionState();
+            let newLot  = new LotState();
             this.state.lots.push(newLot);
             this._drawItems(lodash.random(5,8), newLot);
         }

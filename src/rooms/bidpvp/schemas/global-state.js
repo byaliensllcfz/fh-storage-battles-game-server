@@ -3,7 +3,7 @@
 const { Schema, type, MapSchema, ArraySchema } = require('@colyseus/schema');
 
 const { PlayerState } = require('./player-state');
-const { AuctionState } = require('./auction-state');
+const { LotState } = require('./lot-state');
 
 class GlobalState extends Schema {
 
@@ -15,7 +15,7 @@ class GlobalState extends Schema {
         /** @type {Object<string, PlayerState>} */
         this.players = new MapSchema();
 
-        /** @type {Array<AuctionState>} */
+        /** @type {Array<LotState>} */
         this.lots = new ArraySchema();
 
         /**@type {number} */
@@ -24,7 +24,7 @@ class GlobalState extends Schema {
 }
 
 type('string')(GlobalState.prototype, 'status');
-type([AuctionState])(GlobalState.prototype, 'lots');
+type([LotState])(GlobalState.prototype, 'lots');
 type({map: PlayerState})(GlobalState.prototype, 'players');
 type('uint8')(GlobalState.prototype, 'currentLot');
 

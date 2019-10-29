@@ -11,8 +11,8 @@ public class GlobalState : Schema {
 	[Type(0, "string")]
 	public string status = "";
 
-	[Type(1, "array", typeof(ArraySchema<AuctionState>))]
-	public ArraySchema<AuctionState> lots = new ArraySchema<AuctionState>();
+	[Type(1, "array", typeof(ArraySchema<LotState>))]
+	public ArraySchema<LotState> lots = new ArraySchema<LotState>();
 
 	[Type(2, "map", typeof(MapSchema<PlayerState>))]
 	public MapSchema<PlayerState> players = new MapSchema<PlayerState>();

@@ -7,7 +7,7 @@
 
 using Colyseus.Schema;
 
-public class AuctionState : Schema {
+public class LotState : Schema {
 	[Type(0, "int32")]
 	public int bidValue = 0;
 

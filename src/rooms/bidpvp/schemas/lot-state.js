@@ -2,7 +2,7 @@
 
 const { Schema, MapSchema, type } = require('@colyseus/schema');
 
-class AuctionState extends Schema {
+class LotState extends Schema {
     constructor(options = {}) {
         super();
 
@@ -26,13 +26,13 @@ class AuctionState extends Schema {
     }
 }
 
-type('int32')(AuctionState.prototype, 'bidValue');
-type('string')(AuctionState.prototype, 'bidOwner');
-type('int8')(AuctionState.prototype, 'dole');
-type({map: 'string'})(AuctionState.prototype, 'items');
-type('int32')(AuctionState.prototype, 'randomSeed');
-type('string')(AuctionState.prototype, 'status');
+type('int32')(LotState.prototype, 'bidValue');
+type('string')(LotState.prototype, 'bidOwner');
+type('int8')(LotState.prototype, 'dole');
+type({map: 'string'})(LotState.prototype, 'items');
+type('int32')(LotState.prototype, 'randomSeed');
+type('string')(LotState.prototype, 'status');
 
 module.exports = {
-    AuctionState,
+    LotState,
 };
