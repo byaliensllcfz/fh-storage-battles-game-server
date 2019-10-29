@@ -2,9 +2,9 @@
 
 const { commands } = require('../../../types');
 
-function auctionHandler(room, playerId, message = {}) {
+async function handleAuctionCommand(room, playerId, message = {}) {
     if (message.command === commands.AUCTION_START) {
-        room.auctionController.startAuction();
+        await room.auctionController.startAuction();
 
     } else if (message.command === commands.AUCTION_BID) {
         room.auctionController.bid(playerId);
@@ -12,5 +12,5 @@ function auctionHandler(room, playerId, message = {}) {
 }
 
 module.exports = {
-    auctionHandler,
+    handleAuctionCommand,
 };

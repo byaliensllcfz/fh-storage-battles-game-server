@@ -23,7 +23,7 @@ const configHelper = require('./helpers/config-helper');
 const logger = new Logger();
 
 
-async function createServer () {
+async function createServer() {
     await config.load('env');
     await config.load('json', 'config.json');
 
@@ -40,7 +40,7 @@ async function createServer () {
     gameServer.define('bidpvp', BidPvpRoom);
     gameServer.define('lobby', LobbyRoom);
 
-    app.use(bodyParser.json({limit: '10mb'}));
+    app.use(bodyParser.json({ limit: '10mb' }));
 
     app.use('/liveness-check', routes.livenessCheck());
     app.use('/readiness-check', routes.readinessCheck());

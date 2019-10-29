@@ -9,28 +9,28 @@ const { LobbyState } = require('./schemas/lobby-state');
 const configHelper = require('../../helpers/config-helper');
 
 class LobbyRoom extends Room {
-    onCreate (options) {
+    onCreate(options) {
         logger.info(`Room Init ${JSON.stringify(options)} - ${this.roomId}`, { room: this.roomId });
 
         this.setState(new LobbyState());
         this.setPatchRate(1000 / 20);
     }
 
-    onJoin (client, options) {
+    onJoin(client, options) {
         logger.info(`Client: ${client} joined. ${JSON.stringify(options)}`, { room: this.roomId });
 
         this.sendConfig(client);
     }
 
-    onMessage (client, message) {
+    onMessage(client, message) {
         logger.info(`Client: ${client.id} sent message ${JSON.stringify(message)}`, { room: this.roomId });
     }
 
-    onLeave (client, consented) {
+    onLeave(client, consented) {
         logger.info(`Client: ${client} left. consented? ${consented}`, { room: this.roomId });
     }
 
-    onDispose () {
+    onDispose() {
 
     }
 

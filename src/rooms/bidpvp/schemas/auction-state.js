@@ -25,7 +25,7 @@ class AuctionState extends Schema {
 
 type('string')(AuctionState.prototype, 'status');
 type([LotState])(AuctionState.prototype, 'lots');
-type({map: PlayerState})(AuctionState.prototype, 'players');
+type({ map: PlayerState })(AuctionState.prototype, 'players');
 type('uint8')(AuctionState.prototype, 'currentLot');
 
 module.exports = {
