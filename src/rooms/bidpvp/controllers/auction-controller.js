@@ -125,7 +125,12 @@ class AuctionController {
     }
 
     _finishLot(lotIndex){
-        this.state.lots[lotIndex].status = 'FINISHED';
+        let endingLot = this.state.lots[lotIndex];
+        endingLot.status = 'FINISHED';
+        if (endingLot.bidOwner) {
+            let bidOwnerState = this.state.players[endingLot.bidOwner];
+            bidOwnerState.money = (Number(bidOwnerState.money)  || 0) - endingLot.bidValue;
+        }
     }
 
     _calculateRewards(){
@@ -141,7 +146,7 @@ class AuctionController {
 
         lodash.each(this.state.lots, lotState => {
             if(lotState.bidOwner){
-                let winnerRewards = rewards[lotState.bidOwner.firebaseId];
+                let winnerRewards = rewards[this.state.players[lotState.bidOwner].firebaseId];
                 // TODO: setup the correct rewards
                 winnerRewards.trophies = 20;
                 winnerRewards.price += lotState.bidValue;
