@@ -1,13 +1,13 @@
 'use strict';
 
 const lodash = require('lodash');
-const {MapSchema} = require('@colyseus/schema');
+const { MapSchema } = require('@colyseus/schema');
 
 const configHelper = require('../../../helpers/config-helper');
 const profileDao = require('../../../daos/profile-dao');
 const rewardDao = require('../../../daos/reward-dao');
 const { BidInterval } = require('../../../helpers/bid-interval');
-const {AuctionState} = require('../schemas/auction-state');
+const { AuctionState } = require('../schemas/auction-state');
 
 class AuctionController {
     constructor(room) {
@@ -42,7 +42,7 @@ class AuctionController {
 
         //this._getCurrentLot().bidValue = this.configs.game.bidIncrement;
         this.state.status = 'PLAY';
-
+        this._startLot(0);
         this.auctionEndTimeout = this.room.clock.setTimeout(() => this._runDole(), this.configs.game.auctionInitialDuration);
     }
 
@@ -106,12 +106,22 @@ class AuctionController {
                 this.bidIntervalTimeout.clear();
                 this.finishBidInterval();
             } else {
+                this._finishLot(0);
                 this._finishAuction();
             }
         } else {
             this._getCurrentLot().dole++;
             this.auctionEndTimeout = this.room.clock.setTimeout(() => this._runDole(), this.configs.game.auctionDoleDuration);
         }
+    }
+
+    _startLot(lotIndex){
+        this.state.currentLot = lotIndex;
+        this.state.lots[lotIndex].status = 'PLAY';
+    }
+
+    _finishLot(lotIndex){
+        this.state.lots[lotIndex].status = 'FINISHED';
     }
 
     async _finishAuction() {

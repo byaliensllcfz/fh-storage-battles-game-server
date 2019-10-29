@@ -20,6 +20,9 @@ class AuctionState extends Schema {
 
         /** @type {number} */
         this.randomSeed;
+
+        /** @type {string} */
+        this.status = 'WAITING';
     }
 }
 
@@ -28,6 +31,7 @@ type('string')(AuctionState.prototype, 'bidOwner');
 type('int8')(AuctionState.prototype, 'dole');
 type({map: 'string'})(AuctionState.prototype, 'items');
 type('int32')(AuctionState.prototype, 'randomSeed');
+type('string')(AuctionState.prototype, 'status');
 
 module.exports = {
     AuctionState,
