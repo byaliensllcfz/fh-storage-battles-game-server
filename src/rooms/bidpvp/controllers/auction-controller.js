@@ -14,10 +14,11 @@ class AuctionController {
         this.room = room;
         this.state = room.state;
         this.state.randomSeed = lodash.random(-100000, 100000);
-        this.auctionEndTimeout = null;
+        this.lotEndTimeout = null;
         this.bidInterval = null;
         this.bidIntervalTimeout = null;
         this._started = false;
+        this.lotsAmount = 5;
 
         this.configs = configHelper.get();
     }
@@ -38,12 +39,10 @@ class AuctionController {
             player.photoUrl = profile.picture;
             player.money = profile.softCurrency;
         });
-        this._generateLots(5);
 
-        //this._getCurrentLot().bidValue = this.configs.game.bidIncrement;
+        this._generateLots(this.lotsAmount);
         this.state.status = 'PLAY';
         this._startLot(0);
-        this.auctionEndTimeout = this.room.clock.setTimeout(() => this._runDole(), this.configs.game.auctionInitialDuration);
     }
 
     getNextBidValue() {
@@ -72,11 +71,11 @@ class AuctionController {
         this.bidInterval = null;
         this.bidIntervalTimeout = null;
 
-        if (this.auctionEndTimeout) {
+        if (this.lotEndTimeout) {
             this._getCurrentLot().dole = 0;
-            this.auctionEndTimeout.clear();
+            this.lotEndTimeout.clear();
         }
-        this.auctionEndTimeout = this.room.clock.setTimeout(() => this._runDole(), this.configs.game.auctionAfterBidDuration);
+        this.lotEndTimeout = this.room.clock.setTimeout(() => this._runDole(), this.configs.game.auctionAfterBidDuration);
     }
 
     _drawItems(itemAmount, lot){
@@ -106,18 +105,23 @@ class AuctionController {
                 this.bidIntervalTimeout.clear();
                 this.finishBidInterval();
             } else {
-                this._finishLot(0);
-                this._finishAuction();
+                this._finishLot(this.state.currentLot);
+                if(this.state.currentLot < this.lotsAmount - 1){
+                    this._startLot(this.state.currentLot + 1);
+                }else{
+                    this._finishAuction();
+                }
             }
         } else {
             this._getCurrentLot().dole++;
-            this.auctionEndTimeout = this.room.clock.setTimeout(() => this._runDole(), this.configs.game.auctionDoleDuration);
+            this.lotEndTimeout = this.room.clock.setTimeout(() => this._runDole(), this.configs.game.auctionDoleDuration);
         }
     }
 
     _startLot(lotIndex){
         this.state.currentLot = lotIndex;
         this.state.lots[lotIndex].status = 'PLAY';
+        this.lotEndTimeout = this.room.clock.setTimeout(() => this._runDole(), this.configs.game.auctionInitialDuration);
     }
 
     _finishLot(lotIndex){
