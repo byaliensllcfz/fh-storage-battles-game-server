@@ -1,37 +1,32 @@
 'use strict';
 
-const { Schema, MapSchema, type } = require('@colyseus/schema');
+const { Schema, type, MapSchema, ArraySchema } = require('@colyseus/schema');
+
+const { PlayerState } = require('./player-state');
+const { LotState } = require('./lot-state');
 
 class AuctionState extends Schema {
-    constructor(options = {}) {
+
+    constructor() {
         super();
 
-        /** @type {number} */
-        this.bidValue = options.bidValue || 0;
-
-        /** @type {string} */
-        this.bidOwner = options.bidOwner || '';
-
-        /** @type {number} */
-        this.dole = 0;
-
-        /** @type {Object<string, string>} */
-        this.items = new MapSchema();
-
-        /** @type {number} */
-        this.randomSeed;
-
-        /** @type {string} */
         this.status = 'WAITING';
+
+        /** @type {Object<string, PlayerState>} */
+        this.players = new MapSchema();
+
+        /** @type {Array<LotState>} */
+        this.lots = new ArraySchema();
+
+        /**@type {number} */
+        this.currentLot = 0;
     }
 }
 
-type('int32')(AuctionState.prototype, 'bidValue');
-type('string')(AuctionState.prototype, 'bidOwner');
-type('int8')(AuctionState.prototype, 'dole');
-type({map: 'string'})(AuctionState.prototype, 'items');
-type('int32')(AuctionState.prototype, 'randomSeed');
 type('string')(AuctionState.prototype, 'status');
+type([LotState])(AuctionState.prototype, 'lots');
+type({map: PlayerState})(AuctionState.prototype, 'players');
+type('uint8')(AuctionState.prototype, 'currentLot');
 
 module.exports = {
     AuctionState,

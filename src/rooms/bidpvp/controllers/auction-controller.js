@@ -7,7 +7,7 @@ const configHelper = require('../../../helpers/config-helper');
 const profileDao = require('../../../daos/profile-dao');
 const rewardDao = require('../../../daos/reward-dao');
 const { BidInterval } = require('../../../helpers/bid-interval');
-const { AuctionState } = require('../schemas/auction-state');
+const { LotState } = require('../schemas/lot-state');
 
 class AuctionController {
     constructor(room) {
@@ -21,6 +21,8 @@ class AuctionController {
         this.lotsAmount = 5;
 
         this.configs = configHelper.get();
+
+        this._generateLots(this.lotsAmount);
     }
 
     async startAuction() {
@@ -39,8 +41,6 @@ class AuctionController {
             player.photoUrl = profile.picture;
             player.money = profile.softCurrency;
         });
-
-        this._generateLots(this.lotsAmount);
         this.state.status = 'PLAY';
         this._startLot(0);
     }
@@ -51,7 +51,7 @@ class AuctionController {
 
     _generateLots(lotAmount){
         for (let index = 0; index < lotAmount; index++) {
-            let newLot  = new AuctionState();
+            let newLot  = new LotState();
             this.state.lots.push(newLot);
             this._drawItems(lodash.random(5,8), newLot);
         }
