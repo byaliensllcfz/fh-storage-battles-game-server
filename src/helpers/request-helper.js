@@ -7,14 +7,10 @@ const { tpServerRequest } = require('@tapps-games/requests');
 const secretHelper = require('./secret-helper');
 
 /**
- * Calls the ads config server to retrieve the list of configs
+ * Makes a request to a TP Server API, adding the necessary headers.
  *
- * @param  {string} bundleId
- * @param  {string} geolocation
- * @param  {number} version
- * @param  {string} store
- *
- * @return {Promise<AdsConfig[]>}
+ * @param  {Object} options
+ * @return {Promise<Object>}
  */
 async function request(options) {
     const secret = await secretHelper.get();

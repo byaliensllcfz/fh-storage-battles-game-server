@@ -29,7 +29,7 @@ class LotState extends Schema {
 type('int32')(LotState.prototype, 'bidValue');
 type('string')(LotState.prototype, 'bidOwner');
 type('int8')(LotState.prototype, 'dole');
-type({map: 'string'})(LotState.prototype, 'items');
+type({ map: 'string' })(LotState.prototype, 'items');
 type('int32')(LotState.prototype, 'randomSeed');
 type('string')(LotState.prototype, 'status');
 

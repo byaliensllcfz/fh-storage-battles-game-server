@@ -2,6 +2,8 @@
 
 const lodash = require('lodash');
 const { MapSchema } = require('@colyseus/schema');
+const { Logger } = require('@tapps-games/logging');
+const logger = new Logger();
 
 const configHelper = require('../../../helpers/config-helper');
 const profileDao = require('../../../daos/profile-dao');
@@ -49,15 +51,15 @@ class AuctionController {
         return this._getCurrentLot().bidValue + this.configs.game.bidIncrement;
     }
 
-    _generateLots(lotAmount){
+    _generateLots(lotAmount) {
         for (let index = 0; index < lotAmount; index++) {
-            let newLot  = new LotState();
+            let newLot = new LotState();
             this.state.lots.push(newLot);
-            this._drawItems(lodash.random(5,8), newLot);
+            this._drawItems(lodash.random(5, 8), newLot);
         }
     }
 
-    _getCurrentLot(){
+    _getCurrentLot() {
         return this.state.lots[this.state.currentLot];
     }
 
@@ -78,7 +80,7 @@ class AuctionController {
         this.lotEndTimeout = this.room.clock.setTimeout(() => this._runDole(), this.configs.game.auctionAfterBidDuration);
     }
 
-    _drawItems(itemAmount, lot){
+    _drawItems(itemAmount, lot) {
         let itemsStart = new MapSchema();
         let playableItems = this.configs.items;
         for (let i = 0; i < itemAmount; i++) {
@@ -88,10 +90,14 @@ class AuctionController {
     }
 
     bid(playerId) {
-        if(this._getCurrentLot().bidOwner === playerId){return;}
-        if(this.state.players[playerId].money < this.getNextBidValue()){return;}
+        if (this._getCurrentLot().bidOwner === playerId) {
+            return;
+        }
+        if (this.state.players[playerId].money < this.getNextBidValue()) {
+            return;
+        }
 
-        if(this.bidInterval === null){
+        if (this.bidInterval === null) {
             this.bidInterval = new BidInterval();
             this.bidIntervalTimeout = this.room.clock.setTimeout(() => this.finishBidInterval(), this.configs.game.bidTimeTolerance);
         }
@@ -104,27 +110,31 @@ class AuctionController {
             if (this.bidIntervalTimeout !== null) {
                 this.bidIntervalTimeout.clear();
                 this.finishBidInterval();
+
             } else {
                 this._finishLot(this.state.currentLot);
-                if(this.state.currentLot < this.lotsAmount - 1){
+                if (this.state.currentLot < this.lotsAmount - 1) {
                     this._startLot(this.state.currentLot + 1);
-                }else{
-                    this._finishAuction();
+                } else {
+                    this._finishAuction().catch(error => {
+                        logger.error('Error while finishing auction.', error);
+                    });
                 }
             }
+
         } else {
             this._getCurrentLot().dole++;
             this.lotEndTimeout = this.room.clock.setTimeout(() => this._runDole(), this.configs.game.auctionDoleDuration);
         }
     }
 
-    _startLot(lotIndex){
+    _startLot(lotIndex) {
         this.state.currentLot = lotIndex;
         this.state.lots[lotIndex].status = 'PLAY';
         this.lotEndTimeout = this.room.clock.setTimeout(() => this._runDole(), this.configs.game.auctionInitialDuration);
     }
 
-    _finishLot(lotIndex){
+    _finishLot(lotIndex) {
         let endingLot = this.state.lots[lotIndex];
         endingLot.status = 'FINISHED';
 
@@ -134,11 +144,11 @@ class AuctionController {
 
         if (endingLot.bidOwner) {
             let bidOwnerState = this.state.players[endingLot.bidOwner];
-            bidOwnerState.money = (Number(bidOwnerState.money)  || 0) - endingLot.bidValue;
+            bidOwnerState.money = (Number(bidOwnerState.money) || 0) - endingLot.bidValue;
         }
     }
 
-    _calculateRewards(){
+    _calculateRewards() {
         const rewards = {};
         lodash.each(this.state.players, player => {
             rewards[player.firebaseId] = {
@@ -150,7 +160,7 @@ class AuctionController {
         });
 
         lodash.each(this.state.lots, lotState => {
-            if(lotState.bidOwner){
+            if (lotState.bidOwner) {
                 let winnerRewards = rewards[this.state.players[lotState.bidOwner].firebaseId];
                 // TODO: setup the correct rewards
                 winnerRewards.trophies = 20;

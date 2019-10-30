@@ -12,8 +12,7 @@ class BidInterval {
     }
 
     getWinner() {
-        var owner = this.drawPlayers[lodash.random(this.drawPlayers.length - 1)];
-        return owner;
+        return this.drawPlayers[lodash.random(this.drawPlayers.length - 1)];
     }
 }
 
