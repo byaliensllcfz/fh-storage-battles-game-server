@@ -38,10 +38,10 @@ class AuctionController {
         const profiles = await profileDao.getProfiles(ids);
 
         lodash.each(this.state.players, (player) => {
-            let profile = lodash.find(profiles, profile => profile.id === player.firebaseId);
-            player.name = profile.alias;
-            player.photoUrl = profile.picture;
-            player.money = profile.softCurrency;
+            let playerData = lodash.find(profiles, playerData => playerData.id === player.firebaseId);
+            player.name = playerData.profile.alias;
+            player.photoUrl = playerData.profile.picture;
+            player.money = playerData.stats.softCurrency;
         });
         this.state.status = 'PLAY';
         this._startLot(0);
@@ -176,7 +176,7 @@ class AuctionController {
     async _finishAuction() {
         this.state.status = 'FINISHED';
 
-        await rewardDao.saveRewards(this._calculateRewards());
+        await rewardDao.saveRewards(this._calculateRewards()); // TODO: Add new status to inform that rewards were sent successfully / deal with request failing.
     }
 }
 
