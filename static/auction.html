@@ -87,6 +87,7 @@ const serverService = {
     serverService.room = await serverService.client.joinOrCreate('bidpvp', {
       userId: firebaseId,
       clientWeb: true,
+      character: "Character Two",
     });
     serverService.connected = true;
     serverService._addListeners();

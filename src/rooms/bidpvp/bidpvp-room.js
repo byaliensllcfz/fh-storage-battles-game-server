@@ -45,7 +45,8 @@ class BidPvpRoom extends Room {
             options.userId = data['game-user-id-data'].uid;
         }
 
-        this.state.players[client.id] = new PlayerState({ id: client.id, firebaseId: options.userId });
+        this.state.players[client.id] = new PlayerState({ id: client.id, firebaseId: options.userId, 
+            character: options.character });
 
         if (this.locked) {
             await this.lock(); // Prevent new players from joining if any players leave.
