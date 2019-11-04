@@ -78,7 +78,6 @@ class BidPvpRoom extends Room {
             // client returned! let's re-activate it.
             //this.state.players[client.sessionId].connected = true;
         } catch (e) {
-            // TODO: Replace player with bot if necessary
             // 20 seconds expired. let's remove the client.
             //delete this.state.players[client.sessionId];
         }
