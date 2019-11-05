@@ -84,7 +84,9 @@ class AuctionController {
         let itemsStart = new MapSchema();
         let playableItems = this.configs.items;
         for (let i = 0; i < itemAmount; i++) {
-            itemsStart[i] = lodash.sample(playableItems).id;
+            let config = lodash.sample(playableItems);
+            itemsStart[i] = config.id;
+            lot.lotItemsPrice += config.price;
         }
         lot.items = itemsStart;
     }
