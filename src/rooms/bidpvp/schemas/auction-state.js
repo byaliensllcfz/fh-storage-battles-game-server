@@ -4,13 +4,14 @@ const { Schema, type, MapSchema, ArraySchema } = require('@colyseus/schema');
 
 const { PlayerState } = require('./player-state');
 const { LotState } = require('./lot-state');
+const { auctionStatus } = require('../../../types');
 
 class AuctionState extends Schema {
 
     constructor() {
         super();
 
-        this.status = 'WAITING';
+        this.status = auctionStatus.WAITING;
 
         /** @type {Object<string, PlayerState>} */
         this.players = new MapSchema();

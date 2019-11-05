@@ -1,6 +1,6 @@
 'use strict';
 
-const { commands } = require('../../../types');
+const { auctionStatus, commands } = require('../../../types');
 const { Logger } = require('@tapps-games/logging');
 const logger = new Logger();
 
@@ -10,10 +10,10 @@ async function handleAuctionCommand(room, playerId, message = {}) {
     if (message.command === commands.AUCTION_START) {
         await room.auctionController.startAuction();
     }
-    else if (message.command === commands.AUCTION_BID && room.auctionController.getCurrentLotStatus() === 'PLAY') {
+    else if (message.command === commands.AUCTION_BID && room.auctionController.getCurrentLotStatus() === auctionStatus.PLAY) {
         room.auctionController.bid(playerId);
     }
-    else if (message.command === commands.AUCTION_LOT_READY && room.auctionController.getCurrentLotStatus() === 'WAITING') {
+    else if (message.command === commands.AUCTION_LOT_READY && room.auctionController.getCurrentLotStatus() === auctionStatus.WAITING) {
         room.auctionController.tryToStartLot(playerId);
     }
 }

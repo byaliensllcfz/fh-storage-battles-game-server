@@ -8,6 +8,7 @@ const logger = new Logger();
 const configHelper = require('../../../helpers/config-helper');
 const profileDao = require('../../../daos/profile-dao');
 const rewardDao = require('../../../daos/reward-dao');
+const { auctionStatus } = require('../../../types');
 const { BidInterval } = require('../../../helpers/bid-interval');
 const { LotState } = require('../schemas/lot-state');
 
@@ -38,16 +39,30 @@ class AuctionController {
         }
         this._started = true;
 
-        const ids = lodash.map(this.state.players, player => player.firebaseId);
-        const profiles = await profileDao.getProfiles(ids);
-
-        lodash.each(this.state.players, (player) => {
-            let playerData = lodash.find(profiles, profileData => profileData.profile.gameUserId === player.firebaseId);
-            player.name = playerData.profile.alias;
-            player.photoUrl = playerData.profile.picture;
-            player.money = playerData.stats.softCurrency;
+        const playerIds = [];
+        lodash.forEach(this.state.players, player => {
+            if (!player.isBot) {
+                playerIds.push(player.firebaseId);
+            }
         });
-        this.state.status = 'PLAY';
+        const profiles = await profileDao.getProfiles(playerIds);
+
+        lodash.each(this.state.players, player => {
+            if (player.isBot) {
+                const bot = this.room.bots[player.firebaseId];
+                player.name = bot.name;
+                player.photoUrl = bot.profilePicture;
+                player.money = bot.money;
+
+            } else {
+                const playerState = lodash.find(profiles, profileData => profileData.profile.gameUserId === player.firebaseId);
+                player.name = playerState.profile.alias;
+                player.photoUrl = playerState.profile.picture;
+                player.money = playerState.stats.softCurrency;
+            }
+        });
+
+        this.state.status = auctionStatus.PLAY;
         this.state.currentLot = 0;
         this.lotStartTimeout = this.room.clock.setTimeout(() => this._startInspect(true), this.configs.game.forceLotStartTimeout);
     }
@@ -64,7 +79,8 @@ class AuctionController {
         for (let index = 0; index < lotAmount; index++) {
             let newLot = new LotState();
             this.state.lots.push(newLot);
-            this._drawItems(lodash.random(5, 8), newLot);
+            this._drawItems(lodash.random(5, 8), newLot); // TODO: Get amount of items and boxes from city config
+            this._addBoxes();
         }
     }
 
@@ -92,11 +108,22 @@ class AuctionController {
         this.lotEndTimeout = this.room.clock.setTimeout(() => this._runDole(), this.configs.game.auctionAfterBidDuration);
     }
 
+    _addBoxes(boxesAmount, lot) {
+        const boxes = new MapSchema();
+        const boxesConfig = this.config.boxes;
+        for (let i = 0; i < boxesAmount; i++) {
+            const config = lodash.sample(boxesConfig);
+            boxes[i] = config.id;
+            lot.lotItemsPrice += config.price;
+        }
+        lot.boxes = boxes;
+    }
+
     _drawItems(itemAmount, lot) {
-        let itemsStart = new MapSchema();
-        let playableItems = this.configs.items;
+        const itemsStart = new MapSchema();
+        const playableItems = this.configs.items;
         for (let i = 0; i < itemAmount; i++) {
-            let config = lodash.sample(playableItems);
+            const config = lodash.sample(playableItems);
             itemsStart[i] = config.id;
             lot.lotItemsPrice += config.price;
         }
@@ -182,13 +209,13 @@ class AuctionController {
 
     _startLot(lotIndex) {
         logger.debug(`Starting LOT ${lotIndex}`);
-        this.state.lots[lotIndex].status = 'PLAY';
+        this.state.lots[lotIndex].status = auctionStatus.PLAY;
         this.lotEndTimeout = this.room.clock.setTimeout(() => this._runDole(), this.configs.game.auctionInitialDuration);
     }
 
     _finishLot(lotIndex) {
         let endingLot = this.state.lots[lotIndex];
-        endingLot.status = 'FINISHED';
+        endingLot.status = auctionStatus.FINISHED;
 
         lodash.each(this.state.players, player => {
             player.lastBid = 0;
@@ -204,6 +231,7 @@ class AuctionController {
         const endGameResults = {};
         lodash.each(this.state.players, player => {
             endGameResults[player.firebaseId] = {
+                isBot: player.isBot,
                 firebaseId: player.firebaseId,
                 playerId: player.id,
                 price: 0,
@@ -235,11 +263,13 @@ class AuctionController {
                 trophies = rewards[resultsOrdered[idx -1].firebaseId].trophies;
             }
 
-            rewards[result.firebaseId] = {
-                trophies: trophies,
-                price: result.price,
-                items: result.items,
-            };
+            if (!result.isBot) {
+                rewards[result.firebaseId] = {
+                    trophies: trophies,
+                    price: result.price,
+                    items: result.items,
+                };
+            }
 
             this.state.players[result.playerId].trophiesEarned = trophies;
         });
@@ -249,11 +279,17 @@ class AuctionController {
     }
 
     async _finishAuction() {
-        this.state.status = 'FINISHED';
+        this.state.status = auctionStatus.FINISHED;
 
-        await rewardDao.saveRewards(this._calculateRewards()); // TODO: deal with request failing.
+        const rewards = this._calculateRewards();
+        try {
+            await rewardDao.saveRewards(rewards);
+            this.state.status = auctionStatus.REWARDS_SENT;
 
-        this.state.status = 'REWARDS_SENT';
+        } catch (error) {
+            // TODO: Retry sending rewards later?
+            logger.critical(`Failed to save rewards. Error: ${error.message} - ${error.stack}`, rewards);
+        }
     }
 }
 
