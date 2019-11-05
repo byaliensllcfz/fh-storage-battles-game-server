@@ -26,4 +26,7 @@ public class LotState : Schema
 
     [Type(5, "string")] 
 	public string status = "";
+
+    [Type(6, "int32")] 
+	public int lotItemsPrice = 0;
 }

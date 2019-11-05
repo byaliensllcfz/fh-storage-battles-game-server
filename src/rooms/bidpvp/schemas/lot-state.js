@@ -23,6 +23,9 @@ class LotState extends Schema {
 
         /** @type {string} */
         this.status = 'WAITING';
+
+        /** @type {number} */
+        this.lotItemsPrice = 0;        
     }
 }
 
@@ -32,6 +35,7 @@ type('int8')(LotState.prototype, 'dole');
 type({ map: 'string' })(LotState.prototype, 'items');
 type('int32')(LotState.prototype, 'randomSeed');
 type('string')(LotState.prototype, 'status');
+type('int32')(LotState.prototype, 'lotItemsPrice');
 
 module.exports = {
     LotState,
