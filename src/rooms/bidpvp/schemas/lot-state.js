@@ -22,10 +22,11 @@ class LotState extends Schema {
         this.randomSeed;
 
         /** @type {string} */
+        //TODO colocar type para os status
         this.status = 'WAITING';
 
         /** @type {number} */
-        this.lotItemsPrice = 0;        
+        this.lotItemsPrice = 0;
     }
 }
 

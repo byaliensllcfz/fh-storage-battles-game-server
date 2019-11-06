@@ -51,10 +51,11 @@ class BidPvpRoom extends Room {
             character: options.character,
         });
 
+
         if (this.locked) {
             await this.lock(); // Prevent new players from joining if any players leave.
 
-            await handleAuctionCommand(this, null, { command: commands.AUCTION_START });
+            await handleAuctionCommand(this, 'SERVER', { command: commands.AUCTION_START });
         }
     }
 
@@ -76,6 +77,8 @@ class BidPvpRoom extends Room {
                 throw new Error('consented leave');
             }
             // allow disconnected client to reconnect into this room until 20 seconds
+
+            //TODO tempo de reconnect configuravel
             await this.allowReconnection(client, 20);
 
             // client returned! let's re-activate it.
