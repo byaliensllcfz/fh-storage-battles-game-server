@@ -26,6 +26,9 @@ class PlayerState extends Schema {
 
         /** @type {string} */
         this.character = options.character || '';
+
+        /** @type {boolean} */
+        this.connected = true;
     }
 }
 
@@ -35,6 +38,7 @@ type('string')(PlayerState.prototype, 'photoUrl');
 type('int32')(PlayerState.prototype, 'money');
 type('int32')(PlayerState.prototype, 'lastBid');
 type('string')(PlayerState.prototype, 'character');
+type('boolean')(PlayerState.prototype, 'connected');
 
 module.exports = {
     PlayerState,

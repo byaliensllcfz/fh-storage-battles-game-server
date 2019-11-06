@@ -25,4 +25,7 @@ public class PlayerState : Schema {
 	
 	[Type(5, "string")]
 	public string character = "";
+
+	[Type(6, "boolean")]
+	public bool connected;
 }
