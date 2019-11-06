@@ -47,7 +47,7 @@ class AuctionController {
         });
         this.state.status = 'PLAY';
         this.state.currentLot = 0;
-        this.lotStartTimeout = this.room.clock.setTimeout(() => this._startInspect(), this.configs.game.forceLotStartTimeout);
+        this.lotStartTimeout = this.room.clock.setTimeout(() => this._startInspect(true), this.configs.game.forceLotStartTimeout);
     }
 
     getNextBidValue() {
@@ -133,7 +133,7 @@ class AuctionController {
                 if (this.state.currentLot < this.lotsAmount - 1) {
                     this.state.currentLot = this.state.currentLot + 1;
                     this.playersLotReady = {};
-                    this.lotStartTimeout = this.room.clock.setTimeout(() => this._startInspect(), this.configs.game.forceLotStartTimeout);
+                    this.lotStartTimeout = this.room.clock.setTimeout(() => this._startInspect(true), this.configs.game.forceLotStartTimeout);
                 } else {
                     this._finishAuction().catch(error => {
                         logger.error('Error while finishing auction.', error);
@@ -153,22 +153,22 @@ class AuctionController {
 
         let canStart = true;
         lodash.each(this.state.players, (player) => {
-            if (!this.playersLotReady[player.id]) {
+            if (player.connected && !this.playersLotReady[player.id]) {
                 canStart = false;
             }
         });
 
         if (canStart) {
-            this._startInspect();
+            this._startInspect(false);
         }
     }
 
-    _startInspect() {
+    _startInspect(forced) {
         const lotIndex = this.state.currentLot;
 
         if (this.state.lots[lotIndex].status !== 'INSPECT') {
             this.state.lots[lotIndex].status = 'INSPECT';
-            logger.debug(`Starting Inspect stage on LOT ${lotIndex}`);
+            logger.debug(`Starting Inspect stage on LOT ${lotIndex} (forced? ${forced})`);
 
             if (this.lotStartTimeout !== null) {
                 this.lotStartTimeout.clear();

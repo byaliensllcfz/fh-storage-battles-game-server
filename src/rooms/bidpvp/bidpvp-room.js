@@ -70,27 +70,26 @@ class BidPvpRoom extends Room {
     }
 
     async onLeave(client, consented) {
-        logger.info(`Client: ${client} left. Consented: ${consented}`, { room: this.roomId });
+        logger.info(`Client: ${client.id} left. Consented: ${consented}`, { room: this.roomId });
+        this.state.players[client.id].connected = false;
 
         try {
             if (consented) {
                 throw new Error('consented leave');
             }
-            // allow disconnected client to reconnect into this room until 20 seconds
 
-            //TODO tempo de reconnect configuravel
-            await this.allowReconnection(client, 20);
+            await this.allowReconnection(client, this.configs.game.allowReconnectionTimeSec);
 
-            // client returned! let's re-activate it.
-            //this.state.players[client.sessionId].connected = true;
-        } catch (e) {
-            // 20 seconds expired. let's remove the client.
-            //delete this.state.players[client.sessionId];
+            // The client has reconnected
+            this.state.players[client.id].connected = true;
+        }
+        catch (e) {
+            // consented leave OR allowReconnectiontimer expired.
         }
     }
 
     onDispose() {
-
+        logger.info('Room disposed', { room: this.roomId });
     }
 }
 
