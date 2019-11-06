@@ -53,7 +53,10 @@
               </v-row>
               <v-divider></v-divider>
               
-              <p><v-btn text @click="onBid" class="ml-2" :disabled="!canBid">Bid</v-btn></p>
+              <p>
+                <v-btn text @click="onBid" class="ml-2" :disabled="!canBid">Bid</v-btn>
+                <v-btn text @click="onLotReady" class="ml-2">LotReady</v-btn>
+              </p>
               <v-divider></v-divider>
               <pre>{{state}}</pre>
             </v-card-text>
@@ -142,6 +145,10 @@ let app = new Vue({
 
       async onBid() {
         await serverService.sendMessage('AUCTION_BID');
+      },
+
+      async onLotReady() {
+        await serverService.sendMessage('AUCTION_LOT_READY');
       },
 
       reloadId() {

@@ -20,6 +20,9 @@ let _config = null;
  * @property {number} game.auctionInitialDuration
  * @property {number} game.bidCooldown
  * @property {number} game.overbidWindow
+ * @property {number} game.lotsAmount
+ * @property {number} game.forceLotStartTimeout
+ * @property {number} game.inspectDuration
  * @property {Object[]} cities
  * @property {Object[]} items
  */
