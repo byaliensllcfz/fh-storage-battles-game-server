@@ -28,4 +28,8 @@ public class PlayerState : Schema {
 
 	[Type(6, "boolean")]
 	public bool connected;
+
+	[Type(7, "int32")] 
+	public int trophiesEarned = 0;
+
 }

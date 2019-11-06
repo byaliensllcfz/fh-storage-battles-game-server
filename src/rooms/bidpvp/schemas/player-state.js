@@ -29,6 +29,9 @@ class PlayerState extends Schema {
 
         /** @type {boolean} */
         this.connected = true;
+
+        /** @type {number} */
+        this.trophiesEarned;
     }
 }
 
@@ -39,6 +42,7 @@ type('int32')(PlayerState.prototype, 'money');
 type('int32')(PlayerState.prototype, 'lastBid');
 type('string')(PlayerState.prototype, 'character');
 type('boolean')(PlayerState.prototype, 'connected');
+type('int32')(PlayerState.prototype, 'trophiesEarned');
 
 module.exports = {
     PlayerState,

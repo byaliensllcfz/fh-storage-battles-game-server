@@ -12,7 +12,7 @@ const { BidInterval } = require('../../../helpers/bid-interval');
 const { LotState } = require('../schemas/lot-state');
 
 class AuctionController {
-    constructor(room) {
+    constructor(room, cityId) {
         this.room = room;
         this.state = room.state;
         this.state.randomSeed = lodash.random(-100000, 100000);
@@ -26,6 +26,8 @@ class AuctionController {
         this.configs = configHelper.get();
 
         this.lotsAmount = this.configs.game.lotsAmount;
+        this.city = lodash.find(this.configs.cities, city => city.id = cityId);
+
         this._generateLots(this.lotsAmount);
     }
 
@@ -199,27 +201,50 @@ class AuctionController {
     }
 
     _calculateRewards() {
-        const rewards = {};
+        const endGameResults = {};
         lodash.each(this.state.players, player => {
-            rewards[player.firebaseId] = {
-                // TODO: setup the correct rewards
-                trophies: 10,
+            endGameResults[player.firebaseId] = {
+                firebaseId: player.firebaseId,
+                playerId: player.id,
                 price: 0,
+                score: 0,
                 items: {},
             };
         });
 
         lodash.each(this.state.lots, lotState => {
             if (lotState.bidOwner) {
-                let winnerRewards = rewards[this.state.players[lotState.bidOwner].firebaseId];
-                // TODO: setup the correct rewards
-                winnerRewards.trophies = 20;
-                winnerRewards.price += lotState.bidValue;
+                let playerResult = endGameResults[this.state.players[lotState.bidOwner].firebaseId];
+
+                playerResult.price += lotState.bidValue;
+                playerResult.score += lotState.lotItemsPrice - lotState.bidValue;
                 lodash.each(lotState.items, itemId => {
-                    winnerRewards.items[itemId] = (winnerRewards.items[itemId] || 0) + 1;
+                    playerResult.items[itemId] = (playerResult.items[itemId] || 0) + 1;
                 });
             }
         });
+
+        const resultsOrdered = lodash.sortBy(endGameResults, reward => -reward.score);
+        logger.debug(`Game Ended. Results: ${JSON.stringify(resultsOrdered)}`);
+
+        const rewards = {};
+        lodash.each(resultsOrdered, (result, idx) => {
+
+            let trophies = this.city.trophiesRewards[idx];
+            if (idx > 0 && result.score === resultsOrdered[idx -1].score) {
+                trophies = rewards[resultsOrdered[idx -1].firebaseId].trophies;
+            }
+
+            rewards[result.firebaseId] = {
+                trophies: trophies,
+                price: result.price,
+                items: result.items,
+            };
+
+            this.state.players[result.playerId].trophiesEarned = trophies;
+        });
+
+        logger.debug(`Sending rewards ${JSON.stringify(rewards)}`);
         return rewards;
     }
 
