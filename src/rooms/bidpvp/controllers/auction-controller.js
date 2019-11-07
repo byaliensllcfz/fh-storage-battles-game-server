@@ -257,7 +257,7 @@ class AuctionController {
         const rewards = {};
         lodash.each(resultsOrdered, (result, idx) => {
 
-            let trophies = this.city.trophiesRewards[idx];
+            let trophies = this.city.trophyRewards[idx];
             if (idx > 0 && result.score === resultsOrdered[idx -1].score) {
                 trophies = rewards[resultsOrdered[idx -1].firebaseId].trophies;
             }

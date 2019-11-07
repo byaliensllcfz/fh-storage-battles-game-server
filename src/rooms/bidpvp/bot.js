@@ -47,25 +47,10 @@ class Bot {
         this.logger.info(`Adding bot: ${this.id} to room: ${roomId}`);
 
         /** @type {Room} */
-        this.room = await this.client.join(roomId, { bot: true, userId: this.id, character: this.character });
+        this.room = await this.client.joinById(roomId, { bot: true, userId: this.id, character: this.character });
 
-        return new Promise(resolve => {
-            this.room.onJoin.add(() => {
-                this.logger.info(`Bot: ${this.id} joined room: ${roomId} with client ID: ${this.client.id}.`);
-                this._start();
-                resolve();
-            });
-        });
-    }
-
-    /**
-     * Leave the room.
-     * @private
-     */
-    _leave() {
-        if (this.room && this.room.hasJoined) {
-            this.room.leave(true);
-        }
+        this.logger.info(`Bot: ${this.id} joined room: ${roomId} with session ID: ${this.room.sessionId}.`);
+        this._start();
     }
 
     /**
@@ -73,10 +58,8 @@ class Bot {
      */
     disconnect() {
         this.logger.info(`Bot: ${this.id} disconnecting.`);
-        this._leave();
-
-        if (this.client) {
-            this.client.close();
+        if (this.room && this.room.hasJoined) {
+            this.room.leave(true);
         }
     }
 
@@ -121,7 +104,7 @@ class Bot {
      * @private
      */
     _handleLotStateChanges(lotsChanges) {
-        lodash.forEach(lotsChanges, ({ field, value }) => {
+        lodash.forEach(lotsChanges, (value, field) => {
             if (field === 'status' && value === auctionStatus.PLAY) {
                 this._setBidTimeout();
             }

@@ -118,8 +118,9 @@ class BidPvpRoom extends Room {
             const cityId = 'first'; // TODO: Set city in room.
 
             const bot = new Bot(uuid(), 'ws://localhost:2567', cityId);
-            await bot.joinRoom(this.roomId);
             this.bots[bot.id] = bot;
+
+            await bot.joinRoom(this.roomId);
 
             this._setAddBotTimeout();
         }
