@@ -102,10 +102,25 @@
   resolved "https://staging.intra.tappsgames.com/verdaccio/@colyseus%2fschema/-/schema-0.4.57.tgz#6af519bdf5db60ddd2453d4ab03ab8d0bbb31ce2"
   integrity sha512-gAqlPSwdKoGuB43X4oazd+hL1S+8ZVIJWr+QXfnHyHMFiWX7efFYCgmfv9wuW/TWgLkzpgjJEhQjBkjiG+mEZQ==
 
+"@colyseus/schema@^0.5.0":
+  version "0.5.3"
+  resolved "https://staging.intra.tappsgames.com/verdaccio/@colyseus%2fschema/-/schema-0.5.3.tgz#ce35bdff47e8dce693b7a252aee7c53595011527"
+  integrity sha512-s+U1rQmkZJCKPryTMRwqEDS11YQTBiL4UnIUiVYoh4bqV1Hqg1nDuHDOK8K6Elj1PfRlE4v87A+3grEGIyhorA==
+
 "@gamestdio/clock@^1.1.9":
   version "1.1.9"
   resolved "https://staging.intra.tappsgames.com/verdaccio/@gamestdio%2fclock/-/clock-1.1.9.tgz#77ec0c011391fbbfdcb4f32112429536fd8680cb"
   integrity sha1-d+wMAROR+7/ctPMhEkKVNv2GgMs=
+
+"@gamestdio/signals@^1.0.0":
+  version "1.0.0"
+  resolved "https://staging.intra.tappsgames.com/verdaccio/@gamestdio%2fsignals/-/signals-1.0.0.tgz#3f7501a322b9b7c5d7f105f81d0f638d4e0357a4"
+  integrity sha512-EPWA3IkJ+xDT1K/xV53m5N4h/g4qzpf4NG6GustZLT1wp3T59YPonGQ9LLl3+YMNwSNj0yawX4wUpOnuQJ96Ug==
+
+"@gamestdio/state-listener@^3.1.0":
+  version "3.1.0"
+  resolved "https://staging.intra.tappsgames.com/verdaccio/@gamestdio%2fstate-listener/-/state-listener-3.1.0.tgz#d39fc5f107e58b536ac6e8477ed141ed7421788a"
+  integrity sha512-FEKarKXEeXvCrzilFw9ANOxKkdtFfHXYqJNCaYEhTV+13x02o7HXDFetJAoQCAT9AVgiHUd3Ylo5mOukAegPoA==
 
 "@gamestdio/timer@^1.3.0":
   version "1.3.1"
@@ -113,6 +128,11 @@
   integrity sha512-WEucGxBEYBaja/YCCGCAeHkPpkZYkybJ4BfLH0HMJ2+n8RKmpjeYbx0j2TevADkk5mJ7gO48hbE+hcL/y5V45g==
   dependencies:
     "@gamestdio/clock" "^1.1.9"
+
+"@gamestdio/websocket@^0.3.2":
+  version "0.3.2"
+  resolved "https://staging.intra.tappsgames.com/verdaccio/@gamestdio%2fwebsocket/-/websocket-0.3.2.tgz#321ba0976ee30fd14e51dbf8faa85ce7b325f76a"
+  integrity sha512-J3n5SKim+ZoLbe44hRGI/VYAwSMCeIJuBy+FfP6EZaujEpNchPRFcIsVQLWAwpU1bP2Ji63rC+rEUOd1vjUB6Q==
 
 "@google-cloud/datastore@^4.0.0":
   version "4.1.3"
@@ -1098,6 +1118,20 @@ colorspace@1.1.x:
   dependencies:
     color "3.0.x"
     text-hex "1.0.x"
+
+colyseus.js@^0.11.5:
+  version "0.11.5"
+  resolved "https://staging.intra.tappsgames.com/verdaccio/colyseus.js/-/colyseus.js-0.11.5.tgz#e1d36517807f37d8fd682c487454479f16f50447"
+  integrity sha512-H7ptnvfHlENJq7JZSiDJBpzjPeyEaQhX5oXBfyXa3onalRGrDeYH5Ntgfsolf9rXN1ew1WHvQ4RFG9ZbShVjrw==
+  dependencies:
+    "@colyseus/schema" "^0.5.0"
+    "@gamestdio/signals" "^1.0.0"
+    "@gamestdio/state-listener" "^3.1.0"
+    "@gamestdio/websocket" "^0.3.2"
+    fossil-delta "^1.0.0"
+    httpie "^2.0.0-next.2"
+    notepack.io "^2.1.3"
+    strong-events "^1.0.5"
 
 colyseus@^0.11.11:
   version "0.11.15"
@@ -2199,7 +2233,7 @@ forwarded@~0.1.2:
   resolved "https://staging.intra.tappsgames.com/verdaccio/forwarded/-/forwarded-0.1.2.tgz#98c23dab1175657b8c0573e8ceccd91b0ff18c84"
   integrity sha1-mMI9qxF1ZXuMBXPozszZGw/xjIQ=
 
-fossil-delta@^1.0.1:
+fossil-delta@^1.0.0, fossil-delta@^1.0.1:
   version "1.0.2"
   resolved "https://staging.intra.tappsgames.com/verdaccio/fossil-delta/-/fossil-delta-1.0.2.tgz#a3e9545d5fd5e1b317dca38f0c852baa80b13b89"
   integrity sha512-fkgQUnBaJjhDq0DN1ajBlWWRH99NQgwVoReMEr0oXLqYXAx8X9mD5gGaoTYDdVVbLJYsMNrnkJ028Ld0UgWrGA==
@@ -2565,6 +2599,11 @@ http-errors@~1.7.2:
     setprototypeof "1.1.1"
     statuses ">= 1.5.0 < 2"
     toidentifier "1.0.0"
+
+httpie@^2.0.0-next.2:
+  version "2.0.0-next.2"
+  resolved "https://staging.intra.tappsgames.com/verdaccio/httpie/-/httpie-2.0.0-next.2.tgz#c858f135b09265b2adb7d318198f1822d87253aa"
+  integrity sha512-QcYtyrn69p9VDy9SCNCDWAKmSz+wCHII4dc3fnHKA05ePiTeeltLvnnq+FyQPnsOrtpmLPd805FbmcXhtMljtA==
 
 https-proxy-agent@^2.2.1:
   version "2.2.2"
@@ -3734,7 +3773,7 @@ normalize-url@2.0.1:
     query-string "^5.0.1"
     sort-keys "^2.0.0"
 
-notepack.io@^2.2.0:
+notepack.io@^2.1.3, notepack.io@^2.2.0:
   version "2.2.0"
   resolved "https://staging.intra.tappsgames.com/verdaccio/notepack.io/-/notepack.io-2.2.0.tgz#d7ea71d1cb90094f88c6f3c8d84277c2d0cd101c"
   integrity sha512-9b5w3t5VSH6ZPosoYnyDONnUTF8o0UkBw7JLA6eBlYJWyGT1Q3vQa8Hmuj1/X6RYvHjjygBDgw6fJhe0JEojfw==
@@ -5045,6 +5084,11 @@ strip-outer@^1.0.0:
   integrity sha512-k55yxKHwaXnpYGsOzg4Vl8+tDrWylxDEpknGjhTiZB8dFRU5rTo9CAzeycivxV3s+zlTKwrs6WxMxR95n26kwg==
   dependencies:
     escape-string-regexp "^1.0.2"
+
+strong-events@^1.0.5:
+  version "1.0.7"
+  resolved "https://staging.intra.tappsgames.com/verdaccio/strong-events/-/strong-events-1.0.7.tgz#b12da3ec5cd79cf50851707c3d66912428198067"
+  integrity sha512-zKYPfTtLaZiwDoDiGkNQdurbGhzVS7oE23AmHOnA6rUp4E7FeF7Z6xbHQEqSRqNyaTN+X3rcppfobypf0k3Ltg==
 
 stubs@^3.0.0:
   version "3.0.0"

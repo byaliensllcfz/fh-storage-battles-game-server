@@ -32,6 +32,9 @@ class PlayerState extends Schema {
 
         /** @type {number} */
         this.trophiesEarned;
+
+        /** @type {boolean} */
+        this.isBot = options.isBot || false;
     }
 }
 
