@@ -80,7 +80,7 @@ class AuctionController {
             let newLot = new LotState();
             this.state.lots.push(newLot);
             this._drawItems(lodash.random(5, 8), newLot); // TODO: Get amount of items and boxes from city config
-            this._addBoxes();
+            this._addBoxes(1, newLot);
         }
     }
 
@@ -110,11 +110,10 @@ class AuctionController {
 
     _addBoxes(boxesAmount, lot) {
         const boxes = new MapSchema();
-        const boxesConfig = this.config.boxes;
+        const boxesConfig = this.configs.boxes;
         for (let i = 0; i < boxesAmount; i++) {
             const config = lodash.sample(boxesConfig);
             boxes[i] = config.id;
-            lot.lotItemsPrice += config.price;
         }
         lot.boxes = boxes;
     }

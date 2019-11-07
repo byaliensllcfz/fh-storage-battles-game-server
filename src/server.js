@@ -2,9 +2,7 @@
 
 const COLYSEUS_PORT = 2567;
 
-const { config } = require('@tapps-games/core');
 const { Logger } = require('@tapps-games/logging');
-
 const { middlewares, routes } = require('@tapps-games/server');
 
 const express = require('express');
@@ -22,11 +20,7 @@ const configHelper = require('./helpers/config-helper');
 
 const logger = new Logger();
 
-
 async function createServer() {
-    await config.load('env');
-    await config.load('json', 'config.json');
-
     const app = express();
 
     app.disable('x-powered-by');

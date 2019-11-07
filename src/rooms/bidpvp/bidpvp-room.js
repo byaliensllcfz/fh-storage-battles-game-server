@@ -1,5 +1,6 @@
 'use strict';
 
+const uuid = require('uuid/v4');
 const lodash = require('lodash');
 const { Logger } = require('@tapps-games/logging');
 const logger = new Logger();
@@ -109,15 +110,14 @@ class BidPvpRoom extends Room {
 
     /**
      * Instantiates a new bot and adds it to the room.
-     * @param botId
      */
-    async _addBot(botId) {
+    async _addBot() {
         delete this.addBotTimeout;
 
         if (!this.locked) {
             const cityId = 'first'; // TODO: Set city in room.
 
-            const bot = new Bot(botId, 'ws://localhost:2567', cityId);
+            const bot = new Bot(uuid(), 'ws://localhost:2567', cityId);
             await bot.joinRoom(this.roomId);
             this.bots[bot.id] = bot;
 
