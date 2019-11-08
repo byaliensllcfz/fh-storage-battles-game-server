@@ -33,7 +33,7 @@ class Bot {
         const cityConfig = lodash.find(configs.cities, city => city.id === cityId);
         const moneyModifier = lodash.random(configs.bot.minimumMoneyModifier, configs.bot.maximumMoneyModifier);
 
-        /** @type {number}*/ // TODO: Decrement bot money if he wins the lot
+        /** @type {number}*/
         this.money = lodash.max([cityConfig.minimumMoney, lodash.round(moneyModifier * cityConfig.maximumMoney)]);
     }
 
@@ -71,17 +71,25 @@ class Bot {
         const state = this.room.state;
 
         state.onChange = (changes) => {
-            changes.forEach(({field, value}) => {
-                if (field === 'status') {
-                    switch (value) {
-                        case auctionStatus.PLAY:
-                            state.lots.onChange = this._handleLotStateChanges.bind(this);
-                            break;
+            lodash.forEach(changes, ({field, value}) => {
+                if (field === 'status' && (value === auctionStatus.FINISHED || value === auctionStatus.REWARDS_SENT)) {
+                    this.disconnect();
+                }
+            });
+        };
 
-                        case auctionStatus.FINISHED:
-                            this.disconnect();
-                            break;
-                    }
+        state.lots.onChange = (changes) => {
+            lodash.forEach(changes, (value, field) => {
+                if (field === 'status' && value === auctionStatus.PLAY) {
+                    this._setBidTimeout();
+                }
+            });
+        };
+
+        state.players.onChange = (changes) => {
+            lodash.forEach(changes, (_value, field) => {
+                if (field === 'money') {
+                    this.money = state.players[this.room.sessionId].money;
                 }
             });
         };
@@ -96,19 +104,6 @@ class Bot {
                 this._bid();
             }, 1000 * lodash.random(configs.bot.minimumTimeToBidSeconds, configs.bot.maximumTimeToBidSeconds));
         }
-    }
-
-    /**
-     * Listen to lot state changes and act accordingly.
-     * @param lotsChanges
-     * @private
-     */
-    _handleLotStateChanges(lotsChanges) {
-        lodash.forEach(lotsChanges, (value, field) => {
-            if (field === 'status' && value === auctionStatus.PLAY) {
-                this._setBidTimeout();
-            }
-        });
     }
 
     _bid() {
@@ -133,6 +128,10 @@ class Bot {
 
         if (lodash.random(true) <= bidProbability && this.money >= lotState.bidValue + configs.game.bidIncrement) {
             this.sendMessage(commands.AUCTION_BID);
+        }
+
+        if (lotState.status === auctionStatus.PLAY) {
+            this._setBidTimeout();
         }
     }
 

@@ -194,8 +194,8 @@ class AuctionController {
     _startInspect(forced) {
         const lotIndex = this.state.currentLot;
 
-        if (this.state.lots[lotIndex].status !== 'INSPECT') {
-            this.state.lots[lotIndex].status = 'INSPECT';
+        if (this.state.lots[lotIndex].status !== auctionStatus.INSPECT) {
+            this.state.lots[lotIndex].status = auctionStatus.INSPECT;
             logger.debug(`Starting Inspect stage on LOT ${lotIndex} (forced? ${forced})`);
 
             if (this.lotStartTimeout !== null) {
