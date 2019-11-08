@@ -7,11 +7,11 @@ const { MapSchema } = require('@colyseus/schema');
 const { Logger } = require('@tapps-games/logging');
 const logger = new Logger();
 
-const configHelper = require('../../../helpers/config-helper');
 const profileDao = require('../../../daos/profile-dao');
 const rewardDao = require('../../../daos/reward-dao');
 const { auctionStatus } = require('../../../types');
 const { BidInterval } = require('../../../helpers/bid-interval');
+const { Config } = require('../../../helpers/config-helper');
 const { LotState } = require('../schemas/lot-state');
 const { BoxState } = require('../schemas/box-state');
 
@@ -27,11 +27,8 @@ class AuctionController {
         this._started = false;
         this.playersLotReady = {};
 
-        this.configs = configHelper.get();
-        this.rarities = configHelper.getRarities();
-
-        this.lotsAmount = this.configs.game.lotsAmount;
-        this.city = lodash.find(this.configs.cities, city => city.id = cityId);
+        this.lotsAmount = Config.game.lotsAmount;
+        this.city = Config.cities[cityId];
 
         this._generateLots(this.lotsAmount);
     }
@@ -68,12 +65,12 @@ class AuctionController {
 
         this.state.status = auctionStatus.PLAY;
         this.state.currentLot = 0;
-        this.lotStartTimeout = this.room.clock.setTimeout(() => this._startInspect(true), this.configs.game.forceLotStartTimeout);
+        this.lotStartTimeout = this.room.clock.setTimeout(() => this._startInspect(true), Config.game.forceLotStartTimeout);
     }
 
     //TODO ver como vai ser a logica de incrementar
     setNextBidValue() {
-        this._getCurrentLot().nextBidValue = this._getCurrentLot().bidValue + this.configs.game.bidIncrement;
+        this._getCurrentLot().nextBidValue = this._getCurrentLot().bidValue + Config.game.bidIncrement;
     }
 
     getCurrentLotStatus() {
@@ -82,7 +79,7 @@ class AuctionController {
 
     _generateLots(lotAmount) {
         for (let index = 0; index < lotAmount; index++) {
-            let newLot = new LotState({ nextBidValue: this.configs.game.bidIncrement}); // TODO pegar bid inicial ou gerar?
+            let newLot = new LotState({ nextBidValue: Config.game.bidIncrement}); // TODO pegar bid inicial ou gerar?
             this.state.lots.push(newLot);
 
             this._generateLotItems(index, newLot);
@@ -112,20 +109,20 @@ class AuctionController {
             this._getCurrentLot().dole = 0;
             this.lotEndTimeout.clear();
         }
-        this.lotEndTimeout = this.room.clock.setTimeout(() => this._runDole(), this.configs.game.auctionAfterBidDuration);
+        this.lotEndTimeout = this.room.clock.setTimeout(() => this._runDole(), Config.game.auctionAfterBidDuration);
     }
 
     _generateLotItems(index, lot) {
         const lotItems = new MapSchema();
         const lotBoxes = new MapSchema();
-        const lotBoxedItems = new MapSchema();
+        const lotBoxedItems = {};
 
         const lotItemsAmount = lodash.random(this.city.minimumItemsInLot, this.city.maximumItemsInLot);
         logger.debug(`Lot ${index} will have ${lotItemsAmount} items`);
 
         let itemsPerRarity = {};
         let boxedItemsPerRarity = {};
-        lodash.each(this.rarities, rarity => {
+        lodash.each(Config.itemRarities, rarity => {
             itemsPerRarity[rarity] = 0;
             boxedItemsPerRarity[rarity] = 0;
         });
@@ -134,23 +131,17 @@ class AuctionController {
         let unboxedItems = 0;
         for (let index = 0; index < lotItemsAmount; index++) {
 
-            const weightedOptions = this._probabilityPerRarity(itemsPerRarity);
-            logger.debug(`probabilities ${JSON.stringify(weightedOptions)}`);
-
-            const selectedRarity = weighted.select(weightedOptions);
+            const selectedRarity = this._pickItemRarity(itemsPerRarity);
             const itemId = lodash.sample(this.city.itemsRarity[selectedRarity].items);
+            const boxed = this._calculateItemBoxed(selectedRarity, boxedItemsPerRarity);
+            logger.debug(`Drawing item ${itemId} from rarity ${selectedRarity}, boxed: ${boxed}.`);
 
             itemsPerRarity[selectedRarity]++;
 
-            const boxChance = this._probabilityBoxItem(selectedRarity, boxedItemsPerRarity);
-            const boxed = weighted.select(boxChance);
-
-            logger.debug(`Drawing item ${itemId} from rarity ${selectedRarity} (chance: ${weightedOptions[selectedRarity]}, box chance: ${boxChance['boxed']})`);
-
-            if (boxed === 'boxed') {
+            if (boxed) {
                 boxedItemsPerRarity[selectedRarity]++;
-                const item = lodash.find(this.configs.items, item => item.id === itemId);
-                const box = lodash.find(this.configs.boxes, box => box.id === item.boxType);
+                const item = Config.items[itemId];
+                const box = Config.boxes[item.boxType];
 
                 logger.debug(`- Item ${item.id} - was boxed on ${box.id})`);
                 lotBoxes[boxedItems] = new BoxState(box.id);
@@ -168,7 +159,7 @@ class AuctionController {
         lot.boxedItems = lotBoxedItems;
     }
 
-    _probabilityBoxItem(rarity, boxedItemsPerRarity) {
+    _calculateItemBoxed(rarity, boxedItemsPerRarity) {
         const rarityConfig = this.city.itemsRarity[rarity];
 
         const frequencyModifier = rarityConfig.maximumBoxesPerRarity - boxedItemsPerRarity[rarity] * rarityConfig.boxProbabilityModifierOn;
@@ -176,17 +167,16 @@ class AuctionController {
 
         const probability = rarityConfig.boxProbability / rarityConfig.maximumBoxesPerRarity * frequencyModifier * boxRateModifier;
 
-        return {
-            boxed : probability,
-            unboxed : 1 - probability,
-        };
+        const options = [true, false];
+        const weights = [probability, 1 - probability];
+        return weighted.select(options, weights);
     }
 
-    _probabilityPerRarity(itemsPerRarity) {
+    _pickItemRarity(itemsPerRarity) {
         //Probabilidade / MaxItems * (MaxItems - NumeroJaSorteado * OnOrOff) * Modifier ^ NumeroJaSorteado
         const weightedOptions = {};
 
-        lodash.each(this.rarities, rarity => {
+        lodash.each(Config.itemRarities, rarity => {
             const rarityConfig = this.city.itemsRarity[rarity];
 
             //TODO colocar common rarity em um enum
@@ -201,8 +191,9 @@ class AuctionController {
         });
 
         weightedOptions['Common'] = 1 - lodash.sum(lodash.map(weightedOptions));
+        logger.debug(`probabilities ${JSON.stringify(weightedOptions)}`);
 
-        return weightedOptions;
+        return weighted.select(weightedOptions);
     }
 
     bid(playerId) {
@@ -219,7 +210,7 @@ class AuctionController {
 
         if (this.bidInterval === null) {
             this.bidInterval = new BidInterval();
-            this.bidIntervalTimeout = this.room.clock.setTimeout(() => this.finishBidInterval(), this.configs.game.bidTimeTolerance);
+            this.bidIntervalTimeout = this.room.clock.setTimeout(() => this.finishBidInterval(), Config.game.bidTimeTolerance);
         }
         this.bidInterval.addBid(playerId);
     }
@@ -236,7 +227,7 @@ class AuctionController {
                 if (this.state.currentLot < this.lotsAmount - 1) {
                     this.state.currentLot = this.state.currentLot + 1;
                     this.playersLotReady = {};
-                    this.lotStartTimeout = this.room.clock.setTimeout(() => this._startInspect(true), this.configs.game.forceLotStartTimeout);
+                    this.lotStartTimeout = this.room.clock.setTimeout(() => this._startInspect(true), Config.game.forceLotStartTimeout);
                 } else {
                     this._finishAuction().catch(error => {
                         logger.error('Error while finishing auction.', error);
@@ -246,7 +237,7 @@ class AuctionController {
 
         } else {
             this._getCurrentLot().dole++;
-            this.lotEndTimeout = this.room.clock.setTimeout(() => this._runDole(), this.configs.game.auctionDoleDuration);
+            this.lotEndTimeout = this.room.clock.setTimeout(() => this._runDole(), Config.game.auctionDoleDuration);
         }
     }
 
@@ -277,14 +268,14 @@ class AuctionController {
                 this.lotStartTimeout.clear();
             }
 
-            this.room.clock.setTimeout(() => this._startLot(lotIndex), this.configs.game.inspectDuration);
+            this.room.clock.setTimeout(() => this._startLot(lotIndex), Config.game.inspectDuration);
         }
     }
 
     _startLot(lotIndex) {
         logger.debug(`Starting LOT ${lotIndex}`);
         this.state.lots[lotIndex].status = auctionStatus.PLAY;
-        this.lotEndTimeout = this.room.clock.setTimeout(() => this._runDole(), this.configs.game.auctionInitialDuration);
+        this.lotEndTimeout = this.room.clock.setTimeout(() => this._runDole(), Config.game.auctionInitialDuration);
     }
 
     _finishLot(lotIndex) {
@@ -317,12 +308,12 @@ class AuctionController {
         lodash.each(this.state.lots, lotState => {
             lodash.each(lotState.boxes, (boxState, idx) => {
                 boxState.itemId = lotState.boxedItems[idx];
-                const item = lodash.find(this.configs.items, item => item.id = boxState.itemId); //TODO buscar via confighelper pela chave
+                const item = Config.items[boxState.itemId];
                 lotState.lotItemsPrice += item.price;
             });
 
             lodash.each(lotState.items, itemId => {
-                const item = lodash.find(this.configs.items, item => item.id = itemId); //TODO buscar via confighelper pela chave
+                const item = Config.items[itemId];
                 lotState.lotItemsPrice += item.price;
             });
 
