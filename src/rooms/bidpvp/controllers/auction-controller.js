@@ -33,7 +33,7 @@ class AuctionController {
     }
 
     async startAuction() {
-        // Trying to avoid duplicated calls to start auction
+        // Avoid duplicated calls to start auction
         if (this._started) {
             return;
         }
@@ -58,7 +58,7 @@ class AuctionController {
                 const playerState = lodash.find(profiles, profileData => profileData.profile.gameUserId === player.firebaseId);
                 player.name = playerState.profile.alias;
                 player.photoUrl = playerState.profile.picture;
-                player.money = playerState.stats.softCurrency;
+                player.money = playerState.currencies.softCurrency;
             }
         });
 

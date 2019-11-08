@@ -63,7 +63,7 @@ class BidPvpRoom extends Room {
         if (this.locked) {
             await this.lock(); // Prevent new players from joining if any players leave.
 
-            await handleAuctionCommand(this, 'SERVER', { command: commands.AUCTION_START });
+            await this.auctionController.startAuction();
 
         } else {
             this._setAddBotTimeout();
@@ -115,9 +115,7 @@ class BidPvpRoom extends Room {
         delete this.addBotTimeout;
 
         if (!this.locked) {
-            const cityId = 'first'; // TODO: Set city in room.
-
-            const bot = new Bot(uuid(), 'ws://localhost:2567', cityId);
+            const bot = new Bot(uuid(), 'ws://localhost:2567', this.auctionController.city);
             this.bots[bot.id] = bot;
 
             await bot.joinRoom(this.roomId);
