@@ -43,12 +43,12 @@ class Bot {
      */
     async joinRoom(roomId) {
         this.logger = new Logger('', { botId: this.id, room: roomId });
-        this.logger.debug(`Adding bot: ${this.id} to room: ${roomId}`);
+        this.logger.info(`Adding bot: ${this.id} to room: ${roomId}`);
 
         /** @type {Room} */
         this.room = await this.client.joinById(roomId, { bot: true, userId: this.id, character: this.character });
 
-        this.logger.debug(`Bot: ${this.id} joined room: ${roomId} with session ID: ${this.room.sessionId}.`);
+        this.logger.info(`Bot: ${this.id} joined room: ${roomId} with session ID: ${this.room.sessionId}.`);
         this._start();
     }
 
@@ -56,7 +56,7 @@ class Bot {
      * Disconnect the bot.
      */
     disconnect() {
-        this.logger.debug(`Bot: ${this.id} disconnecting.`);
+        this.logger.info(`Bot: ${this.id} disconnecting.`);
         if (this.room && this.room.hasJoined) {
             this.room.leave(true);
         }
@@ -122,20 +122,20 @@ class Bot {
         const difToThinkAbout = this.city.maximumMoney * configs.bot.idealProfitModifier;
 
         const bidProbability = lodash.min([configs.bot.bidProbabilityOnProfit, lodash.max([configs.bot.minimumBidProbability, (configs.bot.bidProbabilityOnProfit - 1) + (1 - configs.bot.minimumBidProbability) / difToThinkAbout * (botItemsValue - lotState.bidValue)])]);
-        this.logger.debug(`BOT generating BID probability. itemsValue: ${itemsValue} (visible: ${visibleItemsValue}; hidden: ${hiddenItemsValue}), mod: ${modifier}, difToThinkAbout: ${difToThinkAbout}. Bid probability: ${bidProbability}.`);
+        this.logger.info(`BOT generating BID probability. itemsValue: ${itemsValue} (visible: ${visibleItemsValue}; hidden: ${hiddenItemsValue}), mod: ${modifier}, difToThinkAbout: ${difToThinkAbout}. Bid probability: ${bidProbability}.`);
 
         const randomBidChance = lodash.random(true);
         if (randomBidChance <= bidProbability) {
             const moneyRequiredToBid = lotState.bidValue + configs.game.bidIncrement;
-            if (this.money >= moneyRequiredToBid) {
-                this.logger.debug(`Bot would bid but has no money. Current money: ${this.money}. Money required to bid: ${moneyRequiredToBid}.`);
+            if (this.money <= moneyRequiredToBid) {
+                this.logger.info(`Bot would bid but has no money. Current money: ${this.money}. Money required to bid: ${moneyRequiredToBid}.`);
 
             } else {
-                this.logger.debug(`Bot decided to bid. Bid probability: ${bidProbability}. Random bid chance: ${randomBidChance}.`);
+                this.logger.info(`Bot decided to bid. Bid probability: ${bidProbability}. Random bid chance: ${randomBidChance}.`);
                 this.sendMessage(commands.AUCTION_BID);
             }
         } else {
-            this.logger.debug(`Bot won't bid. Bid probability: ${bidProbability}. Random bid chance: ${randomBidChance}.`);
+            this.logger.info(`Bot won't bid. Bid probability: ${bidProbability}. Random bid chance: ${randomBidChance}.`);
         }
 
         if (lotState.status === auctionStatus.PLAY) {
