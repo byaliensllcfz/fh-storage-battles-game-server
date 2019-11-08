@@ -1,6 +1,8 @@
 'use strict';
 
 const lodash = require('lodash');
+const weighted = require('weighted');
+
 const { MapSchema } = require('@colyseus/schema');
 const { Logger } = require('@tapps-games/logging');
 const logger = new Logger();
@@ -25,6 +27,7 @@ class AuctionController {
         this.playersLotReady = {};
 
         this.configs = configHelper.get();
+        this.rarities = configHelper.getRarities();
 
         this.lotsAmount = this.configs.game.lotsAmount;
         this.city = lodash.find(this.configs.cities, city => city.id = cityId);
@@ -79,8 +82,8 @@ class AuctionController {
         for (let index = 0; index < lotAmount; index++) {
             let newLot = new LotState();
             this.state.lots.push(newLot);
-            this._drawItems(lodash.random(5, 8), newLot); // TODO: Get amount of items and boxes from city config
-            this._addBoxes(1, newLot);
+
+            this._generateLotItems(index, newLot);
         }
     }
 
@@ -108,25 +111,94 @@ class AuctionController {
         this.lotEndTimeout = this.room.clock.setTimeout(() => this._runDole(), this.configs.game.auctionAfterBidDuration);
     }
 
-    _addBoxes(boxesAmount, lot) {
-        const boxes = new MapSchema();
-        const boxesConfig = this.configs.boxes;
-        for (let i = 0; i < boxesAmount; i++) {
-            const config = lodash.sample(boxesConfig);
-            boxes[i] = config.id;
+    _generateLotItems(index, lot) {
+        const lotItems = new MapSchema();
+        const lotBoxes = new MapSchema();
+        const lotBoxedItems = new MapSchema();
+
+        const lotItemsAmount = lodash.random(this.city.minimumItemsInLot, this.city.maximumItemsInLot);
+        logger.debug(`Lot ${index} will have ${lotItemsAmount} items`);
+
+        let itemsPerRarity = {};
+        let boxedItemsPerRarity = {};
+        lodash.each(this.rarities, rarity => {
+            itemsPerRarity[rarity] = 0;
+            boxedItemsPerRarity[rarity] = 0;
+        });
+
+        let boxedItems = 0;
+        let unboxedItems = 0;
+        for (let index = 0; index < lotItemsAmount; index++) {
+
+            const weightedOptions = this._probabilityPerRarity(itemsPerRarity);
+            logger.debug(`probabilities ${JSON.stringify(weightedOptions)}`);
+
+            const selectedRarity = weighted.select(weightedOptions);
+            const itemId = lodash.sample(this.city.itemsRarity[selectedRarity].items);
+
+            itemsPerRarity[selectedRarity]++;
+
+            const boxChance = this._probabilityBoxItem(selectedRarity, boxedItemsPerRarity);
+            const boxed = weighted.select(boxChance);
+
+            logger.debug(`Drawing item ${itemId} from rarity ${selectedRarity} (chance: ${weightedOptions[selectedRarity]}, box chance: ${boxChance['boxed']})`);
+
+            if (boxed === 'boxed') {
+                boxedItemsPerRarity[selectedRarity]++;
+                const item = lodash.find(this.configs.items, item => item.id === itemId);
+                const box = lodash.find(this.configs.boxes, box => box.id === item.boxType);
+
+                logger.debug(`- Item ${item.id} - was boxed on ${box.id})`);
+                lotBoxes[boxedItems] = box.id;
+                lotBoxedItems[boxedItems] = item.id;
+                boxedItems++;
+            }
+            else {
+                lotItems[unboxedItems] = itemId;
+                unboxedItems++;
+            }
         }
-        lot.boxes = boxes;
+
+        lot.items = lotItems;
+        lot.boxes = lotBoxes;
+        lot.boxedItems = lotBoxedItems;
     }
 
-    _drawItems(itemAmount, lot) {
-        const itemsStart = new MapSchema();
-        const playableItems = this.configs.items;
-        for (let i = 0; i < itemAmount; i++) {
-            const config = lodash.sample(playableItems);
-            itemsStart[i] = config.id;
-            lot.lotItemsPrice += config.price;
-        }
-        lot.items = itemsStart;
+    _probabilityBoxItem(rarity, boxedItemsPerRarity) {
+        const rarityConfig = this.city.itemsRarity[rarity];
+
+        const frequencyModifier = rarityConfig.maximumBoxesPerRarity - boxedItemsPerRarity[rarity] * rarityConfig.boxProbabilityModifierOn;
+        const boxRateModifier = rarityConfig.boxProbabilityModifier ** boxedItemsPerRarity[rarity];
+
+        const probability = rarityConfig.boxProbability / rarityConfig.maximumBoxesPerRarity * frequencyModifier * boxRateModifier;
+
+        return {
+            boxed : probability,
+            unboxed : 1 - probability,
+        };
+    }
+
+    _probabilityPerRarity(itemsPerRarity) {
+        //Probabilidade / MaxItems * (MaxItems - NumeroJaSorteado * OnOrOff) * Modifier ^ NumeroJaSorteado
+        const weightedOptions = {};
+
+        lodash.each(this.rarities, rarity => {
+            const rarityConfig = this.city.itemsRarity[rarity];
+
+            //TODO colocar common rarity em um enum
+            if (rarity !== 'Common') {
+                const frequencyModifier = rarityConfig.maximumItemsPerRarity - itemsPerRarity[rarity] * rarityConfig.drawProbabilityModifierOn;
+                const dropRateModifier = rarityConfig.drawProbabilityModifier ** itemsPerRarity[rarity];
+
+                const probability = rarityConfig.drawProbability / rarityConfig.maximumItemsPerRarity * frequencyModifier * dropRateModifier;
+
+                weightedOptions[rarity] = probability;
+            }
+        });
+
+        weightedOptions['Common'] = 1 - lodash.sum(lodash.map(weightedOptions));
+
+        return weightedOptions;
     }
 
     bid(playerId) {
@@ -147,7 +219,6 @@ class AuctionController {
         }
         this.bidInterval.addBid(playerId);
     }
-
 
     _runDole() {
         logger.debug(`countdown on current LOT : ${this._getCurrentLot().dole}`);

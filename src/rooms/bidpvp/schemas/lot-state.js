@@ -24,6 +24,9 @@ class LotState extends Schema {
         /** @type {Object<string, string>} */
         this.boxes = new MapSchema();
 
+        /** @type {Object<string, string>} */
+        this.boxedItems = new MapSchema();
+
         /** @type {number} */
         this.randomSeed;
 
