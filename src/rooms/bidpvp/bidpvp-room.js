@@ -14,7 +14,6 @@ const { handleAuctionCommand } = require('./handlers/auction-handler');
 
 const authDao = require('../../daos/auth-dao');
 const configHelper = require('../../helpers/config-helper');
-const { commands } = require('../../types');
 
 class BidPvpRoom extends Room {
 

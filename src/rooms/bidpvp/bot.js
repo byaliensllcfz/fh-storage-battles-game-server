@@ -28,7 +28,7 @@ class Bot {
         this.name = lodash.sample(configs.bot.names);
 
         /** @type {string} */
-        this.cityId = city;
+        this.city = city;
 
         const moneyModifier = lodash.random(configs.bot.minimumMoneyModifier, configs.bot.maximumMoneyModifier, true);
 
@@ -119,8 +119,7 @@ class Bot {
         const modifier = lodash.random(configs.bot.minimumItemValueModifier, configs.bot.maximumItemValueModifier);
         const botItemsValue = modifier * itemsValue;
 
-        const cityConfig = lodash.find(configs.cities, city => city.id === this.cityId);
-        const difToThinkAbout = cityConfig.maximumMoney * configs.bot.idealProfitModifier;
+        const difToThinkAbout = this.city.maximumMoney * configs.bot.idealProfitModifier;
 
         const bidProbability = lodash.min([configs.bot.bidProbabilityOnProfit, lodash.max([configs.bot.minimumBidProbability, (configs.bot.bidProbabilityOnProfit - 1) + (1 - configs.bot.minimumBidProbability) / difToThinkAbout * (botItemsValue - lotState.bidValue)])]);
         this.logger.debug(`BOT generating BID probability. itemsValue: ${itemsValue} (visible: ${visibleItemsValue}; hidden: ${hiddenItemsValue}), mod: ${modifier}, difToThinkAbout: ${difToThinkAbout}. Bid probability: ${bidProbability}.`);
