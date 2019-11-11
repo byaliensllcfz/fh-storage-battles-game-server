@@ -112,7 +112,7 @@ class Bot {
         const lotState = auctionState.lots[auctionState.currentLot];
 
         const auctionItemIds = lodash.map(lotState.items);
-        const visibleItemsValue = lodash.sum(lodash.map(auctionItemIds, itemId => configs.items[itemId].price));
+        const visibleItemsValue = lodash.sum(lodash.map(auctionItemIds, itemId => lodash.find(configs.items, item => item.id = itemId).price));
         const hiddenItemsValue = lodash.size(lotState.boxes) * configs.bot.averageBoxValue;
 
         const itemsValue = visibleItemsValue + hiddenItemsValue;
@@ -126,7 +126,7 @@ class Bot {
 
         const randomBidChance = lodash.random(true);
         if (randomBidChance <= bidProbability) {
-            const moneyRequiredToBid = lotState.bidValue + configs.game.bidIncrement;
+            const moneyRequiredToBid = lotState.nextBidValue;
             if (this.money <= moneyRequiredToBid) {
                 this.logger.info(`Bot would bid but has no money. Current money: ${this.money}. Money required to bid: ${moneyRequiredToBid}.`);
 

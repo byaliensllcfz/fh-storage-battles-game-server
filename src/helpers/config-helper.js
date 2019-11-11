@@ -109,7 +109,7 @@ function getRarities() {
 
 function separateCityItemsPerRarity() {
     let itemsPerRarity = {};
-    
+
     lodash.each(itemRarities, rarity => {
         itemsPerRarity[rarity] = lodash.filter(_config.items, item => item.rarity === rarity).map(item => item.id);
 

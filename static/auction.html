@@ -31,23 +31,10 @@
             <v-card-text>
               <v-row class="pt-1">
                 <v-col cols="12" sm="1">
-                  <v-btn
-                    text
-                    x-large
-                    block
-                    @click="onGameJoin"
-                    :disabled="connected">
-                    Join
-                  </v-btn>
+                  <v-btn text x-large block @click="onGameJoin" :disabled="connected"> Join </v-btn>
                 </v-col>
                 <v-col cols="12" sm="2">
-                  <v-text-field
-                    v-model="firebaseId"
-                    label="Firebase ID"
-                    outlined
-                    append-icon="mdi-reload"
-                    @click:append="reloadId"
-                    :disabled="connected">
+                  <v-text-field v-model="firebaseId" label="Firebase ID" outlined append-icon="mdi-reload" @click:append="reloadId" :disabled="connected">
                   </v-text-field>
                 </v-col>
               </v-row>
@@ -55,10 +42,36 @@
               
               <p>
                 <v-btn text @click="onBid" class="ml-2" :disabled="!canBid">Bid</v-btn>
-                <v-btn text @click="onLotReady" class="ml-2">LotReady</v-btn>
+                <v-btn text @click="onLotReady" class="ml-2" :disabled="!waitingLot">LotReady</v-btn>
               </p>
+
               <v-divider></v-divider>
-              <pre>{{state}}</pre>
+              <v-container>
+                  <v-card class="d-flex">
+                    <v-flex xs4>
+                        <div class="pa-5 mt-2">
+                          <b> GAME STATE: </b><br />
+                          <pre>{{state}}</pre>
+                        </div>
+                    </v-flex>  
+
+                    <v-flex xs4>
+                        <div class="pa-5 mt-2">
+                          <b> LOT: </b><br />
+                          <pre>{{lotInfo}} </pre>
+                        </div>
+                    </v-flex>
+
+                    <v-flex xs4>
+                        <div class="pa-5 mt-2">
+                          <b> PLAYER: </b><br />
+                          <pre>{{playerInfo}} </pre>
+                        </div>
+                    </v-flex>
+
+                  </v-card>
+              </v-container>
+
             </v-card-text>
           </v-card>
         </v-container>
@@ -126,8 +139,37 @@ let app = new Vue({
     },
 
     computed: {
+      me() { return lodash.get(this, `state.players.${this.clientId}`) },
+
       canBid() {
-        return this.state.status === 'PLAY' && this.state.lots[this.state.currentLot].bidOwner !== this.clientId;
+        return this.state.status === 'PLAY' 
+          && this.state.lots[this.state.currentLot].bidOwner !== this.clientId
+          && this.state.lots[this.state.currentLot].status === 'PLAY';
+      },
+
+      waitingLot() {
+        return this.state.status === 'PLAY' && this.state.lots[this.state.currentLot].status === 'WAITING';
+      },
+
+      lotInfo() {
+        let info = '';
+
+        if (this.state && this.state.status === 'PLAY') {
+          return this.state.lots[this.state.currentLot];
+        }
+
+        return info;
+      },
+
+      playerInfo() {
+        let info = '';
+
+        if (this.me) {
+          info += `clientId: ${this.me.id}\n`;
+          info += `money: ${this.me.money}\n`;
+        }
+
+        return info;
       }
     },
 
