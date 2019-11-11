@@ -1,5 +1,9 @@
 'use strict';
 
+const lodash  = require('lodash');
+const { Logger } = require('@tapps-games/logging');
+const logger = new Logger();
+
 /** @ignore */
 let _config = null;
 
@@ -79,11 +83,17 @@ let _config = null;
  * @property {BoxConfig[]} boxes
  */
 
+let cityItemsPerRarity = {};
+let itemRarities;
+
 /**
  * @param {Config} config
  */
 function set(config) {
     _config = config;
+    itemRarities = lodash.uniqBy(_config.items, 'rarity').map(item => item.rarity);
+
+    separateCityItemsPerRarity();
 }
 
 /**
@@ -93,7 +103,31 @@ function get() {
     return _config;
 }
 
+function getRarities() {
+    return itemRarities;
+}
+
+function separateCityItemsPerRarity() {
+    let itemsPerRarity = {};
+    
+    lodash.each(itemRarities, rarity => {
+        itemsPerRarity[rarity] = lodash.filter(_config.items, item => item.rarity === rarity).map(item => item.id);
+
+        lodash.each(_config.cities, city => {
+            if (!cityItemsPerRarity[city.id]) {
+                cityItemsPerRarity[city.id] = {};
+            }
+
+            let cityRarity = lodash.intersection(itemsPerRarity[rarity], city.availableItems);
+
+            logger.debug(`City ${city.id} , rarity ${rarity} - Items: ${JSON.stringify(cityRarity)}`);
+            city.itemsRarity[rarity].items = cityRarity;
+        });
+    });
+}
+
 module.exports = {
     set,
     get,
+    getRarities,
 };
