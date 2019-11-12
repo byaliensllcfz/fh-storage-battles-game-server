@@ -13,6 +13,7 @@ const rewardDao = require('../../../daos/reward-dao');
 const { auctionStatus } = require('../../../types');
 const { BidInterval } = require('../../../helpers/bid-interval');
 const { LotState } = require('../schemas/lot-state');
+const { BoxState } = require('../schemas/box-state');
 
 class AuctionController {
     constructor(room, cityId) {
@@ -70,8 +71,9 @@ class AuctionController {
         this.lotStartTimeout = this.room.clock.setTimeout(() => this._startInspect(true), this.configs.game.forceLotStartTimeout);
     }
 
-    getNextBidValue() {
-        return this._getCurrentLot().bidValue + this.configs.game.bidIncrement;
+    //TODO ver como vai ser a logica de incrementar
+    setNextBidValue() {
+        this._getCurrentLot().nextBidValue = this._getCurrentLot().bidValue + this.configs.game.bidIncrement;
     }
 
     getCurrentLotStatus() {
@@ -80,7 +82,7 @@ class AuctionController {
 
     _generateLots(lotAmount) {
         for (let index = 0; index < lotAmount; index++) {
-            let newLot = new LotState();
+            let newLot = new LotState({ nextBidValue: this.configs.game.bidIncrement}); // TODO pegar bid inicial ou gerar?
             this.state.lots.push(newLot);
 
             this._generateLotItems(index, newLot);
@@ -92,8 +94,10 @@ class AuctionController {
     }
 
     finishBidInterval() {
-        const bidValue = this.getNextBidValue();
-        this._getCurrentLot().bidValue = bidValue;
+        const bidValue = this._getCurrentLot().nextBidValue;
+        this._getCurrentLot().bidValue =  bidValue;
+
+        this.setNextBidValue();
         this._getCurrentLot().bidOwner = this.bidInterval.getWinner();
 
         logger.debug(`Trying to finish bid interval. bid:${bidValue} from ${this.bidInterval.getWinner()}`);
@@ -149,7 +153,7 @@ class AuctionController {
                 const box = lodash.find(this.configs.boxes, box => box.id === item.boxType);
 
                 logger.debug(`- Item ${item.id} - was boxed on ${box.id})`);
-                lotBoxes[boxedItems] = box.id;
+                lotBoxes[boxedItems] = new BoxState(box.id);
                 lotBoxedItems[boxedItems] = item.id;
                 boxedItems++;
             }
@@ -202,14 +206,14 @@ class AuctionController {
     }
 
     bid(playerId) {
-        logger.debug(`Player ${playerId} trying to bid ${this.getNextBidValue()}`);
+        logger.debug(`Player ${playerId} trying to bid ${this._getCurrentLot().nextBidValue}`);
 
         if (this._getCurrentLot().bidOwner === playerId) {
             logger.debug(`Ignoring bid. Player ${playerId} is already winning`);
             return;
         }
-        if (this.state.players[playerId].money < this.getNextBidValue()) {
-            logger.debug(`Ignoring bid. Player ${playerId} has no money (${this.state.players[playerId].money}) for this bid ${this.getNextBidValue()}`);
+        if (this.state.players[playerId].money < this._getCurrentLot().nextBidValue) {
+            logger.debug(`Ignoring bid. Player ${playerId} has no money (${this.state.players[playerId].money}) for this bid ${this._getCurrentLot().nextBidValue}`);
             return;
         }
 
@@ -311,6 +315,17 @@ class AuctionController {
         });
 
         lodash.each(this.state.lots, lotState => {
+            lodash.each(lotState.boxes, (boxState, idx) => {
+                boxState.itemId = lotState.boxedItems[idx];
+                const item = lodash.find(this.configs.items, item => item.id = boxState.itemId); //TODO buscar via confighelper pela chave
+                lotState.lotItemsPrice += item.price;
+            });
+
+            lodash.each(lotState.items, itemId => {
+                const item = lodash.find(this.configs.items, item => item.id = itemId); //TODO buscar via confighelper pela chave
+                lotState.lotItemsPrice += item.price;
+            });
+
             if (lotState.bidOwner) {
                 let playerResult = endGameResults[this.state.players[lotState.bidOwner].firebaseId];
 
