@@ -16,7 +16,7 @@ const BidPvpRoom = require('./rooms/bidpvp/bidpvp-room');
 const LobbyRoom = require('./rooms/lobby/lobby-room');
 
 const configDao = require('./daos/config-dao');
-const configHelper = require('./helpers/config-helper');
+const { Config } = require('./helpers/config-helper');
 
 const logger = new Logger();
 
@@ -57,7 +57,7 @@ async function createServer() {
 
 async function _loadConfig() {
     const configs = await configDao.getConfigs();
-    configHelper.set(configs);
+    Config.set(configs);
 }
 
 module.exports = {

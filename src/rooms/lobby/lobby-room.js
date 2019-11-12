@@ -1,12 +1,13 @@
 'use strict';
 
+const lodash = require('lodash');
 const { Logger } = require('@tapps-games/logging');
-const logger = new Logger();
 
 const { Room } = require('colyseus');
 const { LobbyState } = require('./schemas/lobby-state');
+const { Config } = require('../../helpers/config-helper');
 
-const configHelper = require('../../helpers/config-helper');
+const logger = new Logger();
 
 class LobbyRoom extends Room {
     onCreate(options) {
@@ -37,7 +38,7 @@ class LobbyRoom extends Room {
     sendConfig(client) {
         const startingConfig = {
             roomId: this.roomId,
-            items: configHelper.get().items,
+            items: lodash.map(Config.items),
         };
 
         this.send(client, JSON.stringify(startingConfig));

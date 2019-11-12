@@ -1,19 +1,19 @@
 'use strict';
 
-const uuid = require('uuid/v4');
 const lodash = require('lodash');
-const { Logger } = require('@tapps-games/logging');
-const logger = new Logger();
-
+const uuid = require('uuid/v4');
 const { Room } = require('colyseus');
+const { Logger } = require('@tapps-games/logging');
+
+const authDao = require('../../daos/auth-dao');
 const { Bot } = require('./bot');
 const { AuctionState } = require('./schemas/auction-state');
 const { PlayerState } = require('./schemas/player-state');
 const { AuctionController } = require('./controllers/auction-controller');
 const { handleAuctionCommand } = require('./handlers/auction-handler');
+const { Config }  = require('../../helpers/config-helper');
 
-const authDao = require('../../daos/auth-dao');
-const configHelper = require('../../helpers/config-helper');
+const logger = new Logger();
 
 class BidPvpRoom extends Room {
 
@@ -27,8 +27,7 @@ class BidPvpRoom extends Room {
         this.auctionController = new AuctionController(this, cityId);
 
         /** @type {Object} */
-        const configs = configHelper.get();
-        this.maxClients = configs.game.maxPlayers;
+        this.maxClients = Config.game.maxPlayers;
 
         /** @type {Object<string, Bot>} */
         this.bots = {};
@@ -85,7 +84,7 @@ class BidPvpRoom extends Room {
 
         try {
             if (!consented) {
-                await this.allowReconnection(client, this.configs.game.allowReconnectionTimeSec);
+                await this.allowReconnection(client, Config.game.allowReconnectionTimeSeconds);
 
                 // The client has reconnected
                 this.state.players[client.id].connected = true;
@@ -102,8 +101,7 @@ class BidPvpRoom extends Room {
 
     _setAddBotTimeout() {
         if (!this.addBotTimeout) {
-            const configs = configHelper.get();
-            this.addBotTimeout = this.clock.setTimeout(this._addBot.bind(this), lodash.random(configs.bot.addBotTimeoutMinimum, configs.bot.addBotTimeoutMaximum));
+            this.addBotTimeout = this.clock.setTimeout(this._addBot.bind(this), lodash.random(Config.bot.addBotTimeoutMinimum, Config.bot.addBotTimeoutMaximum));
         }
     }
 
