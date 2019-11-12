@@ -30,8 +30,11 @@ class Bot {
 
         const moneyModifier = lodash.random(Config.bot.minimumMoneyModifier, Config.bot.maximumMoneyModifier, true);
 
-        /** @type {number}*/
-        this.money = lodash.max([city.minimumMoney, lodash.round(moneyModifier * city.maximumMoney)]);
+        /** @type {number} */
+        this.startingMoney = lodash.max([city.minimumMoney, lodash.round(moneyModifier * city.maximumMoney)]);
+
+        /** @type {number} */
+        this.money = this.startingMoney;
     }
 
     /**

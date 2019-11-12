@@ -6,8 +6,7 @@ const logger = new Logger();
 
 /** @ignore */
 let _config = null;
-let cityItemsPerRarity = {};
-let itemRarities;
+let _itemRarities;
 
 /**
  * @typedef {Object} CityConfig
@@ -98,13 +97,13 @@ let itemRarities;
 class Config {
 
     static set(config) {
+        _itemRarities = lodash.uniqBy(config.items, 'rarity').map(item => item.rarity);
+
         config.cities = lodash.keyBy(config.cities, city => city.id);
         config.items = lodash.keyBy(config.items, item => item.id);
         config.boxes = lodash.keyBy(config.boxes, box => box.id);
 
-        config.itemRarities = lodash.uniqBy(config.items, 'rarity').map(item => item.rarity);
-
-        _separateCityItemsPerRarity();
+        _separateCityItemsPerRarity(config);
 
         _config = config;
     }
@@ -148,25 +147,19 @@ class Config {
      * @return {string[]}
      */
     static get itemRarities() {
-        return itemRarities;
+        return _itemRarities;
     }
 }
 
 function _separateCityItemsPerRarity(config) {
-    let itemsPerRarity = {};
-
-    lodash.each(itemRarities, rarity => {
-        itemsPerRarity[rarity] = lodash.filter(config.items, item => item.rarity === rarity).map(item => item.id);
+    lodash.each(_itemRarities, rarity => {
+        const itemsForRarity = lodash.filter(config.items, item => item.rarity === rarity).map(item => item.id);
 
         lodash.each(config.cities, city => {
-            if (!cityItemsPerRarity[city.id]) {
-                cityItemsPerRarity[city.id] = {};
-            }
+            const cityItemsForRarity = lodash.intersection(itemsForRarity, city.availableItems);
 
-            let cityRarity = lodash.intersection(itemsPerRarity[rarity], city.availableItems);
-
-            logger.debug(`City ${city.id} , rarity ${rarity} - Items: ${JSON.stringify(cityRarity)}`);
-            city.itemsRarity[rarity].items = cityRarity;
+            logger.debug(`City ${city.id}, rarity ${rarity} - Items: ${JSON.stringify(cityItemsForRarity)}`);
+            city.itemsRarity[rarity].items = cityItemsForRarity;
         });
     });
 }

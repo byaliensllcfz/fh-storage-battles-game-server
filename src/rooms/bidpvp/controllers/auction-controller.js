@@ -53,7 +53,7 @@ class AuctionController {
                 const bot = this.room.bots[player.firebaseId];
                 player.name = bot.name;
                 player.photoUrl = bot.profilePicture;
-                player.money = bot.money;
+                player.money = bot.startingMoney;
 
             } else {
                 const playerState = lodash.find(profiles, profileData => profileData.profile.gameUserId === player.firebaseId);
