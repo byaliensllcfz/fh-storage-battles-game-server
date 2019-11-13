@@ -6,6 +6,7 @@ const logger = new Logger();
 
 /** @ignore */
 let _config = null;
+let _itemRarities;
 
 /**
  * @typedef {Object} CityConfig
@@ -50,21 +51,20 @@ let _config = null;
  * @typedef {Object} BoxConfig
  * @property {string} id
  * @property {string} size
+ * @property {number} estimatedValue
  */
 
 /**
  * @typedef {Object} GameConfig
  * @property {number} maxPlayers
  * @property {number} bidTimeTolerance
- * @property {number} playerStartMoney
- * @property {number} bidIncrement
  * @property {number} auctionDoleDuration
- * @property {number} initialBid
- * @property {number} pawnDuration
- * @property {number} playerStartSlots
  * @property {number} auctionAfterBidDuration
  * @property {number} auctionInitialDuration
  * @property {number} bidCooldown
+ * @property {number} bidBaseIncrement
+ * @property {number} bidBaseMultiplier
+ * @property {number} bidRepeatValue
  * @property {number} overbidWindow
  * @property {number} lotsAmount
  * @property {number} forceLotStartTimeout
@@ -79,7 +79,6 @@ let _config = null;
  * @property {number} maximumMoneyModifier
  * @property {number} minimumTimeToBidSeconds
  * @property {number} maximumTimeToBidSeconds
- * @property {number} averageBoxValue
  * @property {number} minimumItemValueModifier
  * @property {number} maximumItemValueModifier
  * @property {number} minimumBidProbability
@@ -96,7 +95,10 @@ let _config = null;
 class Config {
 
     static set(config) {
+        _itemRarities = lodash.uniqBy(config.items, 'rarity').map(item => item.rarity);
+
         config.defaultItem = config.items[0];
+        config.defaultBox = config.boxes[0];
 
         config.cities = lodash.keyBy(config.cities, city => city.id);
         config.items = lodash.keyBy(config.items, item => item.id);
@@ -153,6 +155,20 @@ class Config {
      */
     static get boxes() {
         return _config.boxes;
+    }
+
+
+    /**
+     * @return {BoxConfig}
+     */
+    static getBox(boxId) {
+        let box = _config.boxes[boxId];
+        if (!box) {
+            box = _config.defaultBox;
+            logger.critical(`Couldnt find box ${boxId} - returning ${_config.defaultBox.id}`);
+        }
+
+        return box;
     }
 }
 

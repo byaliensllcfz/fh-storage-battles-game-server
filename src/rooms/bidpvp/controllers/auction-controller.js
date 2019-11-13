@@ -68,9 +68,14 @@ class AuctionController {
         this.lotStartTimeout = this.room.clock.setTimeout(() => this._startInspect(true), Config.game.forceLotStartTimeout);
     }
 
-    //TODO ver como vai ser a logica de incrementar
-    setNextBidValue() {
-        this._getCurrentLot().nextBidValue = this._getCurrentLot().bidValue + Config.game.bidIncrement;
+    setNextBidValue(currentBid) {
+        let incrementalFactor = Math.log(currentBid / Config.game.bidBaseIncrement) / Math.log(Config.game.bidBaseMultiplier);
+        incrementalFactor = Math.floor(Math.max(0, incrementalFactor));
+
+        const growth = Config.game.bidBaseIncrement * Config.game.bidBaseMultiplier ** incrementalFactor;
+        this._getCurrentLot().nextBidValue = Math.round((growth / Config.game.bidRepeatValue) + currentBid);
+
+        logger.debug(`CurrentBid: ${currentBid}, incrementalFactor:${incrementalFactor}, Growth:${growth}, nextBid:${this._getCurrentLot().nextBidValue}`);
     }
 
     getCurrentLotStatus() {
@@ -79,11 +84,31 @@ class AuctionController {
 
     _generateLots(lotAmount) {
         for (let index = 0; index < lotAmount; index++) {
-            let newLot = new LotState({ nextBidValue: Config.game.bidIncrement}); // TODO pegar bid inicial ou gerar?
+            let newLot = new LotState();
             this.state.lots.push(newLot);
 
             this._generateLotItems(index, newLot);
+            this._generateInitialBid(newLot);
         }
+    }
+
+    _generateInitialBid(lotState) {
+        let totalEstimatedValue = 0;
+        lodash.each(lotState.boxes, (boxState, _idx) => {
+            totalEstimatedValue += Config.getBox(boxState.boxId).estimatedValue;
+        });
+
+        lodash.each(lotState.items, itemId => {
+            totalEstimatedValue += Config.getItem(itemId).price;
+        });
+
+        logger.debug(`Lot total estimated value: ${totalEstimatedValue}`);
+        const minValue = (Config.game.minimumInitialBidPercentage / 100) * totalEstimatedValue;
+        const maxValue = (Config.game.maximumInitialBidPercentage / 100) * totalEstimatedValue;
+
+        const baseBid = Math.round(lodash.random(minValue, maxValue));
+        lotState.nextBidValue = Math.floor(baseBid / Config.game.bidBaseIncrement) * Config.game.bidBaseIncrement;
+        logger.debug(`Lot initial bid value: ${baseBid} (rounded: ${lotState.nextBidValue})`);
     }
 
     _getCurrentLot() {
@@ -94,7 +119,7 @@ class AuctionController {
         const bidValue = this._getCurrentLot().nextBidValue;
         this._getCurrentLot().bidValue =  bidValue;
 
-        this.setNextBidValue();
+        this.setNextBidValue(bidValue);
         this._getCurrentLot().bidOwner = this.bidInterval.getWinner();
 
         logger.debug(`Trying to finish bid interval. bid:${bidValue} from ${this.bidInterval.getWinner()}`);
@@ -141,7 +166,7 @@ class AuctionController {
             if (boxed) {
                 boxedItemsPerRarity[selectedRarity]++;
                 const item = Config.getItem(itemId);
-                const box = Config.boxes[item.boxType];
+                const box = Config.getBox(item.boxType);
 
                 logger.debug(`- Item ${item.id} - was boxed on ${box.id})`);
                 lotBoxes[boxedItems] = new BoxState(box.id);
