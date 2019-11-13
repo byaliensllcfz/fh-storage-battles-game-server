@@ -3,7 +3,7 @@
 const COLYSEUS_PORT = 2567;
 
 const { Logger } = require('@tapps-games/logging');
-const { middlewares, routes } = require('@tapps-games/server');
+const { middlewares, routes, utils } = require('@tapps-games/server');
 
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -46,6 +46,12 @@ async function createServer() {
 
     // register colyseus monitor AFTER registering your room handlers
     app.use('/colyseus', monitor(gameServer));
+
+    //TODO proteger essa url? 
+    app.get('/configs/reload', utils.asyncRoute(async (_req, res) => {
+        await _loadConfig();
+        res.send('configs reloaded');
+    }));
 
     app.use(middlewares.notFoundHandler());
     app.use(middlewares.errorHandler());
