@@ -44,10 +44,11 @@ async function createServer() {
     //gets all DB configs and cache it
     await _loadConfig();
 
+    app.use(middlewares.validateSharedCloudSecret());
+
     // register colyseus monitor AFTER registering your room handlers
     app.use('/colyseus', monitor(gameServer));
 
-    //TODO proteger essa url? 
     app.get('/configs/reload', utils.asyncRoute(async (_req, res) => {
         await _loadConfig();
         res.send('configs reloaded');

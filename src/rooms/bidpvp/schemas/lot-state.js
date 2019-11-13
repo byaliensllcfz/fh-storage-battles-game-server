@@ -14,7 +14,7 @@ class LotState extends Schema {
         this.bidValue = options.bidValue || 0;
 
         /** @type {number} */
-        this.nextBidValue = options.nextBidValue || 0;
+        this.nextBidValue = 0;
 
         /** @type {string} */
         this.bidOwner = options.bidOwner || '';
