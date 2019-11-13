@@ -122,7 +122,7 @@ class AuctionController {
 
         let itemsPerRarity = {};
         let boxedItemsPerRarity = {};
-        lodash.each(Config.itemRarities, rarity => {
+        lodash.each(this.city.itemRarities, rarity => {
             itemsPerRarity[rarity] = 0;
             boxedItemsPerRarity[rarity] = 0;
         });
@@ -140,7 +140,7 @@ class AuctionController {
 
             if (boxed) {
                 boxedItemsPerRarity[selectedRarity]++;
-                const item = Config.items[itemId];
+                const item = Config.getItem(itemId);
                 const box = Config.boxes[item.boxType];
 
                 logger.debug(`- Item ${item.id} - was boxed on ${box.id})`);
@@ -176,7 +176,7 @@ class AuctionController {
         //Probabilidade / MaxItems * (MaxItems - NumeroJaSorteado * OnOrOff) * Modifier ^ NumeroJaSorteado
         const weightedOptions = {};
 
-        lodash.each(Config.itemRarities, rarity => {
+        lodash.each(this.city.itemRarities, rarity => {
             const rarityConfig = this.city.itemsRarity[rarity];
 
             //TODO colocar common rarity em um enum
@@ -308,12 +308,12 @@ class AuctionController {
         lodash.each(this.state.lots, lotState => {
             lodash.each(lotState.boxes, (boxState, idx) => {
                 boxState.itemId = lotState.boxedItems[idx];
-                const item = Config.items[boxState.itemId];
+                const item = Config.getItem(boxState.itemId);
                 lotState.lotItemsPrice += item.price;
             });
 
             lodash.each(lotState.items, itemId => {
-                const item = Config.items[itemId];
+                const item = Config.getItem(itemId);
                 lotState.lotItemsPrice += item.price;
             });
 

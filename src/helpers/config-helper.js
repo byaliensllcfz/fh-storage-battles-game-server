@@ -6,7 +6,6 @@ const logger = new Logger();
 
 /** @ignore */
 let _config = null;
-let _itemRarities;
 
 /**
  * @typedef {Object} CityConfig
@@ -97,7 +96,7 @@ let _itemRarities;
 class Config {
 
     static set(config) {
-        _itemRarities = lodash.uniqBy(config.items, 'rarity').map(item => item.rarity);
+        config.defaultItem = config.items[0];
 
         config.cities = lodash.keyBy(config.cities, city => city.id);
         config.items = lodash.keyBy(config.items, item => item.id);
@@ -137,17 +136,23 @@ class Config {
     }
 
     /**
+     * @return {ItemConfig}
+     */
+    static getItem(itemId) {
+        let item = _config.items[itemId];
+        if (!item) {
+            item = _config.defaultItem;
+            logger.critical(`Couldnt find item ${itemId} - returning ${_config.defaultItem.id}`);
+        }
+
+        return item;
+    }
+
+    /**
      * @return {Object<id, BoxConfig>}
      */
     static get boxes() {
         return _config.boxes;
-    }
-
-    /**
-     * @return {string[]}
-     */
-    static get itemRarities() {
-        return _itemRarities;
     }
 }
 
@@ -156,10 +161,18 @@ function _separateCityItemsPerRarity(config) {
         const itemsForRarity = lodash.filter(config.items, item => item.rarity === rarity).map(item => item.id);
 
         lodash.each(config.cities, city => {
+            if (!city.itemRarities) {
+                city.itemRarities = [];
+            }
+
             const cityItemsForRarity = lodash.intersection(itemsForRarity, city.availableItems);
 
             logger.debug(`City ${city.id}, rarity ${rarity} - Items: ${JSON.stringify(cityItemsForRarity)}`);
             city.itemsRarity[rarity].items = cityItemsForRarity;
+
+            if (!lodash.isEmpty(cityItemsForRarity)) {
+                city.itemRarities.push(rarity);
+            }
         });
     });
 }

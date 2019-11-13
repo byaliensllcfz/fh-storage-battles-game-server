@@ -124,7 +124,7 @@ class Bot {
         const lotState = auctionState.lots[auctionState.currentLot];
 
         const auctionItemIds = lodash.map(lotState.items);
-        const visibleItemsValue = lodash.sum(lodash.map(auctionItemIds, itemId => Config.items[itemId].price));
+        const visibleItemsValue = lodash.sum(lodash.map(auctionItemIds, itemId => Config.getItem(itemId).price));
         const hiddenItemsValue = lodash.size(lotState.boxes) * Config.bot.averageBoxValue;
 
         const itemsValue = visibleItemsValue + hiddenItemsValue;
