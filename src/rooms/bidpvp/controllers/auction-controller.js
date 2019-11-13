@@ -107,7 +107,7 @@ class AuctionController {
         const maxValue = (Config.game.maximumInitialBidPercentage / 100) * totalEstimatedValue;
 
         const baseBid = Math.round(lodash.random(minValue, maxValue));
-        lotState.nextBidValue = Math.floor(baseBid / Config.game.bidBaseIncrement) * Config.game.bidBaseIncrement;
+        lotState.nextBidValue = Math.ceil(baseBid / Config.game.bidBaseIncrement) * Config.game.bidBaseIncrement;
         logger.debug(`Lot initial bid value: ${baseBid} (rounded: ${lotState.nextBidValue})`);
     }
 
