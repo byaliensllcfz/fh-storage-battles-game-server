@@ -128,6 +128,38 @@
   resolved "https://staging.intra.tappsgames.com/verdaccio/@gamestdio%2fwebsocket/-/websocket-0.3.2.tgz#321ba0976ee30fd14e51dbf8faa85ce7b325f76a"
   integrity sha512-J3n5SKim+ZoLbe44hRGI/VYAwSMCeIJuBy+FfP6EZaujEpNchPRFcIsVQLWAwpU1bP2Ji63rC+rEUOd1vjUB6Q==
 
+"@google-cloud/bigquery@^4.4.0":
+  version "4.4.0"
+  resolved "https://staging.intra.tappsgames.com/verdaccio/@google-cloud%2fbigquery/-/bigquery-4.4.0.tgz#1da62e5f0fd6501ebe37978685c8084222a40d15"
+  integrity sha512-V8JNeoQ2qFZ1DXSSSsnSESnk+k+riY+FW6xOIkOHTAPdpzASr/jdV+PzH/nlIuZhcFvV8FAziOBn2QhEvFvxHQ==
+  dependencies:
+    "@google-cloud/common" "^2.0.0"
+    "@google-cloud/paginator" "^2.0.0"
+    "@google-cloud/promisify" "^1.0.0"
+    arrify "^2.0.1"
+    big.js "^5.2.2"
+    duplexify "^4.0.0"
+    extend "^3.0.2"
+    is "^3.3.0"
+    stream-events "^1.0.5"
+    string-format-obj "^1.1.1"
+    uuid "^3.3.2"
+
+"@google-cloud/common@^2.0.0":
+  version "2.2.3"
+  resolved "https://staging.intra.tappsgames.com/verdaccio/@google-cloud%2fcommon/-/common-2.2.3.tgz#fc29701b09d7bc9d26ea6b6be119c77485210dbf"
+  integrity sha512-lvw54mGKn8VqVIy2NzAk0l5fntBFX4UwQhHk6HaqkyCQ7WBl5oz4XhzKMtMilozF/3ObPcDogqwuyEWyZ6rnQQ==
+  dependencies:
+    "@google-cloud/projectify" "^1.0.0"
+    "@google-cloud/promisify" "^1.0.0"
+    arrify "^2.0.0"
+    duplexify "^3.6.0"
+    ent "^2.2.0"
+    extend "^3.0.2"
+    google-auth-library "^5.5.0"
+    retry-request "^4.0.0"
+    teeny-request "^5.2.1"
+
 "@google-cloud/datastore@^4.0.0":
   version "4.5.2"
   resolved "https://staging.intra.tappsgames.com/verdaccio/@google-cloud%2fdatastore/-/datastore-4.5.2.tgz#b1f9300ca2de91bcfd5783f54354411ece1446bc"
@@ -146,6 +178,14 @@
     is "^3.3.0"
     split-array-stream "^2.0.0"
     stream-events "^1.0.5"
+
+"@google-cloud/paginator@^2.0.0":
+  version "2.0.1"
+  resolved "https://staging.intra.tappsgames.com/verdaccio/@google-cloud%2fpaginator/-/paginator-2.0.1.tgz#89ca97933eecfdd7eaa07bd79ed01c9869c9531b"
+  integrity sha512-HZ6UTGY/gHGNriD7OCikYWL/Eu0sTEur2qqse2w6OVsz+57se3nTkqH14JIPxtf0vlEJ8IJN5w3BdZ22pjCB8g==
+  dependencies:
+    arrify "^2.0.0"
+    extend "^3.0.2"
 
 "@google-cloud/projectify@^1.0.0":
   version "1.0.1"
@@ -486,7 +526,7 @@ acorn@^6.0.7:
   resolved "https://staging.intra.tappsgames.com/verdaccio/acorn/-/acorn-6.3.0.tgz#0087509119ffa4fc0a0041d1e93a417e68cb856e"
   integrity sha512-/czfa8BwS88b9gWQVhc8eknunSA2DoJpJyTQkhheIf5E48u1N0R4q/YxxsAeqRrmK9TQ/uYfgLDfZo91UlANIA==
 
-agent-base@^4.3.0:
+agent-base@4, agent-base@^4.3.0:
   version "4.3.0"
   resolved "https://staging.intra.tappsgames.com/verdaccio/agent-base/-/agent-base-4.3.0.tgz#8165f01c436009bccad0b1d122f05ed770efc6ee"
   integrity sha512-salcGninV0nPrwpGNn4VTXBb1SOuXQBiqbrNXoeizJsHrsL6ERFM2Ne3JUSBWRE6aeNJI2ROP/WEEIDUiDe3cg==
@@ -695,6 +735,11 @@ bath@^3.0.0:
   version "3.0.1"
   resolved "https://staging.intra.tappsgames.com/verdaccio/bath/-/bath-3.0.1.tgz#f7c179d55142c63b3b88b7a9bce560680efb8bdb"
   integrity sha512-qwO37JUzqooGYBIeZYS7PQLKRreCkaxa3lcmIFT/IwVXZO4D5/3/QYoj46K5zEwMzgp84+O2NZT5G6SZgr8GAg==
+
+big.js@^5.2.2:
+  version "5.2.2"
+  resolved "https://staging.intra.tappsgames.com/verdaccio/big.js/-/big.js-5.2.2.tgz#65f0af382f578bcdc742bd9c281e9cb2d7768328"
+  integrity sha512-vyL2OymJxmarO8gxMr0mhChsO9QGwhynfuu4+MHTAW6czfq9humCB7rKpUjDd9YUiDPU4mzpyupFSvOClAwbmQ==
 
 bignumber.js@^7.0.0:
   version "7.2.1"
@@ -1607,6 +1652,16 @@ duplexify@^3.6.0:
     readable-stream "^2.0.0"
     stream-shift "^1.0.0"
 
+duplexify@^4.0.0:
+  version "4.1.1"
+  resolved "https://staging.intra.tappsgames.com/verdaccio/duplexify/-/duplexify-4.1.1.tgz#7027dc374f157b122a8ae08c2d3ea4d2d953aa61"
+  integrity sha512-DY3xVEmVHTv1wSzKNbwoU6nVjzI369Y6sPoqfYr0/xlx3IdX2n94xIszTcjPO8W8ZIv0Wb0PXNcjuZyT4wiICA==
+  dependencies:
+    end-of-stream "^1.4.1"
+    inherits "^2.0.3"
+    readable-stream "^3.1.1"
+    stream-shift "^1.0.0"
+
 ecdsa-sig-formatter@1.0.11:
   version "1.0.11"
   resolved "https://staging.intra.tappsgames.com/verdaccio/ecdsa-sig-formatter/-/ecdsa-sig-formatter-1.0.11.tgz#ae0f0fa2d85045ef14a817daa3ce9acd0489e5bf"
@@ -1636,12 +1691,17 @@ encodeurl@~1.0.2:
   resolved "https://staging.intra.tappsgames.com/verdaccio/encodeurl/-/encodeurl-1.0.2.tgz#ad3ff4c86ec2d029322f5a02c3a9a606c95b3f59"
   integrity sha1-rT/0yG7C0CkyL1oCw6mmBslbP1k=
 
-end-of-stream@^1.0.0, end-of-stream@^1.1.0:
+end-of-stream@^1.0.0, end-of-stream@^1.1.0, end-of-stream@^1.4.1:
   version "1.4.4"
   resolved "https://staging.intra.tappsgames.com/verdaccio/end-of-stream/-/end-of-stream-1.4.4.tgz#5ae64a5f45057baf3626ec14da0ca5e4b2431eb0"
   integrity sha512-+uw1inIHVPQoaVuHzRyXd21icM+cnt4CzD5rW+NC1wjOUSTOs+Te7FOv7AhN7vS9x/oIyhLP5PR1H+phQAHu5Q==
   dependencies:
     once "^1.4.0"
+
+ent@^2.2.0:
+  version "2.2.0"
+  resolved "https://staging.intra.tappsgames.com/verdaccio/ent/-/ent-2.2.0.tgz#e964219325a21d05f44466a2f686ed6ce5f5dd1d"
+  integrity sha1-6WQhkyWiHQX0RGai9obtbOX13R0=
 
 env-variable@0.0.x:
   version "0.0.5"
@@ -2385,7 +2445,7 @@ globby@^6.1.0:
     pify "^2.0.0"
     pinkie-promise "^2.0.0"
 
-google-auth-library@^5.0.0:
+google-auth-library@^5.0.0, google-auth-library@^5.5.0:
   version "5.5.1"
   resolved "https://staging.intra.tappsgames.com/verdaccio/google-auth-library/-/google-auth-library-5.5.1.tgz#2bf5ade93cb9d00c860d3fb15798db33b39a53a7"
   integrity sha512-zCtjQccWS/EHYyFdXRbfeSGM/gW+d7uMAcVnvXRnjBXON5ijo6s0nsObP0ifqileIDSbZjTlLtgo+UoN8IFJcg==
@@ -2588,6 +2648,14 @@ http-errors@~1.7.2:
     setprototypeof "1.1.1"
     statuses ">= 1.5.0 < 2"
     toidentifier "1.0.0"
+
+http-proxy-agent@^2.1.0:
+  version "2.1.0"
+  resolved "https://staging.intra.tappsgames.com/verdaccio/http-proxy-agent/-/http-proxy-agent-2.1.0.tgz#e4821beef5b2142a2026bd73926fe537631c5405"
+  integrity sha512-qwHbBLV7WviBl0rQsOzH6o5lwyOIvwp/BdFnvVxXORldu5TmjFfjzBcWUWS5kWAZhmv+JtiDhSuQCp4sBfbIgg==
+  dependencies:
+    agent-base "4"
+    debug "3.1.0"
 
 httpie@^2.0.0-next.2:
   version "2.0.0-next.2"
@@ -3708,7 +3776,7 @@ node-environment-flags@1.0.5:
     object.getownpropertydescriptors "^2.0.3"
     semver "^5.7.0"
 
-node-fetch@^2.3.0, node-fetch@^2.6.0:
+node-fetch@^2.2.0, node-fetch@^2.3.0, node-fetch@^2.6.0:
   version "2.6.0"
   resolved "https://staging.intra.tappsgames.com/verdaccio/node-fetch/-/node-fetch-2.6.0.tgz#e633456386d4aa55863f676a7ab0daa8fdecb0fd"
   integrity sha512-8dG4H5ujfvFiqDmVu9fQ5bOHUC15JMjMY/Zumv26oOvvVJjM67KF8koCWIabKQ1GJIa9r2mMZscBq/TbdOcmNA==
@@ -4994,6 +5062,11 @@ strict-uri-encode@^1.0.0:
   resolved "https://staging.intra.tappsgames.com/verdaccio/strict-uri-encode/-/strict-uri-encode-1.1.0.tgz#279b225df1d582b1f54e65addd4352e18faa0713"
   integrity sha1-J5siXfHVgrH1TmWt3UNS4Y+qBxM=
 
+string-format-obj@^1.1.1:
+  version "1.1.1"
+  resolved "https://staging.intra.tappsgames.com/verdaccio/string-format-obj/-/string-format-obj-1.1.1.tgz#c7612ca4e2ad923812a81db192dc291850aa1f65"
+  integrity sha512-Mm+sROy+pHJmx0P/0Bs1uxIX6UhGJGj6xDGQZ5zh9v/SZRmLGevp+p0VJxV7lirrkAmQ2mvva/gHKpnF/pTb+Q==
+
 string-width@^1.0.1:
   version "1.0.2"
   resolved "https://staging.intra.tappsgames.com/verdaccio/string-width/-/string-width-1.0.2.tgz#118bdf5b8cdc51a2a7e70d211e07e2b0b9b107d3"
@@ -5245,6 +5318,17 @@ tar@^4.4.8:
     mkdirp "^0.5.0"
     safe-buffer "^5.1.2"
     yallist "^3.0.3"
+
+teeny-request@^5.2.1:
+  version "5.3.1"
+  resolved "https://staging.intra.tappsgames.com/verdaccio/teeny-request/-/teeny-request-5.3.1.tgz#3a2a9a479e2d884eba814dc9c0c82b7979e69b4d"
+  integrity sha512-hnUeun3xryzv92FbrnprltcdeDfSVaGFBlFPRvKJ2fO/ioQx9N0aSUbbXSfTO+ArRXine1gSWdWFWcgfrggWXw==
+  dependencies:
+    http-proxy-agent "^2.1.0"
+    https-proxy-agent "^3.0.0"
+    node-fetch "^2.2.0"
+    stream-events "^1.0.5"
+    uuid "^3.3.2"
 
 term-size@^1.2.0:
   version "1.2.0"
