@@ -111,7 +111,7 @@ const serverService = {
 
   _addListeners() {
     serverService.room.onMessage((message) => {
-      console.log("server just sent this message:");
+      console.log("server just sent this message:" + message);
       serverService.serverData = message;
     });
 

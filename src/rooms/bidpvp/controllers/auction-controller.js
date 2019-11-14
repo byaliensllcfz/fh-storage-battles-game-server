@@ -384,7 +384,18 @@ class AuctionController {
 
         const rewards = this._calculateRewards();
         try {
-            await rewardDao.saveRewards(rewards);
+            const response = await rewardDao.saveRewards(rewards);
+
+            if (!lodash.isEmpty(response)) {
+                lodash.forEach(response, (rank, firebaseId) => {
+                    const player = lodash.find(this.state.players, player => player.firebaseId === firebaseId);
+                    const client = lodash.find(this.room.clients, client => client.id === player.id);
+                    this.room.send(client, JSON.stringify({rank: rank}));
+
+                    logger.info(`Player ${firebaseId} was rewarded the rank ${rank}`);
+                });
+            }
+
             this.state.status = auctionStatus.REWARDS_SENT;
 
         } catch (error) {
