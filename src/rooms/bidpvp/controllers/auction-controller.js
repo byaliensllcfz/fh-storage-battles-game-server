@@ -300,7 +300,6 @@ class AuctionController {
     _startLot(lotIndex) {
         logger.debug(`Starting LOT ${lotIndex}`);
         this.state.lots[lotIndex].status = auctionStatus.PLAY;
-        this.lotEndTimeout = this.room.clock.setTimeout(() => this._runDole(), Config.game.auctionInitialDuration);
     }
 
     _finishLot(lotIndex) {
