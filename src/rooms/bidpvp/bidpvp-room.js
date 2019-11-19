@@ -23,7 +23,8 @@ class BidPvpRoom extends Room {
         this.setState(new AuctionState());
         this.setPatchRate(1000 / 20);
 
-        const cityId = 'first'; //TODO get city on options from room creation at matchmaking
+        //TODO get city on options from room creation at matchmaking
+        const cityId = lodash.values(Config.cities)[0];
         this.auctionController = new AuctionController(this, cityId);
 
         /** @type {Object} */
