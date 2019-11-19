@@ -17,11 +17,13 @@ const LobbyRoom = require('./rooms/lobby/lobby-room');
 
 const configDao = require('./daos/config-dao');
 const { Config } = require('./helpers/config-helper');
-
 const { LocalDriver } = require('colyseus/lib/matchmaker/drivers/LocalDriver');
 
-const logger = new Logger();
+const logger = new Logger('Server');
 
+/**
+ * @return {Promise<void>}
+ */
 async function createServer() {
     const app = express();
 
@@ -86,6 +88,10 @@ async function createServer() {
     logger.info(`Listening on ws://localhost:${COLYSEUS_PORT}`);
 }
 
+/**
+ * @return {Promise<void>}
+ * @private
+ */
 async function _loadConfig() {
     const configs = await configDao.getConfigs();
     Config.set(configs);

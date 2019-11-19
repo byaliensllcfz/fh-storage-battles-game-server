@@ -13,9 +13,12 @@ const { Config } = require('../../../helpers/config-helper');
 const { LotState } = require('../schemas/lot-state');
 const { BoxState } = require('../schemas/box-state');
 
-const logger = new Logger();
-
 class AuctionController {
+
+    /**
+     * @param {BidPvpRoom} room
+     * @param {string} cityId
+     */
     constructor(room, cityId) {
         this.room = room;
         this.state = room.state;
@@ -30,9 +33,14 @@ class AuctionController {
         this.lotsAmount = Config.game.lotsAmount;
         this.city = Config.cities[cityId];
 
+        this.logger = new Logger('AuctionController', { room: this.room.id });
+
         this._generateLots(this.lotsAmount);
     }
 
+    /**
+     * @return {Promise<void>}
+     */
     async startAuction() {
         // Avoid duplicated calls to start auction
         if (this._started) {
@@ -68,6 +76,10 @@ class AuctionController {
         this.lotStartTimeout = this.room.clock.setTimeout(() => this._startInspect(true), Config.game.forceLotStartTimeout);
     }
 
+    /**
+     * Calculates the next bid value and updates the state.
+     * @param {number} currentBid
+     */
     setNextBidValue(currentBid) {
         let incrementalFactor = Math.log(currentBid / Config.game.bidBaseIncrement) / Math.log(Config.game.bidBaseMultiplier);
         incrementalFactor = Math.floor(Math.max(0, incrementalFactor));
@@ -75,13 +87,20 @@ class AuctionController {
         const growth = Config.game.bidBaseIncrement * Config.game.bidBaseMultiplier ** incrementalFactor;
         this._getCurrentLot().nextBidValue = Math.round((growth / Config.game.bidRepeatValue) + currentBid);
 
-        logger.debug(`CurrentBid: ${currentBid}, incrementalFactor:${incrementalFactor}, Growth:${growth}, nextBid:${this._getCurrentLot().nextBidValue}`);
+        this.logger.debug(`CurrentBid: ${currentBid}, incrementalFactor:${incrementalFactor}, Growth:${growth}, nextBid:${this._getCurrentLot().nextBidValue}`);
     }
 
+    /**
+     * @return {string}
+     */
     getCurrentLotStatus() {
         return this._getCurrentLot().status;
     }
 
+    /**
+     * @param {number} lotAmount
+     * @private
+     */
     _generateLots(lotAmount) {
         for (let index = 0; index < lotAmount; index++) {
             let newLot = new LotState();
@@ -92,6 +111,10 @@ class AuctionController {
         }
     }
 
+    /**
+     * @param {LotState} lotState
+     * @private
+     */
     _generateInitialBid(lotState) {
         let totalEstimatedValue = 0;
         lodash.each(lotState.boxes, (boxState, _idx) => {
@@ -102,19 +125,26 @@ class AuctionController {
             totalEstimatedValue += Config.getItem(itemId).price;
         });
 
-        logger.debug(`Lot total estimated value: ${totalEstimatedValue}`);
+        this.logger.debug(`Lot total estimated value: ${totalEstimatedValue}`);
         const minValue = (Config.game.minimumInitialBidPercentage / 100) * totalEstimatedValue;
         const maxValue = (Config.game.maximumInitialBidPercentage / 100) * totalEstimatedValue;
 
         const baseBid = Math.round(lodash.random(minValue, maxValue));
         lotState.nextBidValue = Math.ceil(baseBid / Config.game.bidBaseIncrement) * Config.game.bidBaseIncrement;
-        logger.debug(`Lot initial bid value: ${baseBid} (rounded: ${lotState.nextBidValue})`);
+        this.logger.debug(`Lot initial bid value: ${baseBid} (rounded: ${lotState.nextBidValue})`);
     }
 
+    /**
+     * @return {LotState}
+     * @private
+     */
     _getCurrentLot() {
         return this.state.lots[this.state.currentLot];
     }
 
+    /**
+     * Updates the current bid and who owns the bid.
+     */
     finishBidInterval() {
         const bidValue = this._getCurrentLot().nextBidValue;
         this._getCurrentLot().bidValue =  bidValue;
@@ -122,7 +152,7 @@ class AuctionController {
         this.setNextBidValue(bidValue);
         this._getCurrentLot().bidOwner = this.bidInterval.getWinner();
 
-        logger.debug(`Trying to finish bid interval. bid:${bidValue} from ${this.bidInterval.getWinner()}`);
+        this.logger.debug(`Trying to finish bid interval. bid: ${bidValue} from ${this.bidInterval.getWinner()}`);
 
         lodash.forEach(this.bidInterval.drawPlayers, (playerId) => {
             this.state.players[playerId].lastBid = bidValue;
@@ -137,13 +167,18 @@ class AuctionController {
         this.lotEndTimeout = this.room.clock.setTimeout(() => this._runDole(), Config.game.auctionAfterBidDuration);
     }
 
+    /**
+     * @param {number} index
+     * @param {LotState} lot
+     * @private
+     */
     _generateLotItems(index, lot) {
         const lotItems = new MapSchema();
         const lotBoxes = new MapSchema();
         const lotBoxedItems = {};
 
         const lotItemsAmount = lodash.random(this.city.minimumItemsInLot, this.city.maximumItemsInLot);
-        logger.debug(`Lot ${index} will have ${lotItemsAmount} items`);
+        this.logger.debug(`Lot ${index} will have ${lotItemsAmount} items`);
 
         let itemsPerRarity = {};
         let boxedItemsPerRarity = {};
@@ -159,7 +194,7 @@ class AuctionController {
             const selectedRarity = this._pickItemRarity(itemsPerRarity);
             const itemId = lodash.sample(this.city.itemsRarity[selectedRarity].items);
             const boxed = this._calculateItemBoxed(selectedRarity, boxedItemsPerRarity);
-            logger.debug(`Drawing item ${itemId} from rarity ${selectedRarity}, boxed: ${boxed}.`);
+            this.logger.debug(`Drawing item ${itemId} from rarity ${selectedRarity}, boxed: ${boxed}.`);
 
             itemsPerRarity[selectedRarity]++;
 
@@ -168,7 +203,7 @@ class AuctionController {
                 const item = Config.getItem(itemId);
                 const box = Config.getBox(item.boxType);
 
-                logger.debug(`- Item ${item.id} - was boxed on ${box.id})`);
+                this.logger.debug(`- Item ${item.id} - was boxed on ${box.id})`);
                 lotBoxes[boxedItems] = new BoxState(box.id);
                 lotBoxedItems[boxedItems] = item.id;
                 boxedItems++;
@@ -184,6 +219,12 @@ class AuctionController {
         lot.boxedItems = lotBoxedItems;
     }
 
+    /**
+     * @param {string} rarity
+     * @param {Object} boxedItemsPerRarity
+     * @return {boolean}
+     * @private
+     */
     _calculateItemBoxed(rarity, boxedItemsPerRarity) {
         const rarityConfig = this.city.itemsRarity[rarity];
 
@@ -197,6 +238,11 @@ class AuctionController {
         return weighted.select(options, weights);
     }
 
+    /**
+     * @param {Object} itemsPerRarity
+     * @return {string}
+     * @private
+     */
     _pickItemRarity(itemsPerRarity) {
         //Probabilidade / MaxItems * (MaxItems - NumeroJaSorteado * OnOrOff) * Modifier ^ NumeroJaSorteado
         const weightedOptions = {};
@@ -216,20 +262,24 @@ class AuctionController {
         });
 
         weightedOptions['Common'] = 1 - lodash.sum(lodash.map(weightedOptions));
-        logger.debug(`probabilities ${JSON.stringify(weightedOptions)}`);
+        this.logger.debug(`probabilities ${JSON.stringify(weightedOptions)}`);
 
         return weighted.select(weightedOptions);
     }
 
+    /**
+     * Computes a player's bid.
+     * @param {string} playerId
+     */
     bid(playerId) {
-        logger.debug(`Player ${playerId} trying to bid ${this._getCurrentLot().nextBidValue}`);
+        this.logger.debug(`Player ${playerId} trying to bid ${this._getCurrentLot().nextBidValue}`);
 
         if (this._getCurrentLot().bidOwner === playerId) {
-            logger.debug(`Ignoring bid. Player ${playerId} is already winning`);
+            this.logger.debug(`Ignoring bid. Player ${playerId} is already winning`);
             return;
         }
         if (this.state.players[playerId].money < this._getCurrentLot().nextBidValue) {
-            logger.debug(`Ignoring bid. Player ${playerId} has no money (${this.state.players[playerId].money}) for this bid ${this._getCurrentLot().nextBidValue}`);
+            this.logger.debug(`Ignoring bid. Player ${playerId} has no money (${this.state.players[playerId].money}) for this bid ${this._getCurrentLot().nextBidValue}`);
             return;
         }
 
@@ -240,9 +290,15 @@ class AuctionController {
         this.bidInterval.addBid(playerId);
     }
 
+    /**
+     * Increments "dole" counter and finishes lot / starts new one when necessary.
+     * @private
+     */
     _runDole() {
-        logger.debug(`countdown on current LOT : ${this._getCurrentLot().dole}`);
-        if (this._getCurrentLot().dole === 3) {
+        const currentLot = this._getCurrentLot();
+        this.logger.debug(`Lot ${this.state.currentLot} current countdown: ${currentLot.dole}`);
+
+        if (currentLot.dole === 3) {
             if (this.bidIntervalTimeout !== null) {
                 this.bidIntervalTimeout.clear();
                 this.finishBidInterval();
@@ -255,19 +311,23 @@ class AuctionController {
                     this.lotStartTimeout = this.room.clock.setTimeout(() => this._startInspect(true), Config.game.forceLotStartTimeout);
                 } else {
                     this._finishAuction().catch(error => {
-                        logger.error('Error while finishing auction.', error);
+                        this.logger.error('Error while finishing auction.', error);
                     });
                 }
             }
 
         } else {
-            this._getCurrentLot().dole++;
+            currentLot.dole++;
             this.lotEndTimeout = this.room.clock.setTimeout(() => this._runDole(), Config.game.auctionDoleDuration);
         }
     }
 
+    /**
+     * Checks if all players are ready for the lot to start.
+     * @param {string} playerId
+     */
     tryToStartLot(playerId) {
-        logger.debug(`Player ${playerId} ready, trying to start lot ${this.state.currentLot}`);
+        this.logger.debug(`Player ${playerId} ready, trying to start lot ${this.state.currentLot}`);
         this.playersLotReady[playerId] = true;
 
         let canStart = true;
@@ -282,12 +342,17 @@ class AuctionController {
         }
     }
 
+    /**
+     * Starts inspection state.
+     * @param {boolean} forced
+     * @private
+     */
     _startInspect(forced) {
         const lotIndex = this.state.currentLot;
 
         if (this.state.lots[lotIndex].status !== auctionStatus.INSPECT) {
             this.state.lots[lotIndex].status = auctionStatus.INSPECT;
-            logger.debug(`Starting Inspect stage on LOT ${lotIndex} (forced? ${forced})`);
+            this.logger.debug(`Starting ${auctionStatus.INSPECT} stage on LOT ${lotIndex} (forced? ${forced})`);
 
             if (this.lotStartTimeout !== null) {
                 this.lotStartTimeout.clear();
@@ -297,11 +362,20 @@ class AuctionController {
         }
     }
 
+    /**
+     * @param {number} lotIndex
+     * @private
+     */
     _startLot(lotIndex) {
-        logger.debug(`Starting LOT ${lotIndex}`);
+        this.logger.debug(`Starting LOT ${lotIndex}`);
         this.state.lots[lotIndex].status = auctionStatus.PLAY;
     }
 
+    /**
+     * Finishes a lot, preparing the auction state for the next lot and decrementing the lot winner's money.
+     * @param {number} lotIndex
+     * @private
+     */
     _finishLot(lotIndex) {
         let endingLot = this.state.lots[lotIndex];
         endingLot.status = auctionStatus.FINISHED;
@@ -316,6 +390,10 @@ class AuctionController {
         }
     }
 
+    /**
+     * @param {Object} rewards
+     * @private
+     */
     _assertUsersHaveMinimumRequiredMoney(rewards) {
         lodash.forEach(rewards, (reward, userId) => {
             const player = lodash.find(this.state.players, player => player.firebaseId === userId);
@@ -326,6 +404,9 @@ class AuctionController {
         });
     }
 
+    /**
+     * @private
+     */
     _calculateRewards() {
         const endGameResults = {};
         lodash.each(this.state.players, player => {
@@ -368,7 +449,7 @@ class AuctionController {
         });
 
         const resultsOrdered = lodash.sortBy(endGameResults, reward => -reward.score);
-        logger.debug(`Game Ended. Results: ${JSON.stringify(resultsOrdered)}`);
+        this.logger.debug(`Game Ended. Results: ${JSON.stringify(resultsOrdered)}`);
 
         const rewards = {};
         lodash.each(resultsOrdered, (result, idx) => {
@@ -389,10 +470,15 @@ class AuctionController {
             this.state.players[result.playerId].trophiesEarned = trophies;
         });
 
-        logger.debug(`Sending rewards ${JSON.stringify(rewards)}`);
+        this.logger.debug(`Sending rewards ${JSON.stringify(rewards)}`);
         return rewards;
     }
 
+    /**
+     * End the current auction and send the player's rewards.
+     * @return {Promise<void>}
+     * @private
+     */
     async _finishAuction() {
         this.state.status = auctionStatus.FINISHED;
 
@@ -407,7 +493,7 @@ class AuctionController {
                     const client = lodash.find(this.room.clients, client => client.id === player.id);
                     this.room.send(client, JSON.stringify({rank: rank}));
 
-                    logger.info(`Player ${firebaseId} was rewarded the rank ${rank}`);
+                    this.logger.info(`Player ${firebaseId} was rewarded the rank ${rank}`);
                 });
             }
 
@@ -415,7 +501,7 @@ class AuctionController {
 
         } catch (error) {
             // TODO: Retry sending rewards later?
-            logger.critical(`Failed to save rewards. Error: ${error.message} - ${error.stack}`, rewards);
+            this.logger.critical(`Failed to save rewards. Error: ${error.message} - ${error.stack}`, rewards);
         }
     }
 }

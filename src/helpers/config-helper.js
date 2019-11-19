@@ -2,7 +2,8 @@
 
 const lodash  = require('lodash');
 const { Logger } = require('@tapps-games/logging');
-const logger = new Logger();
+
+const logger = new Logger('ConfigHelper');
 
 /** @ignore */
 let _config = null;
@@ -17,8 +18,8 @@ let _itemRarities;
  * @property {number[]} availableItems
  * @property {number} minimumMoney
  * @property {number} maximumMoney
- * @property {number} minimumItemsPerLot
- * @property {number} maximumItemsPerLot
+ * @property {number} minimumItemsInLot
+ * @property {number} maximumItemsInLot
  * @property {number} minimumBoxesPerLot
  * @property {number} maximumBoxesPerLot
  * @property {Object<string, ItemRarity>} itemsRarity
@@ -94,6 +95,10 @@ let _itemRarities;
 
 class Config {
 
+    /**
+     * Updates the current config values
+     * @param {Object} config
+     */
     static set(config) {
         _itemRarities = lodash.uniqBy(config.items, 'rarity').map(item => item.rarity);
 
@@ -172,6 +177,10 @@ class Config {
     }
 }
 
+/**
+ * @param {Object} config
+ * @private
+ */
 function _separateCityItemsPerRarity(config) {
     lodash.each(_itemRarities, rarity => {
         const itemsForRarity = lodash.filter(config.items, item => item.rarity === rarity).map(item => item.id);

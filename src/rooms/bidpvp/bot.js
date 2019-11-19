@@ -43,7 +43,7 @@ class Bot {
      * @return {Promise<void>}
      */
     async joinRoom(roomId) {
-        this.logger = new Logger('', { botId: this.id, room: roomId });
+        this.logger = new Logger('Bot', { botId: this.id, room: roomId });
         this.logger.info(`Adding bot: ${this.id} to room: ${roomId}`);
 
         /** @type {Room} */

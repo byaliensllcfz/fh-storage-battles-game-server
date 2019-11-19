@@ -7,28 +7,30 @@ const { Room } = require('colyseus');
 const { LobbyState } = require('./schemas/lobby-state');
 const { Config } = require('../../helpers/config-helper');
 
-const logger = new Logger();
-
 class LobbyRoom extends Room {
     onCreate(options) {
-        logger.info(`Room Init ${JSON.stringify(options)} - ${this.roomId}`, { room: this.roomId });
 
         this.setState(new LobbyState());
         this.setPatchRate(1000 / 20);
+
+        /** @type {Logger} */
+        this.logger = new Logger('LobbyRoom', { room: this.roomId });
+
+        this.logger.info(`Room Init ${JSON.stringify(options)} - ${this.roomId}`);
     }
 
     onJoin(client, options) {
-        logger.info(`Client: ${client} joined. ${JSON.stringify(options)}`, { room: this.roomId });
+        this.logger.info(`Client: ${client} joined. ${JSON.stringify(options)}`);
 
         this.sendConfig(client);
     }
 
     onMessage(client, message) {
-        logger.info(`Client: ${client.id} sent message ${JSON.stringify(message)}`, { room: this.roomId });
+        this.logger.info(`Client: ${client.id} sent message ${JSON.stringify(message)}`);
     }
 
     onLeave(client, consented) {
-        logger.info(`Client: ${client} left. consented? ${consented}`, { room: this.roomId });
+        this.logger.info(`Client: ${client} left. consented? ${consented}`);
     }
 
     onDispose() {

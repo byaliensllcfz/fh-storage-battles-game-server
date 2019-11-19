@@ -12,17 +12,14 @@ const { AuctionController } = require('./controllers/auction-controller');
 const { handleAuctionCommand } = require('./handlers/auction-handler');
 const { Config }  = require('../../helpers/config-helper');
 
-const logger = new Logger();
-
 class BidPvpRoom extends Room {
 
     onCreate(options) {
-        logger.info(`Room Init ${JSON.stringify(options)} - ${this.roomId}`, { room: this.roomId });
-
         this.setState(new AuctionState());
         this.setPatchRate(1000 / 20);
 
         const cityId = options.city;
+        /** @type {AuctionController} */
         this.auctionController = new AuctionController(this, cityId);
 
         /** @type {Object} */
@@ -30,6 +27,11 @@ class BidPvpRoom extends Room {
 
         /** @type {Object<string, Bot>} */
         this.bots = {};
+
+        /** @type {Logger} */
+        this.logger = new Logger('BidPvpRoom', { room: this.roomId });
+
+        this.logger.info(`Room Init ${JSON.stringify(options)} - ${this.roomId}`);
 
         // TODO put this ona  config
         this.setSeatReservationTime(5);
@@ -41,7 +43,7 @@ class BidPvpRoom extends Room {
     }
 
     async onJoin(client, options) {
-        logger.info(`Client: ${client.id} joined. ${JSON.stringify(options)}`, { room: this.roomId });
+        this.logger.info(`Client: ${client.id} joined. ${JSON.stringify(options)}`);
 
         this.state.players[client.id] = new PlayerState({
             id: client.id,
@@ -61,17 +63,17 @@ class BidPvpRoom extends Room {
     }
 
     onMessage(client, message) {
-        logger.info(`Client: ${client.id} sent message ${JSON.stringify(message)}`, { room: this.roomId });
+        this.logger.info(`Client: ${client.id} sent message ${JSON.stringify(message)}`);
 
         if (this.locked) {
             handleAuctionCommand(this, client.id, message).catch(error => {
-                logger.error(`Error handling message: ${message} from player: ${client.id}.`, error);
+                this.logger.error(`Error handling message: ${message} from player: ${client.id}.`, error);
             });
         }
     }
 
     async onLeave(client, consented) {
-        logger.info(`Client: ${client.id} left. Consented: ${consented}`, { room: this.roomId });
+        this.logger.info(`Client: ${client.id} left. Consented: ${consented}`);
         this.state.players[client.id].connected = false;
 
         try {
@@ -88,7 +90,7 @@ class BidPvpRoom extends Room {
     }
 
     onDispose() {
-        logger.info('Room disposed', { room: this.roomId });
+        this.logger.info('Room disposed');
     }
 
     _setAddBotTimeout() {
@@ -99,6 +101,8 @@ class BidPvpRoom extends Room {
 
     /**
      * Instantiates a new bot and adds it to the room.
+     * @return {Promise<void>}
+     * @private
      */
     async _addBot() {
         delete this.addBotTimeout;
