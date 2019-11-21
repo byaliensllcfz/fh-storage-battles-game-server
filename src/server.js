@@ -9,7 +9,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 
 const http = require('http');
-const { Server } = require('colyseus');
+const { Server, matchMaker } = require('colyseus');
 const monitor = require('@colyseus/monitor').monitor;
 
 const BidPvpRoom = require('./rooms/bidpvp/bidpvp-room');
@@ -17,6 +17,8 @@ const LobbyRoom = require('./rooms/lobby/lobby-room');
 
 const configDao = require('./daos/config-dao');
 const { Config } = require('./helpers/config-helper');
+
+const { LocalDriver } = require('colyseus/lib/matchmaker/drivers/LocalDriver');
 
 const logger = new Logger();
 
@@ -26,12 +28,15 @@ async function createServer() {
     app.disable('x-powered-by');
     app.enable('trust proxy');
 
+    const driver = new LocalDriver();
+
     const gameServer = new Server({
+        driver: driver,
         server: http.createServer(app),
         express: app,
     });
 
-    gameServer.define('bidpvp', BidPvpRoom);
+    gameServer.define('bidpvp', BidPvpRoom).filterBy(['city']);
     gameServer.define('lobby', LobbyRoom);
 
     app.use(bodyParser.json({ limit: '10mb' }));
@@ -44,7 +49,7 @@ async function createServer() {
     //gets all DB configs and cache it
     await _loadConfig();
 
-    app.use(middlewares.validateSharedCloudSecret());
+    //app.use(middlewares.validateSharedCloudSecret());
 
     // register colyseus monitor AFTER registering your room handlers
     app.use('/colyseus', monitor(gameServer));
@@ -52,6 +57,25 @@ async function createServer() {
     app.get('/configs/reload', utils.asyncRoute(async (_req, res) => {
         await _loadConfig();
         res.send('configs reloaded');
+    }));
+
+    app.post('/reserve', utils.asyncRoute(async (req, res) => {
+        let reservation;
+
+        const options = {
+            userId: req.body.userId,
+            character: req.body.character,
+            city: req.body.cityId,
+        };
+
+        try {
+            reservation = await matchMaker.join('bidpvp', options);
+        }
+        catch (e) {
+            reservation = await matchMaker.create('bidpvp', options);
+        }
+
+        res.send(reservation);
     }));
 
     app.use(middlewares.notFoundHandler());
