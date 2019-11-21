@@ -67,7 +67,7 @@ class AuctionController {
                 const playerState = lodash.find(profiles, profileData => profileData.profile.gameUserId === player.firebaseId);
                 player.name = playerState.profile.alias;
                 player.photoUrl = playerState.profile.picture;
-                player.money = playerState.currencies.softCurrency;
+                player.money = lodash.min([playerState.currencies.softCurrency, this.city.maximumMoney]);
             }
         });
 
