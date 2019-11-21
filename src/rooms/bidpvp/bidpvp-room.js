@@ -24,7 +24,7 @@ class BidPvpRoom extends Room {
         this.setPatchRate(1000 / 20);
 
         //TODO get city on options from room creation at matchmaking
-        const cityId = lodash.values(Config.cities)[0];
+        const cityId = lodash.values(Config.cities)[0].id;
         this.auctionController = new AuctionController(this, cityId);
 
         /** @type {Object} */
