@@ -2,10 +2,8 @@
 
 const lodash = require('lodash');
 const weighted = require('weighted');
-
 const { MapSchema } = require('@colyseus/schema');
 const { Logger } = require('@tapps-games/logging');
-const logger = new Logger();
 
 const profileDao = require('../../../daos/profile-dao');
 const rewardDao = require('../../../daos/reward-dao');
@@ -14,6 +12,8 @@ const { BidInterval } = require('../../../helpers/bid-interval');
 const { Config } = require('../../../helpers/config-helper');
 const { LotState } = require('../schemas/lot-state');
 const { BoxState } = require('../schemas/box-state');
+
+const logger = new Logger();
 
 class AuctionController {
     constructor(room, cityId) {
