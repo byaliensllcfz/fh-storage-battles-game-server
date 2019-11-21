@@ -346,8 +346,13 @@ class AuctionController {
 
                 playerResult.price += lotState.bidValue;
                 playerResult.score += lotState.lotItemsPrice - lotState.bidValue;
+
                 lodash.each(lotState.items, itemId => {
                     playerResult.items[itemId] = (playerResult.items[itemId] || 0) + 1;
+                });
+
+                lodash.each(lotState.boxes, (boxState, _idx) => {
+                    playerResult.items[boxState.itemId] = (playerResult.items[boxState.itemId] || 0) + 1;
                 });
             }
         });

@@ -5,7 +5,6 @@ const uuid = require('uuid/v4');
 const { Room } = require('colyseus');
 const { Logger } = require('@tapps-games/logging');
 
-const authDao = require('../../daos/auth-dao');
 const { Bot } = require('./bot');
 const { AuctionState } = require('./schemas/auction-state');
 const { PlayerState } = require('./schemas/player-state');
@@ -23,8 +22,7 @@ class BidPvpRoom extends Room {
         this.setState(new AuctionState());
         this.setPatchRate(1000 / 20);
 
-        //TODO get city on options from room creation at matchmaking
-        const cityId = lodash.values(Config.cities)[0].id;
+        const cityId = options.city;
         this.auctionController = new AuctionController(this, cityId);
 
         /** @type {Object} */
@@ -32,25 +30,18 @@ class BidPvpRoom extends Room {
 
         /** @type {Object<string, Bot>} */
         this.bots = {};
+
+        // TODO put this ona  config
+        this.setSeatReservationTime(5);
     }
 
-    async onAuth(_client, options) {
-        if (options.clientWeb || options.bot) {
-            return true;
-        }
-
-        if (options.userToken) {
-            return await authDao.validateToken(options.userToken);
-        }
+    // Authentication on matchmaking now
+    async onAuth(_client, _options) {
+        return true;
     }
 
     async onJoin(client, options) {
         logger.info(`Client: ${client.id} joined. ${JSON.stringify(options)}`, { room: this.roomId });
-
-        if (options.userToken) {
-            const data = await authDao.validateToken(options.userToken);
-            options.userId = data['game-user-id-data'].uid;
-        }
 
         this.state.players[client.id] = new PlayerState({
             id: client.id,
