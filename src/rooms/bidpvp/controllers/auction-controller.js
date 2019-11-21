@@ -316,6 +316,16 @@ class AuctionController {
         }
     }
 
+    _assertUsersHaveMinimumRequiredMoney(rewards) {
+        lodash.forEach(rewards, (reward, userId) => {
+            const player = lodash.find(this.state.players, player => player.firebaseId === userId);
+
+            if (player.money < this.city.minimumMoney) {
+                reward.price = player.money + reward.price - this.city.minimumMoney;
+            }
+        });
+    }
+
     _calculateRewards() {
         const endGameResults = {};
         lodash.each(this.state.players, player => {
@@ -365,7 +375,7 @@ class AuctionController {
 
             let trophies = this.city.trophyRewards[idx];
             if (idx > 0 && result.score === resultsOrdered[idx -1].score) {
-                trophies = rewards[resultsOrdered[idx -1].firebaseId].trophies;
+                trophies = this.city.trophyRewards[idx - 1];
             }
 
             if (!result.isBot) {
@@ -387,6 +397,7 @@ class AuctionController {
         this.state.status = auctionStatus.FINISHED;
 
         const rewards = this._calculateRewards();
+        this._assertUsersHaveMinimumRequiredMoney(rewards); // TODO: Remove this once users have other means to earn money.
         try {
             const response = await rewardDao.saveRewards(rewards);
 
