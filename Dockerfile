@@ -13,6 +13,7 @@ ENV NPM_TOKEN KzUrhGQgrXyZdD3JKETT2q1ihhtQ3dfcPQHj3UQqV18=
 ENV NODE_ENV production
 
 EXPOSE 2567
+EXPOSE 8081
 
 RUN yarn --unsafe-perms --frozen-lockfile || \
   ((if [ -f yarn-debug.log ]; then \
