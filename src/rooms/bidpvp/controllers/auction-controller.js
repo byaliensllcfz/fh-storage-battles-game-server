@@ -62,12 +62,16 @@ class AuctionController {
                 player.name = bot.name;
                 player.photoUrl = bot.profilePicture;
                 player.money = bot.startingMoney;
-
-            } else {
+                player.trophies = bot.trophies;
+                player.rank = bot.rank;
+            }
+            else {
                 const playerState = lodash.find(profiles, profileData => profileData.profile.gameUserId === player.firebaseId);
                 player.name = playerState.profile.alias;
                 player.photoUrl = playerState.profile.picture;
                 player.money = lodash.min([playerState.currencies.softCurrency, this.city.maximumMoney]);
+                player.trophies = playerState.currencies.trophies;
+                player.rank = playerState.currencies.rank;
             }
         });
 

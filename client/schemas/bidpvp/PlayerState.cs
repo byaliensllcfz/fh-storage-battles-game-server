@@ -32,4 +32,10 @@ public class PlayerState : Schema {
 	[Type(7, "int32")] 
 	public int trophiesEarned = 0;
 
+	[Type(8, "int32")] 
+	public int trophies = 0;
+
+	[Type(9, "int8")] 
+	public int rank = 0;
+
 }
