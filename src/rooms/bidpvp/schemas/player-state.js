@@ -35,6 +35,12 @@ class PlayerState extends Schema {
 
         /** @type {boolean} */
         this.isBot = options.isBot || false;
+
+        /** @type {number} */
+        this.trophies = 0;
+
+        /** @type {number} */
+        this.rank = 0;
     }
 }
 
@@ -46,6 +52,8 @@ type('int32')(PlayerState.prototype, 'lastBid');
 type('string')(PlayerState.prototype, 'character');
 type('boolean')(PlayerState.prototype, 'connected');
 type('int32')(PlayerState.prototype, 'trophiesEarned');
+type('int32')(PlayerState.prototype, 'trophies');
+type('int8')(PlayerState.prototype, 'rank');
 
 module.exports = {
     PlayerState,

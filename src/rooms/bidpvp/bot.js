@@ -35,6 +35,32 @@ class Bot {
 
         /** @type {number} */
         this.money = this.startingMoney;
+
+        /** @type {number} */
+        this.trophies = 0;
+
+        /** @type {number} */
+        this.rank = 1;
+
+        this._generateRandkAndTrophies();
+    }
+
+    _generateRandkAndTrophies() {
+        const milestonesOrdered = lodash.sortBy(Config.milestones, milestone => milestone.trophies);
+
+        for (let i=0; i< milestonesOrdered.length; i++) {
+            if (!lodash.isEmpty(milestonesOrdered[i].cities) && lodash.find(milestonesOrdered[i].cities, city => city === this.city.id)) {
+                const initTrophies = milestonesOrdered[i].trophies;
+                this.rank = milestonesOrdered[i].rank;
+
+                if (milestonesOrdered[i+1]) {
+                    this.trophies = lodash.random(initTrophies, milestonesOrdered[i+1].trophies);
+                }
+                else {
+                    this.trophies = lodash.random(initTrophies, initTrophies*2);
+                }
+            }
+        }
     }
 
     /**
