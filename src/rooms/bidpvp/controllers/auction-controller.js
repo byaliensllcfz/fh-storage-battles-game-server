@@ -491,7 +491,13 @@ class AuctionController {
                 lodash.forEach(response, (rank, firebaseId) => {
                     const player = lodash.find(this.state.players, player => player.firebaseId === firebaseId);
                     const client = lodash.find(this.room.clients, client => client.id === player.id);
-                    this.room.send(client, JSON.stringify({rank: rank}));
+
+                    if (!client || !player.connected) {
+                        this.logger.info(`Player ${firebaseId} is disconnected. Unable to send rank-up message.`);
+
+                    } else {
+                        this.room.send(client, JSON.stringify({ rank: rank }));
+                    }
 
                     this.logger.info(`Player ${firebaseId} was rewarded the rank ${rank}`);
                 });

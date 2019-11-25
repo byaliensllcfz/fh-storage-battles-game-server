@@ -20,7 +20,7 @@ class LobbyRoom extends Room {
     }
 
     onJoin(client, options) {
-        this.logger.info(`Client: ${client} joined. ${JSON.stringify(options)}`);
+        this.logger.info(`Client: ${client.id} joined. ${JSON.stringify(options)}`);
 
         this.sendConfig(client);
     }
@@ -30,7 +30,7 @@ class LobbyRoom extends Room {
     }
 
     onLeave(client, consented) {
-        this.logger.info(`Client: ${client} left. consented? ${consented}`);
+        this.logger.info(`Client: ${client.id} left. consented? ${consented}`);
     }
 
     onDispose() {
