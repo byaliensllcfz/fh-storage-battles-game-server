@@ -67,7 +67,7 @@ class BidPvpRoom extends Room {
 
         if (this.locked) {
             handleAuctionCommand(this, client.id, message).catch(error => {
-                this.logger.error(`Error handling message: ${message} from player: ${client.id}.`, error);
+                this.logger.error(`Error handling message: ${JSON.stringify(message)} from player: ${client.id}.`, error);
             });
         }
     }
