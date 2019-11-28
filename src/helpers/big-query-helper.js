@@ -25,8 +25,16 @@ function _jsonToRecord(json) {
 
         if (lodash.isInteger(value)) {
             param.integer_value = value;
+
         } else if (lodash.isNumber(value)) {
             param.float_value = value;
+
+        } else if (lodash.isArray(value)) {
+            param.string_value = JSON.stringify(value);
+
+        } else if (lodash.isObject(value)) {
+            param.string_value = JSON.stringify(value);
+
         } else {
             param.string_value = value;
         }
