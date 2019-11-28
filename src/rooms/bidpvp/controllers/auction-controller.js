@@ -421,6 +421,7 @@ class AuctionController {
                 price: 0,
                 score: 0,
                 items: {},
+                trophies: 0,
             };
         });
 
@@ -459,9 +460,12 @@ class AuctionController {
         lodash.each(resultsOrdered, (result, idx) => {
 
             let trophies = this.city.trophyRewards[idx];
+
             if (idx > 0 && result.score === resultsOrdered[idx -1].score) {
-                trophies = this.city.trophyRewards[idx - 1];
+                trophies = resultsOrdered[idx - 1].trophies;
             }
+
+            resultsOrdered[idx].trophies = trophies;
 
             if (!result.isBot) {
                 rewards[result.firebaseId] = {
