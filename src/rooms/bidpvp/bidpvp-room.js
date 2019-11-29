@@ -5,6 +5,7 @@ const uuid = require('uuid/v4');
 const { Room } = require('colyseus');
 const { Logger } = require('@tapps-games/logging');
 
+const bigQueryHelper = require('../../helpers/big-query-helper');
 const { Bot } = require('./bot');
 const { AuctionState } = require('./schemas/auction-state');
 const { PlayerState } = require('./schemas/player-state');
@@ -33,7 +34,7 @@ class BidPvpRoom extends Room {
 
         this.logger.info(`Room Init ${JSON.stringify(options)} - ${this.roomId}`);
 
-        // TODO put this ona  config
+        // TODO put this on a config
         this.setSeatReservationTime(5);
     }
 
@@ -75,6 +76,20 @@ class BidPvpRoom extends Room {
     async onLeave(client, consented) {
         this.logger.info(`Client: ${client.id} left. Consented: ${consented}`);
         this.state.players[client.id].connected = false;
+        this.state.players[client.id].interruptions += 1;
+
+        await bigQueryHelper.insert({
+            eventName: 'match_interrupted',
+            eventParams: {
+                arena: this.auctionController.city.id,
+                room_id: this.id,
+                entry_fee: this.auctionController.city.minimumMoney,
+                interrupted_at_locked: this.state.currentLot,
+                current_cash: this.state.players[client.id].money,
+                consented,
+                interruption_number: this.state.players[client.id].interruptions,
+            },
+        });
 
         try {
             if (!consented) {
@@ -82,6 +97,7 @@ class BidPvpRoom extends Room {
 
                 // The client has reconnected
                 this.state.players[client.id].connected = true;
+                this.state.players[client.id].reconnections += 1;
             }
         }
         catch (e) {
@@ -89,7 +105,7 @@ class BidPvpRoom extends Room {
         }
     }
 
-    onDispose() {
+    async onDispose() {
         this.logger.info('Room disposed');
     }
 

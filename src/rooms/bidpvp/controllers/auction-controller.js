@@ -5,6 +5,7 @@ const weighted = require('weighted');
 const { MapSchema } = require('@colyseus/schema');
 const { Logger } = require('@tapps-games/logging');
 
+const bigQueryHelper = require('../../helpers/big-query-helper');
 const profileDao = require('../../../daos/profile-dao');
 const rewardDao = require('../../../daos/reward-dao');
 const { auctionStatus } = require('../../../types');
@@ -30,7 +31,10 @@ class AuctionController {
         this._started = false;
         this.playersLotReady = {};
 
+        /** @type {number} */
         this.lotsAmount = Config.game.lotsAmount;
+
+        /** @type {CityConfig} */
         this.city = Config.cities[cityId];
 
         this.logger = new Logger('AuctionController', { room: this.room.id });
@@ -411,7 +415,7 @@ class AuctionController {
     /**
      * @private
      */
-    _calculateRewards() {
+    async _calculateRewards() {
         const endGameResults = {};
         lodash.each(this.state.players, player => {
             endGameResults[player.firebaseId] = {
@@ -422,6 +426,7 @@ class AuctionController {
                 score: 0,
                 items: {},
                 trophies: 0,
+                position: 0,
             };
         });
 
@@ -461,11 +466,12 @@ class AuctionController {
 
             let trophies = this.city.trophyRewards[idx];
 
-            if (idx > 0 && result.score === resultsOrdered[idx -1].score) {
+            if (idx > 0 && result.score === resultsOrdered[idx - 1].score) {
                 trophies = resultsOrdered[idx - 1].trophies;
             }
 
             resultsOrdered[idx].trophies = trophies;
+            resultsOrdered[idx].position = lodash.indexOf(this.city.trophyRewards, trophies);
 
             if (!result.isBot) {
                 rewards[result.firebaseId] = {
@@ -477,6 +483,52 @@ class AuctionController {
 
             this.state.players[result.playerId].trophiesEarned = trophies;
         });
+
+        const eventParams = {
+            arena: this.city.id,
+            room_id: this.room.id,
+            entry_fee: this.city.minimumMoney,
+            total_bots: lodash.keys(this.room.bots.length).length,
+            user_ids: [],
+            total_trophies: [],
+            position: [],
+            match_profit: [],
+            lockers_purchased: [],
+            interrupted: [],
+            reconnected: [],
+        };
+
+        lodash.forEach(resultsOrdered, result => {
+            const playerState = this.state.players[result.playerId];
+            eventParams.user_ids.push(result.firebaseId);
+            eventParams.total_trophies.push(playerState.trophies + result.trophies);
+            eventParams.position.push(result.position);
+            eventParams.interrupted.push(playerState.interruptions);
+            eventParams.interrupted.push(playerState.reconnections);
+
+            let lockersPurchased = 0;
+            lodash.forEach(this.state.lots, lot => {
+                if (lot.bidOwner === playerState.id) {
+                    lockersPurchased += 1;
+                }
+            });
+            eventParams.lockers_purchased.push(lockersPurchased);
+
+            let itemsValue = 0;
+            lodash.forEach(result.items, (quantity, id) => {
+                itemsValue += quantity * Config.getItem(id).price;
+            });
+            eventParams.match_profit.push(itemsValue - result.price);
+        });
+
+        try {
+            await bigQueryHelper.insert({
+                eventName: 'match_finished',
+                eventParams,
+            });
+        } catch (error) {
+            this.logger.error('Failed to log match finished analytics.', error);
+        }
 
         this.logger.debug(`Sending rewards ${JSON.stringify(rewards)}`);
         return rewards;
@@ -490,8 +542,9 @@ class AuctionController {
     async _finishAuction() {
         this.state.status = auctionStatus.FINISHED;
 
-        const rewards = this._calculateRewards();
+        const rewards = await this._calculateRewards();
         this._assertUsersHaveMinimumRequiredMoney(rewards); // TODO: Remove this once users have other means to earn money.
+
         try {
             const response = await rewardDao.saveRewards(rewards);
 

@@ -41,6 +41,12 @@ class PlayerState extends Schema {
 
         /** @type {number} */
         this.rank = 0;
+
+        /** @type {number} */
+        this.interruptions = 0;
+
+        /** @type {number} */
+        this.reconnections = 0;
     }
 }
 
