@@ -5,7 +5,7 @@ const weighted = require('weighted');
 const { MapSchema } = require('@colyseus/schema');
 const { Logger } = require('@tapps-games/logging');
 
-const bigQueryHelper = require('../../helpers/big-query-helper');
+const bigQueryHelper = require('../../../helpers/big-query-helper');
 const profileDao = require('../../../daos/profile-dao');
 const rewardDao = require('../../../daos/reward-dao');
 const { auctionStatus } = require('../../../types');
