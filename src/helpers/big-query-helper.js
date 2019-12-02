@@ -23,20 +23,19 @@ function _jsonToRecord(json) {
     return lodash.map(json, (value, key) => {
         const param = { key };
 
+        let valueObject = {};
+        param.value = valueObject;
         if (lodash.isInteger(value)) {
-            param.integer_value = value;
+            valueObject.int_value = value;
 
         } else if (lodash.isNumber(value)) {
-            param.float_value = value;
+            valueObject.float_value = value;
 
         } else if (lodash.isArray(value)) {
-            param.string_value = JSON.stringify(value);
-
-        } else if (lodash.isObject(value)) {
-            param.string_value = JSON.stringify(value);
+            valueObject.string_value = JSON.stringify(value);
 
         } else {
-            param.string_value = value;
+            valueObject.string_value = JSON.stringify(value);
         }
 
         return param;
@@ -61,11 +60,11 @@ async function insert(options) {
         event_value_in_usd: 0,
         user_ids: JSON.stringify(options.userIds),
         user_properties: _jsonToRecord(options.userProperties),
-        server_info: _jsonToRecord({
+        server_info: {
             version: config.get('serviceDeployVersion'),
             colyseus_version: packageJson.dependencies.colyseus,
             instance: process.env.GAE_INSTANCE,
-        }),
+        },
     });
 }
 

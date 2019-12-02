@@ -486,7 +486,7 @@ class AuctionController {
 
         const eventParams = {
             arena: this.city.id,
-            room_id: this.room.id,
+            room_id: this.room.roomId,
             entry_fee: this.city.minimumMoney,
             total_bots: lodash.keys(this.room.bots.length).length,
             user_ids: [],
@@ -504,7 +504,7 @@ class AuctionController {
             eventParams.total_trophies.push(playerState.trophies + result.trophies);
             eventParams.position.push(result.position);
             eventParams.interrupted.push(playerState.interruptions);
-            eventParams.interrupted.push(playerState.reconnections);
+            eventParams.reconnected.push(playerState.reconnections);
 
             let lockersPurchased = 0;
             lodash.forEach(this.state.lots, lot => {
@@ -525,6 +525,7 @@ class AuctionController {
             await bigQueryHelper.insert({
                 eventName: 'match_finished',
                 eventParams,
+                userIds: eventParams.user_ids,
             });
         } catch (error) {
             this.logger.error('Failed to log match finished analytics.', error);
