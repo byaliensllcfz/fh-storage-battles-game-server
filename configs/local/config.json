@@ -2,5 +2,5 @@
     "serverEnableDatadog" : false,
     "loggingEnableConsole" : true,
     "apiUrl": "http://localhost:8080",
-    "bundleId": "com.megastorm.bidpvp"
+    "bundleId": "com.megastorm.bidpvp.powerups"
 }
