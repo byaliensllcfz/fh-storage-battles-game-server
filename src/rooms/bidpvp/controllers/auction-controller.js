@@ -406,8 +406,9 @@ class AuctionController {
         lodash.forEach(rewards, (reward, userId) => {
             const player = lodash.find(this.state.players, player => player.firebaseId === userId);
 
-            if (player.money < this.city.minimumMoney) {
-                reward.price = player.money + reward.price - this.city.minimumMoney;
+            const city = lodash.sortBy(Config.cities, city => city.minimumMoney)[0];
+            if (player.money < city.minimumMoney) {
+                reward.price = player.money + reward.price - city.minimumMoney;
             }
         });
     }
