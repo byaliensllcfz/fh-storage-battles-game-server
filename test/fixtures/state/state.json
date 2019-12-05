@@ -1,0 +1,50 @@
+{
+    "status": "PLAY",
+    "currentLot": 0,
+    "lots": [
+      {
+        "bidValue": 0,
+        "nextBidValue": 150,
+        "bidOwner": "",
+        "dole": 0,
+        "items": {
+          "0": "item032",
+          "1": "item039",
+          "2": "item044",
+          "3": "item026",
+          "4": "item006",
+          "5": "item063",
+          "6": "item098"
+        },
+        "boxes": {
+          "0": {
+            "boxId": "MHorizontal"
+          }
+        },
+        "status": "PLAY",
+        "lotItemsPrice": 0
+      }
+    ],
+    "players": {
+      "xfSB3PMvG": {
+        "id": "xfSB3PMvG",
+        "name": "",
+        "photoUrl": "",
+        "money": 1000,
+        "character": "Character Two",
+        "connected": true,
+        "trophies": 0,
+        "rank": 0
+      },
+      "abcdHfSta": {
+        "id": "abcdHfSta",
+        "name": "",
+        "photoUrl": "",
+        "money": 1000,
+        "character": "Character Two",
+        "connected": true,
+        "trophies": 0,
+        "rank": 0
+      }
+    }
+  }

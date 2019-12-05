@@ -1,0 +1,19 @@
+{
+    "allowReconnectionTimeSeconds": 20,
+    "auctionAfterBidDuration": 5000,
+    "auctionDoleDuration": 2000,
+    "auctionInitialDuration": 5000,
+    "bidBaseIncrement": 50,
+    "bidBaseMultiplier": 2,
+    "bidRepeatValue": 4,
+    "bidCooldown": 500,
+    "bidTimeTolerance": 500,
+    "characters": ["a", "b"],
+    "forceLotStartTimeout": 5000,
+    "inspectDuration": 4000,
+    "lotsAmount": 1,
+    "maxPlayers": 2,
+    "maximumInitialBidPercentage": 10,
+    "minimumInitialBidPercentage": 20,
+    "overbidWindow": 500
+}

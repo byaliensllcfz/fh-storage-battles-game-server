@@ -1,0 +1,62 @@
+{
+    "common01": {
+        "id": "common01",
+        "name": "Flip Flop",
+        "archive": "FlipFlop",
+        "category": "miscellaneous",
+        "pawnTimerSeconds": 60,
+        "price": 5,
+        "boxType": "SSquare",
+        "rarity": "Common"
+    },
+    "common02": {
+        "id": "common02",
+        "name": "Plunger",
+        "archive": "Plunger",
+        "category": "miscellaneous",
+        "pawnTimerSeconds": 60,
+        "price": 5,
+        "boxType": "SVertical",
+        "rarity": "Common"
+    },
+    "rare01": {
+        "id": "rare01",
+        "name": "Bottle of Whisky",
+        "archive": "RareWhisky",
+        "category": "hobby",
+        "pawnTimerSeconds": 300,
+        "price": 110,
+        "boxType": "SVertical",
+        "rarity": "Rare"
+    },
+    "rare02": {
+        "id": "rare02",
+        "name": "Vintage Game Console",
+        "archive": "OldVideoGame",
+        "category": "technology",
+        "pawnTimerSeconds": 300,
+        "price": 120,
+        "boxType": "MHorizontal",
+        "rarity": "Rare"
+    },
+    "epic01": {
+        "id": "epic01",
+        "name": "Gaming PC",
+        "archive": "GamingPc",
+        "category": "technology",
+        "pawnTimerSeconds": 2400,
+        "price": 2700,
+        "boxType": "MSquare",
+        "rarity": "Epic"
+    },
+    "epic02": {
+        "id": "epic02",
+        "name": "Used Smart Car",
+        "archive": "SmartCar",
+        "category": "hobby",
+        "pawnTimerSeconds": 2400,
+        "price": 3200,
+        "boxType": "LSquare",
+        "rarity": "Epic"
+    }
+}
