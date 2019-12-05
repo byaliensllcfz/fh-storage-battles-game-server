@@ -1,0 +1,119 @@
+{
+    "City01": {
+        "id": "City01",
+        "maximumItemsInLot": 4,
+        "minimumItemsInLot": 10,
+        "itemRarities": ["Common", "Rare", "Epic"],
+        "itemsRarity": {
+            "Epic": {
+                "rarity": "Epic",
+                "drawProbability": 0.05,
+                "maximumItemsPerRarity": 2,
+                "drawProbabilityModifier": 0.8,
+                "drawProbabilityModifierOn": 1,
+                "boxProbability": 0.9,
+                "maximumBoxesPerRarity": 3,
+                "boxProbabilityModifier": 0.9,
+                "boxProbabilityModifierOn": 1
+            },
+            "Rare": {
+                "rarity": "Rare",
+                "drawProbability": 0.1,
+                "maximumItemsPerRarity": 2,
+                "drawProbabilityModifier": 0.8,
+                "drawProbabilityModifierOn": 1,
+                "boxProbability": 0.8,
+                "maximumBoxesPerRarity": 3,
+                "boxProbabilityModifier": 0.9,
+                "boxProbabilityModifierOn": 1
+            },
+            "Common": {
+                "rarity": "Common",
+                "drawProbability": 0,
+                "maximumItemsPerRarity": 0,
+                "drawProbabilityModifier": 0,
+                "drawProbabilityModifierOn": 0,
+                "boxProbability": 0.8,
+                "maximumBoxesPerRarity": 4,
+                "boxProbabilityModifier": 0.7,
+                "boxProbabilityModifierOn": 1
+            }
+        },
+        "availableItems": [
+            "common01",
+            "common02",
+            "rare01",
+            "rare02",
+            "epic01",
+            "epic02"
+        ],
+        "minimumMoney": 1000,
+        "name": "City01",
+        "trophyRewards": [
+            6,
+            3,
+            0,
+            -1
+        ],
+        "trophiesToUnlock": 0,
+        "maximumMoney": 1000
+    },
+    "City02": {
+        "id": "City02",
+        "maximumItemsInLot": 3,
+        "minimumItemsInLot": 14,
+        "itemsRarity": {
+            "Epic": {
+                "rarity": "Epic",
+                "drawProbability": 0.05,
+                "maximumItemsPerRarity": 2,
+                "drawProbabilityModifier": 0.8,
+                "drawProbabilityModifierOn": 1,
+                "boxProbability": 0.9,
+                "maximumBoxesPerRarity": 3,
+                "boxProbabilityModifier": 0.9,
+                "boxProbabilityModifierOn": 1
+            },
+            "Rare": {
+                "rarity": "Rare",
+                "drawProbability": 0.1,
+                "maximumItemsPerRarity": 3,
+                "drawProbabilityModifier": 0.8,
+                "drawProbabilityModifierOn": 1,
+                "boxProbability": 0.8,
+                "maximumBoxesPerRarity": 3,
+                "boxProbabilityModifier": 0.9,
+                "boxProbabilityModifierOn": 1
+            },
+            "Common": {
+                "rarity": "Common",
+                "drawProbability": 0,
+                "maximumItemsPerRarity": 0,
+                "drawProbabilityModifier": 0,
+                "drawProbabilityModifierOn": 0,
+                "boxProbability": 0.8,
+                "maximumBoxesPerRarity": 4,
+                "boxProbabilityModifier": 0.7,
+                "boxProbabilityModifierOn": 1
+            }
+        },
+        "availableItems": [
+            "common01",
+            "common02",
+            "rare01",
+            "rare02",
+            "epic01",
+            "epic02"
+        ],
+        "minimumMoney": 2000,
+        "name": "City02",
+        "trophyRewards": [
+            8,
+            5,
+            -2,
+            -3
+        ],
+        "trophiesToUnlock": 20,
+        "maximumMoney": 2000
+    }
+}
