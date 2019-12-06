@@ -489,7 +489,7 @@ class AuctionController {
             arena: this.city.id,
             room_id: this.room.roomId,
             entry_fee: this.city.minimumMoney,
-            total_bots: lodash.keys(this.room.bots.length).length,
+            total_bots: lodash.keys(this.room.bots).length,
             user_ids: [],
             total_trophies: [],
             position: [],
@@ -503,7 +503,7 @@ class AuctionController {
             const playerState = this.state.players[result.playerId];
             eventParams.user_ids.push(result.firebaseId);
             eventParams.total_trophies.push(playerState.trophies + result.trophies);
-            eventParams.position.push(result.position);
+            eventParams.position.push(result.position + 1);
             eventParams.interrupted.push(playerState.interruptions);
             eventParams.reconnected.push(playerState.reconnections);
 

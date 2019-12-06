@@ -70,7 +70,14 @@ class Bot {
      */
     async joinRoom(roomId) {
         this.logger = new Logger('Bot', { botId: this.id, room: roomId });
-        this.logger.info(`Adding bot: ${this.id} to room: ${roomId}`);
+        this.logger.info(`Adding bot: ${this.id} to room: ${roomId}`, {
+            name: this.name,
+            character: this.character,
+            profilePicture: this.profilePicture,
+            startingMoney: this.startingMoney,
+            trophies: this.trophies,
+            rank: this.rank,
+        });
 
         /** @type {Room} */
         this.room = await this.client.joinById(roomId, { bot: true, userId: this.id, character: this.character });
