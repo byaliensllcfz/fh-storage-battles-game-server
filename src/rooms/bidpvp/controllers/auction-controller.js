@@ -30,6 +30,7 @@ class AuctionController {
         this.bidIntervalTimeout = null;
         this._started = false;
         this.playersLotReady = {};
+        this.profiles = {};
 
         /** @type {number} */
         this.lotsAmount = Config.game.lotsAmount;
@@ -52,14 +53,6 @@ class AuctionController {
         }
         this._started = true;
 
-        const playerIds = [];
-        lodash.forEach(this.state.players, player => {
-            if (!player.isBot) {
-                playerIds.push(player.firebaseId);
-            }
-        });
-        const profiles = await profileDao.getProfiles(playerIds);
-
         lodash.each(this.state.players, player => {
             if (player.isBot) {
                 const bot = this.room.bots[player.firebaseId];
@@ -70,18 +63,31 @@ class AuctionController {
                 player.rank = bot.rank;
             }
             else {
-                const playerState = lodash.find(profiles, profileData => profileData.profile.gameUserId === player.firebaseId);
-                player.name = playerState.profile.alias;
-                player.photoUrl = playerState.profile.picture;
-                player.money = lodash.min([playerState.currencies.softCurrency, this.city.maximumMoney]);
-                player.trophies = playerState.currencies.trophies;
-                player.rank = playerState.currencies.rank;
+                const playerData = this.profiles[player.firebaseId];
+                player.name = playerData.profile.alias;
+                player.photoUrl = playerData.profile.picture;
+                player.money = lodash.min([playerData.currencies.softCurrency, this.city.maximumMoney]);
+                player.trophies = playerData.currencies.trophies;
+                player.rank = playerData.currencies.rank;
             }
         });
 
         this.state.status = auctionStatus.PLAY;
         this.state.currentLot = 0;
         this.lotStartTimeout = this.room.clock.setTimeout(() => this._startInspect(true), Config.game.forceLotStartTimeout);
+    }
+
+    async validatePlayerProfile(userId) {
+        const profiles = await profileDao.getProfiles([userId]);
+        const profile = profiles[userId];
+
+        if (profile && profile.profile && profile.currencies) {
+            this.profiles[userId] = profile;
+            return true;
+
+        } else {
+            return false;
+        }
     }
 
     /**
