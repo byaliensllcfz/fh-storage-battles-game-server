@@ -6,7 +6,7 @@ const { Room } = require('colyseus');
 const { Logger } = require('@tapps-games/logging');
 
 const bigQueryHelper = require('../../helpers/big-query-helper');
-const { auctionStatus } = require('../../../types');
+const { auctionStatus } = require('../../types');
 const { Bot } = require('./bot');
 const { AuctionState } = require('./schemas/auction-state');
 const { PlayerState } = require('./schemas/player-state');
