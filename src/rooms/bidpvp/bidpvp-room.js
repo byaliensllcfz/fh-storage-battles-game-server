@@ -94,7 +94,7 @@ class BidPvpRoom extends Room {
                         arena: this.auctionController.city.id,
                         room_id: this.roomId,
                         entry_fee: this.auctionController.city.minimumMoney,
-                        interrupted_at_locked: this.state.currentLot,
+                        interrupted_at_locker: this.state.currentLot,
                         current_cash: playerState.money,
                         consented,
                         interruption_number: playerState.interruptions,
