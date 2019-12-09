@@ -6,6 +6,7 @@ const { Room } = require('colyseus');
 const { Logger } = require('@tapps-games/logging');
 
 const bigQueryHelper = require('../../helpers/big-query-helper');
+const { auctionStatus } = require('../../types');
 const { Bot } = require('./bot');
 const { AuctionState } = require('./schemas/auction-state');
 const { PlayerState } = require('./schemas/player-state');
@@ -76,39 +77,45 @@ class BidPvpRoom extends Room {
     async onLeave(client, consented) {
         this.logger.info(`Client: ${client.id} left. Consented: ${consented}`);
 
-        const playerState = this.state.players[client.id];
-        playerState.connected = false;
-        playerState.interruptions += 1;
+        if (this.state.status === auctionStatus.WAITING) {
+            // Player left before match started.
+            delete this.state.players[client.id];
 
-        try {
-            await bigQueryHelper.insert({
-                eventName: 'match_interrupted',
-                eventParams: {
-                    arena: this.auctionController.city.id,
-                    room_id: this.roomId,
-                    entry_fee: this.auctionController.city.minimumMoney,
-                    interrupted_at_locked: this.state.currentLot,
-                    current_cash: playerState.money,
-                    consented,
-                    interruption_number: playerState.interruptions,
-                },
-                userIds: [playerState.firebaseId],
-            });
-        } catch (error) {
-            this.logger.error('Failed to log match interrupted analytics.', error);
-        }
+        } else if (this.state.status === auctionStatus.PLAY) {
+            // Player left during match wait for him to reconnect.
+            const playerState = this.state.players[client.id];
+            playerState.connected = false;
+            playerState.interruptions += 1;
 
-        try {
-            if (!consented) {
-                await this.allowReconnection(client, Config.game.allowReconnectionTimeSeconds);
-
-                // The client has reconnected
-                playerState.connected = true;
-                playerState.reconnections += 1;
+            try {
+                await bigQueryHelper.insert({
+                    eventName: 'match_interrupted',
+                    eventParams: {
+                        arena: this.auctionController.city.id,
+                        room_id: this.roomId,
+                        entry_fee: this.auctionController.city.minimumMoney,
+                        interrupted_at_locked: this.state.currentLot,
+                        current_cash: playerState.money,
+                        consented,
+                        interruption_number: playerState.interruptions,
+                    },
+                    userIds: [playerState.firebaseId],
+                });
+            } catch (error) {
+                this.logger.error('Failed to log match interrupted analytics.', error);
             }
-        }
-        catch (e) {
-            // allowReconnection timer expired.
+
+            try {
+                if (!consented) {
+                    await this.allowReconnection(client, Config.game.allowReconnectionTimeSeconds);
+
+                    // The client has reconnected
+                    playerState.connected = true;
+                    playerState.reconnections += 1;
+                }
+            } catch (e) {
+                // allowReconnection timer expired.
+            }
         }
     }
 
