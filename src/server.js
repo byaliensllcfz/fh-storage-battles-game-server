@@ -11,6 +11,7 @@ const bodyParser = require('body-parser');
 const http = require('http');
 const { Server, matchMaker } = require('colyseus');
 const monitor = require('@colyseus/monitor').monitor;
+const socialRoutes = require('@colyseus/social/express');
 
 const BidPvpRoom = require('./rooms/bidpvp/bidpvp-room');
 const LobbyRoom = require('./rooms/lobby/lobby-room');
@@ -21,11 +22,19 @@ const { LocalDriver } = require('colyseus/lib/matchmaker/drivers/LocalDriver');
 
 const logger = new Logger('Server');
 
+const path = require('path');
+const cors = require('cors');
+
 /**
  * @return {Promise<void>}
  */
 async function createServer() {
     const app = express();
+
+    app.use(cors({
+        origin: 'http://localhost:8080',
+        optionsSuccessStatus: 200,
+    }));
 
     app.disable('x-powered-by');
     app.enable('trust proxy');
@@ -55,6 +64,7 @@ async function createServer() {
 
     // register colyseus monitor AFTER registering your room handlers
     app.use('/colyseus', monitor(gameServer));
+    app.use('/', socialRoutes.default);
 
     app.get('/configs/reload', utils.asyncRoute(async (_req, res) => {
         await _loadConfig();
@@ -80,9 +90,14 @@ async function createServer() {
         res.send(reservation);
     }));
 
+    app.use(express.static('static'));
+    app.get('/static', (req,res) => {
+        res.sendFile(path.resolve(__dirname + '/../static/auction.html'));
+    });
+
     app.use(middlewares.notFoundHandler());
     app.use(middlewares.errorHandler());
-    app.listen(8081);
+    // /app.listen(8080);
 
     gameServer.listen(COLYSEUS_PORT);
     logger.info(`Listening on ws://localhost:${COLYSEUS_PORT}`);

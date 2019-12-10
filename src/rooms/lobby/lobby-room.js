@@ -7,6 +7,8 @@ const { Room } = require('colyseus');
 const { LobbyState } = require('./schemas/lobby-state');
 const { Config } = require('../../helpers/config-helper');
 
+const { User, verifyToken } = require('@colyseus/social');
+
 class LobbyRoom extends Room {
     onCreate(options) {
 
@@ -17,6 +19,16 @@ class LobbyRoom extends Room {
         this.logger = new Logger('LobbyRoom', { room: this.roomId });
 
         this.logger.info(`Room Init ${JSON.stringify(options)} - ${this.roomId}`);
+    }
+
+    async onAuth(_client, options) {
+        // verify token authenticity
+        const token = verifyToken(options.token);
+        console.log(`token ${token}`);
+        // query the user by its id
+
+        console.log(`user ${User.findById(token._id)}`);
+        return await User.findById(token._id);
     }
 
     onJoin(client, options) {
