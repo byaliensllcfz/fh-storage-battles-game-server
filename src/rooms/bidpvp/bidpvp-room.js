@@ -39,12 +39,16 @@ class BidPvpRoom extends Room {
         this.setSeatReservationTime(5);
     }
 
-    // Authentication on matchmaking now
-    async onAuth(_client, _options) {
-        return true;
+    // Firebase token authentication on matchmaking now
+    async onAuth(_client, options, _request) {
+        if (options.bot) {
+            return true;
+        }
+
+        return this.auctionController.validatePlayerProfile(options.userId);
     }
 
-    async onJoin(client, options) {
+    async onJoin(client, options, _auth) {
         this.logger.info(`Client: ${client.id} joined. ${JSON.stringify(options)}`);
 
         this.state.players[client.id] = new PlayerState({
