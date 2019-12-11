@@ -405,21 +405,6 @@ class AuctionController {
     }
 
     /**
-     * @param {Object} rewards
-     * @private
-     */
-    _assertUsersHaveMinimumRequiredMoney(rewards) {
-        lodash.forEach(rewards, (reward, userId) => {
-            const player = lodash.find(this.state.players, player => player.firebaseId === userId);
-
-            const city = lodash.sortBy(Config.cities, city => city.minimumMoney)[0];
-            if (player.money < city.minimumMoney) {
-                reward.price = player.money + reward.price - city.minimumMoney;
-            }
-        });
-    }
-
-    /**
      * @private
      */
     async _calculateRewards() {
@@ -559,7 +544,6 @@ class AuctionController {
         this.state.status = auctionStatus.FINISHED;
 
         const rewards = await this._calculateRewards();
-        this._assertUsersHaveMinimumRequiredMoney(rewards); // TODO: Remove this once users have other means to earn money.
 
         try {
             const response = await rewardDao.saveRewards(rewards);
