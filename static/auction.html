@@ -2,7 +2,7 @@
 <html>
 <head>
   <title>Welcome to Vue</title>
-  <script type="text/javascript" src="https://raw.githack.com/colyseus/colyseus.js/0.11.3/dist/colyseus.js"></script>
+  <script type="text/javascript" src="https://raw.githack.com/colyseus/colyseus.js/master/dist/colyseus.js"></script>
 
   <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/@mdi/font@3.x/css/materialdesignicons.min.css" rel="stylesheet">
@@ -39,7 +39,7 @@
                 </v-col>
               </v-row>
               <v-divider></v-divider>
-              
+
               <p>
                 <v-btn text @click="onBid" class="ml-2" :disabled="!canBid">Bid</v-btn>
                 <v-btn text @click="onLotReady" class="ml-2" :disabled="!waitingLot">LotReady</v-btn>
@@ -53,7 +53,7 @@
                           <b> GAME STATE: </b><br />
                           <pre>{{state}}</pre>
                         </div>
-                    </v-flex>  
+                    </v-flex>
 
                     <v-flex xs4>
                         <div class="pa-5 mt-2">
@@ -143,7 +143,7 @@ let app = new Vue({
       me() { return lodash.get(this, `state.players.${this.clientId}`) },
 
       canBid() {
-        return this.state.status === 'PLAY' 
+        return this.state.status === 'PLAY'
           && this.state.lots[this.state.currentLot].bidOwner !== this.clientId
           && this.state.lots[this.state.currentLot].status === 'PLAY';
       },
@@ -199,7 +199,7 @@ let app = new Vue({
         window.localStorage.setItem('firebaseId', this.firebaseId);
       }
     },
-    
+
     watch: {
       firebaseId() {
         window.localStorage.setItem('firebaseId', this.firebaseId);
