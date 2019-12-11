@@ -505,9 +505,17 @@ class AuctionController {
             reconnected: [],
         };
 
+        let botCounter = 1;
         lodash.forEach(resultsOrdered, result => {
             const playerState = this.state.players[result.playerId];
-            eventParams.user_ids.push(result.firebaseId);
+
+            let analyticsUserId = result.firebaseId;
+            if (playerState.isBot) {
+                analyticsUserId = `bot_${botCounter}`;
+                botCounter++;
+            }
+            eventParams.user_ids.push(analyticsUserId);
+
             eventParams.total_trophies.push(playerState.trophies + result.trophies);
             eventParams.position.push(result.position + 1);
             eventParams.interrupted.push(playerState.interruptions);

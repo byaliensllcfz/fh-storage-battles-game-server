@@ -32,7 +32,7 @@ function _jsonToRecord(json) {
             valueObject.float_value = value;
 
         } else if (lodash.isArray(value)) {
-            valueObject.string_value = JSON.stringify(value);
+            valueObject.string_value = JSON.stringify(value).replace(new RegExp('"', 'g'), '');
 
         } else {
             valueObject.string_value = JSON.stringify(value);

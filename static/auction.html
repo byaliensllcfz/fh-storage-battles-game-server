@@ -1,220 +1,220 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Welcome to Vue</title>
-  <script type="text/javascript" src="https://raw.githack.com/colyseus/colyseus.js/master/dist/colyseus.js"></script>
+    <title>Welcome to Vue</title>
+    <script type="text/javascript" src="https://raw.githack.com/colyseus/colyseus.js/master/dist/colyseus.js"></script>
 
-  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/@mdi/font@3.x/css/materialdesignicons.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
-  <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.15/lodash.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@3.x/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.15/lodash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
 </head>
 <body>
-  <div id="app">
+<div id="app">
     <v-app>
-      <v-content>
+        <v-content>
 
-        <!-- TOOLBAR -->
-        <!-- <v-toolbar>
-          <v-toolbar-title>Bid PVP</v-toolbar-title>
-          <v-toolbar-items>
-          </v-toolbar-items>
-        </v-toolbar> -->
-        <!-- END TOOLBAR -->
+            <!-- TOOLBAR -->
+            <!-- <v-toolbar>
+              <v-toolbar-title>Bid PVP</v-toolbar-title>
+              <v-toolbar-items>
+              </v-toolbar-items>
+            </v-toolbar> -->
+            <!-- END TOOLBAR -->
 
-        <v-container>
-          <v-card class="d-flex">
-            <v-card-text>
-              <v-row class="pt-1">
-                <v-col cols="12" sm="1">
-                  <v-btn text x-large block @click="onGameJoin" :disabled="connected"> Join </v-btn>
-                </v-col>
-                <v-col cols="12" sm="2">
-                  <v-text-field v-model="firebaseId" label="Firebase ID" outlined append-icon="mdi-reload" @click:append="reloadId" :disabled="connected">
-                  </v-text-field>
-                </v-col>
-              </v-row>
-              <v-divider></v-divider>
+            <v-container>
+                <v-card class="d-flex">
+                    <v-card-text>
+                        <v-row class="pt-1">
+                            <v-col cols="12" sm="1">
+                                <v-btn text x-large block @click="onGameJoin" :disabled="connected"> Join </v-btn>
+                            </v-col>
+                            <v-col cols="12" sm="2">
+                                <v-text-field v-model="firebaseId" label="Firebase ID" outlined append-icon="mdi-reload" @click:append="reloadId" :disabled="connected">
+                                </v-text-field>
+                            </v-col>
+                        </v-row>
+                        <v-divider></v-divider>
 
-              <p>
-                <v-btn text @click="onBid" class="ml-2" :disabled="!canBid">Bid</v-btn>
-                <v-btn text @click="onLotReady" class="ml-2" :disabled="!waitingLot">LotReady</v-btn>
-              </p>
+                        <p>
+                            <v-btn text @click="onBid" class="ml-2" :disabled="!canBid">Bid</v-btn>
+                            <v-btn text @click="onLotReady" class="ml-2" :disabled="!waitingLot">LotReady</v-btn>
+                        </p>
 
-              <v-divider></v-divider>
-              <v-container>
-                  <v-card class="d-flex">
-                    <v-flex xs4>
-                        <div class="pa-5 mt-2">
-                          <b> GAME STATE: </b><br />
-                          <pre>{{state}}</pre>
-                        </div>
-                    </v-flex>
+                        <v-divider></v-divider>
+                        <v-container>
+                            <v-card class="d-flex">
+                                <v-flex xs4>
+                                    <div class="pa-5 mt-2">
+                                        <b> GAME STATE: </b><br />
+                                        <pre>{{state}}</pre>
+                                    </div>
+                                </v-flex>
 
-                    <v-flex xs4>
-                        <div class="pa-5 mt-2">
-                          <b> LOT: </b><br />
-                          <pre>{{lotInfo}} </pre>
-                        </div>
-                    </v-flex>
+                                <v-flex xs4>
+                                    <div class="pa-5 mt-2">
+                                        <b> LOT: </b><br />
+                                        <pre>{{lotInfo}} </pre>
+                                    </div>
+                                </v-flex>
 
-                    <v-flex xs4>
-                        <div class="pa-5 mt-2">
-                          <b> PLAYER: </b><br />
-                          <pre>{{playerInfo}} </pre>
-                        </div>
-                    </v-flex>
+                                <v-flex xs4>
+                                    <div class="pa-5 mt-2">
+                                        <b> PLAYER: </b><br />
+                                        <pre>{{playerInfo}} </pre>
+                                    </div>
+                                </v-flex>
 
-                  </v-card>
-              </v-container>
+                            </v-card>
+                        </v-container>
 
-            </v-card-text>
-          </v-card>
-        </v-container>
-      </v-content>
+                    </v-card-text>
+                </v-card>
+            </v-container>
+        </v-content>
     </v-app>
-  </div>
+</div>
 </body>
 </html>
 
 <script>
 
-const lodash = _;
+    const lodash = _;
 
-const serverService = {
-  client: null,
-  room: null,
-  connected: false,
-  serverData: null,
-
-  sendMessage(command, args) {
-    serverService.room.send({ command, args, commandIndex: 0 });
-    console.log('command', command, args);
-  },
-
-  async connect(firebaseId) {
-    if (serverService.connected) return;
-
-    serverService.client = new Colyseus.Client('ws://localhost:2567');
-    serverService.room = await serverService.client.joinOrCreate('bidpvp', {
-      city: 'City01',
-      userId: firebaseId,
-      clientWeb: true,
-      character: 'Character Two',
-    });
-    serverService.connected = true;
-    serverService._addListeners();
-  },
-
-  _addListeners() {
-    serverService.room.onMessage((message) => {
-      console.log("server just sent this message:" + message);
-      serverService.serverData = message;
-    });
-
-    serverService.room.onJoin(() => {
-      console.log('Joined on room', serverService.room.id);
-    });
-
-    serverService.room.onLeave(() => {
-      console.log("Left room", arguments);
-    });
-  }
-};
-
-let app = new Vue({
-    el: '#app',
-    vuetify: new Vuetify(),
-
-    data() {
-      return {
+    const serverService = {
+        client: null,
+        room: null,
         connected: false,
-        clientId: null,
-        firebaseId: '',
-        state: {},
-      }
-    },
+        serverData: null,
 
-    computed: {
-      me() { return lodash.get(this, `state.players.${this.clientId}`) },
+        sendMessage(command, args) {
+            serverService.room.send({ command, args, commandIndex: 0 });
+            console.log('command', command, args);
+        },
 
-      canBid() {
-        return this.state.status === 'PLAY'
-          && this.state.lots[this.state.currentLot].bidOwner !== this.clientId
-          && this.state.lots[this.state.currentLot].status === 'PLAY';
-      },
+        async connect(firebaseId) {
+            if (serverService.connected) return;
 
-      waitingLot() {
-        return this.state.status === 'PLAY' && this.state.lots[this.state.currentLot].status === 'WAITING';
-      },
+            serverService.client = new Colyseus.Client('ws://localhost:2567');
+            serverService.room = await serverService.client.joinOrCreate('bidpvp', {
+                city: 'City01',
+                userId: firebaseId,
+                clientWeb: true,
+                character: 'Character Two',
+            });
+            serverService.connected = true;
+            serverService._addListeners();
+        },
 
-      lotInfo() {
-        let info = '';
+        _addListeners() {
+            serverService.room.onMessage((message) => {
+                console.log("server just sent this message:" + message);
+                serverService.serverData = message;
+            });
 
-        if (this.state && this.state.status === 'PLAY') {
-          return this.state.lots[this.state.currentLot];
+            serverService.room.onJoin(() => {
+                console.log('Joined on room', serverService.room.id);
+            });
+
+            serverService.room.onLeave(() => {
+                console.log("Left room", arguments);
+            });
+        }
+    };
+
+    let app = new Vue({
+        el: '#app',
+        vuetify: new Vuetify(),
+
+        data() {
+            return {
+                connected: false,
+                clientId: null,
+                firebaseId: '',
+                state: {},
+            }
+        },
+
+        computed: {
+            me() { return lodash.get(this, `state.players.${this.clientId}`) },
+
+            canBid() {
+                return this.state.status === 'PLAY'
+                    && this.state.lots[this.state.currentLot].bidOwner !== this.clientId
+                    && this.state.lots[this.state.currentLot].status === 'PLAY';
+            },
+
+            waitingLot() {
+                return this.state.status === 'PLAY' && this.state.lots[this.state.currentLot].status === 'WAITING';
+            },
+
+            lotInfo() {
+                let info = '';
+
+                if (this.state && this.state.status === 'PLAY') {
+                    return this.state.lots[this.state.currentLot];
+                }
+
+                return info;
+            },
+
+            playerInfo() {
+                let info = '';
+
+                if (this.me) {
+                    info += `clientId: ${this.me.id}\n`;
+                    info += `money: ${this.me.money}\n`;
+                }
+
+                return info;
+            }
+        },
+
+        methods: {
+            async onGameJoin() {
+                await serverService.connect(this.firebaseId);
+
+                this.connected = true;
+                this.clientId = serverService.room.sessionId;
+                serverService.room.onStateChange((state) => {
+                    const plainState = JSON.parse(JSON.stringify(state));
+                    Vue.set(this, 'state', plainState);
+                });
+            },
+
+            async onBid() {
+                await serverService.sendMessage('AUCTION_BID');
+            },
+
+            async onLotReady() {
+                await serverService.sendMessage('AUCTION_LOT_READY');
+            },
+
+            reloadId() {
+                this.firebaseId = '' + Math.random().toString(36).substr(2, 9);
+                window.localStorage.setItem('firebaseId', this.firebaseId);
+            }
+        },
+
+        watch: {
+            firebaseId() {
+                window.localStorage.setItem('firebaseId', this.firebaseId);
+            }
+        },
+
+        created() {
+            const id = window.localStorage.getItem('firebaseId');
+            if (id) {
+                this.firebaseId = id;
+            } else {
+                this.firebaseId = '' + Math.random().toString(36).substr(2, 9);
+                window.localStorage.setItem('firebaseId', this.firebaseId);
+            }
         }
 
-        return info;
-      },
-
-      playerInfo() {
-        let info = '';
-
-        if (this.me) {
-          info += `clientId: ${this.me.id}\n`;
-          info += `money: ${this.me.money}\n`;
-        }
-
-        return info;
-      }
-    },
-
-    methods: {
-      async onGameJoin() {
-        await serverService.connect(this.firebaseId);
-
-        this.connected = true;
-        this.clientId = serverService.room.sessionId;
-        serverService.room.onStateChange((state) => {
-          const plainState = JSON.parse(JSON.stringify(state));
-          Vue.set(this, 'state', plainState);
-        });
-      },
-
-      async onBid() {
-        await serverService.sendMessage('AUCTION_BID');
-      },
-
-      async onLotReady() {
-        await serverService.sendMessage('AUCTION_LOT_READY');
-      },
-
-      reloadId() {
-        this.firebaseId = '' + Math.random().toString(36).substr(2, 9);
-        window.localStorage.setItem('firebaseId', this.firebaseId);
-      }
-    },
-
-    watch: {
-      firebaseId() {
-        window.localStorage.setItem('firebaseId', this.firebaseId);
-      }
-    },
-
-    created() {
-      const id = window.localStorage.getItem('firebaseId');
-      if (id) {
-        this.firebaseId = id;
-      } else {
-        this.firebaseId = '' + Math.random().toString(36).substr(2, 9);
-        window.localStorage.setItem('firebaseId', this.firebaseId);
-      }
-    }
-
-})
+    })
 </script>
