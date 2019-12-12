@@ -99,7 +99,11 @@ class AuctionController {
         incrementalFactor = Math.floor(Math.max(0, incrementalFactor));
 
         const growth = Config.game.bidBaseIncrement * Config.game.bidBaseMultiplier ** incrementalFactor;
-        this._getCurrentLot().nextBidValue = Math.round((growth / Config.game.bidRepeatValue) + currentBid);
+        let bidIncrement = (growth / Config.game.bidRepeatValue);
+        if (bidIncrement < Config.game.bidBaseIncrement / 2) {
+            bidIncrement = Config.game.bidBaseIncrement / 2;
+        }
+        this._getCurrentLot().nextBidValue = Math.round(bidIncrement + currentBid);
 
         this.logger.debug(`CurrentBid: ${currentBid}, incrementalFactor:${incrementalFactor}, Growth:${growth}, nextBid:${this._getCurrentLot().nextBidValue}`);
     }
