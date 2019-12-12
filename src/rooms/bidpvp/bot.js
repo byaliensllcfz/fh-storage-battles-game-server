@@ -169,19 +169,19 @@ class Bot {
         const difToThinkAbout = this.city.maximumMoney * Config.bot.idealProfitModifier;
 
         const bidProbability = lodash.min([Config.bot.bidProbabilityOnProfit, lodash.max([Config.bot.minimumBidProbability, (Config.bot.bidProbabilityOnProfit - 1) + (1 - Config.bot.minimumBidProbability) / difToThinkAbout * (botItemsValue - lotState.bidValue)])]);
-        this.logger.info(`BOT generating BID probability. itemsValue: ${itemsValue} (visible: ${visibleItemsValue}; hidden: ${hiddenItemsValue}), mod: ${modifier}, difToThinkAbout: ${difToThinkAbout}, botItemsValue: ${botItemsValue}, bidValue: ${lotState.bidValue}. Bid probability: ${bidProbability}.`);
+        this.logger.debug(`BOT generating BID probability. itemsValue: ${itemsValue} (visible: ${visibleItemsValue}; hidden: ${hiddenItemsValue}), mod: ${modifier}, difToThinkAbout: ${difToThinkAbout}, botItemsValue: ${botItemsValue}, bidValue: ${lotState.bidValue}. Bid probability: ${bidProbability}.`);
 
         const randomBidChance = lodash.random(true);
         if (randomBidChance <= bidProbability) {
             if (this.money <= lotState.nextBidValue) {
-                this.logger.info(`Bot would bid but has no money. Current money: ${this.money}. Money required to bid: ${lotState.nextBidValue}.`);
+                this.logger.debug(`Bot would bid but has no money. Current money: ${this.money}. Money required to bid: ${lotState.nextBidValue}.`);
 
             } else {
-                this.logger.info(`Bot decided to bid. Bid probability: ${bidProbability}. Random bid chance: ${randomBidChance}.`);
+                this.logger.debug(`Bot decided to bid. Bid probability: ${bidProbability}. Random bid chance: ${randomBidChance}.`);
                 this.sendMessage(commands.AUCTION_BID);
             }
         } else {
-            this.logger.info(`Bot won't bid. Bid probability: ${bidProbability}. Random bid chance: ${randomBidChance}.`);
+            this.logger.debug(`Bot won't bid. Bid probability: ${bidProbability}. Random bid chance: ${randomBidChance}.`);
         }
 
         if (lotState.status === auctionStatus.PLAY) {

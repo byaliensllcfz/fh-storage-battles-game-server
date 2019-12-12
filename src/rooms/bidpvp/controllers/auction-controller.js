@@ -139,13 +139,13 @@ class AuctionController {
             totalEstimatedValue += Config.getItem(itemId).price;
         });
 
-        this.logger.debug(`Lot total estimated value: ${totalEstimatedValue}`);
+        this.logger.info(`Lot total estimated value: ${totalEstimatedValue}`);
         const minValue = (Config.game.minimumInitialBidPercentage / 100) * totalEstimatedValue;
         const maxValue = (Config.game.maximumInitialBidPercentage / 100) * totalEstimatedValue;
 
         const baseBid = Math.round(lodash.random(minValue, maxValue));
         lotState.nextBidValue = Math.ceil(baseBid / Config.game.bidBaseIncrement) * Config.game.bidBaseIncrement;
-        this.logger.debug(`Lot initial bid value: ${baseBid} (rounded: ${lotState.nextBidValue})`);
+        this.logger.info(`Lot initial bid value: ${baseBid} (rounded: ${lotState.nextBidValue})`);
     }
 
     /**
@@ -286,14 +286,19 @@ class AuctionController {
      * @param {string} playerId
      */
     bid(playerId) {
-        this.logger.debug(`Player ${playerId} trying to bid ${this._getCurrentLot().nextBidValue}`);
+        const playerState = this.state.players[playerId];
+
+        this.logger.info(`Player ${playerId} trying to bid ${this._getCurrentLot().nextBidValue} on lot ${this.state.currentLot}.`, {
+            firebaseId: playerState.firebaseId,
+        });
 
         if (this._getCurrentLot().bidOwner === playerId) {
             this.logger.debug(`Ignoring bid. Player ${playerId} is already winning`);
             return;
         }
-        if (this.state.players[playerId].money < this._getCurrentLot().nextBidValue) {
-            this.logger.debug(`Ignoring bid. Player ${playerId} has no money (${this.state.players[playerId].money}) for this bid ${this._getCurrentLot().nextBidValue}`);
+
+        if (playerState.money < this._getCurrentLot().nextBidValue) {
+            this.logger.debug(`Ignoring bid. Player ${playerId} has no money (${playerState.money}) for this bid ${this._getCurrentLot().nextBidValue}`);
             return;
         }
 
@@ -381,7 +386,7 @@ class AuctionController {
      * @private
      */
     _startLot(lotIndex) {
-        this.logger.debug(`Starting LOT ${lotIndex}`);
+        this.logger.info(`Starting LOT ${lotIndex}`);
         this.state.lots[lotIndex].status = auctionStatus.PLAY;
     }
 
@@ -451,7 +456,7 @@ class AuctionController {
         });
 
         const resultsOrdered = lodash.sortBy(endGameResults, reward => -reward.score);
-        this.logger.debug(`Game Ended. Results: ${JSON.stringify(resultsOrdered)}`);
+        this.logger.info(`Game Ended. Results: ${JSON.stringify(resultsOrdered)}`);
 
         const rewards = {};
         lodash.each(resultsOrdered, (result, idx) => {
@@ -531,7 +536,7 @@ class AuctionController {
             this.logger.error('Failed to log match finished analytics.', error);
         }
 
-        this.logger.debug(`Sending rewards ${JSON.stringify(rewards)}`);
+        this.logger.info(`Sending rewards ${JSON.stringify(rewards)}`);
         return rewards;
     }
 
@@ -554,13 +559,17 @@ class AuctionController {
                     const client = lodash.find(this.room.clients, client => client.id === player.id);
 
                     if (!client || !player.connected) {
-                        this.logger.info(`Player ${firebaseId} is disconnected. Unable to send rank-up message.`);
+                        this.logger.info(`Player ${client.id} is disconnected. Unable to send rank-up message.`, {
+                            firebaseId,
+                        });
 
                     } else {
                         this.room.send(client, JSON.stringify({ rank: rank }));
                     }
 
-                    this.logger.info(`Player ${firebaseId} was rewarded the rank ${rank}`);
+                    this.logger.info(`Player ${client.id} was rewarded the rank ${rank}`, {
+                        firebaseId,
+                    });
                 });
             }
 

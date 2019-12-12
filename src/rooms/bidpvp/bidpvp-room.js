@@ -72,7 +72,7 @@ class BidPvpRoom extends Room {
     }
 
     onMessage(client, message) {
-        this.logger.info(`Client: ${client.id} sent message ${JSON.stringify(message)}`);
+        this.logger.debug(`Client: ${client.id} sent message ${JSON.stringify(message)}`);
 
         if (this.locked) {
             handleAuctionCommand(this, client.id, message).catch(error => {
@@ -82,7 +82,9 @@ class BidPvpRoom extends Room {
     }
 
     async onLeave(client, consented) {
-        this.logger.info(`Client: ${client.id} left. Consented: ${consented}`);
+        this.logger.info(`Client: ${client.id} left. Consented: ${consented}`, {
+            firebaseId: this.state.players[client.id].firebaseId,
+        });
 
         if (this.state.status === auctionStatus.WAITING) {
             // Player left before match started.
