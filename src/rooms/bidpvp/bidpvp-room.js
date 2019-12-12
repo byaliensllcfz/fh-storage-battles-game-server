@@ -30,6 +30,9 @@ class BidPvpRoom extends Room {
         /** @type {Object<string, Bot>} */
         this.bots = {};
 
+        /** @type {string[]} */
+        this.availableBotNames = lodash.cloneDeep(Config.bot.names);
+
         /** @type {Logger} */
         this.logger = new Logger('BidPvpRoom', { room: this.roomId });
 
@@ -69,7 +72,7 @@ class BidPvpRoom extends Room {
     }
 
     onMessage(client, message) {
-        this.logger.info(`Client: ${client.id} sent message ${JSON.stringify(message)}`);
+        this.logger.debug(`Client: ${client.id} sent message ${JSON.stringify(message)}`);
 
         if (this.locked) {
             handleAuctionCommand(this, client.id, message).catch(error => {
@@ -79,7 +82,9 @@ class BidPvpRoom extends Room {
     }
 
     async onLeave(client, consented) {
-        this.logger.info(`Client: ${client.id} left. Consented: ${consented}`);
+        this.logger.info(`Client: ${client.id} left. Consented: ${consented}`, {
+            firebaseId: this.state.players[client.id].firebaseId,
+        });
 
         if (this.state.status === auctionStatus.WAITING) {
             // Player left before match started.
@@ -142,9 +147,11 @@ class BidPvpRoom extends Room {
         delete this.addBotTimeout;
 
         if (!this.locked) {
-            const bot = new Bot(uuid(), 'ws://localhost:2567', this.auctionController.city);
-            this.bots[bot.id] = bot;
+            const botName = lodash.sample(this.availableBotNames);
+            this.availableBotNames = lodash.filter(this.availableBotNames, name => name !== botName);
+            const bot = new Bot(uuid(), botName, 'ws://localhost:2567', this.auctionController.city);
 
+            this.bots[bot.id] = bot;
             await bot.joinRoom(this.roomId);
 
             this._setAddBotTimeout();

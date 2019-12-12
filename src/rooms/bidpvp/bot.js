@@ -9,7 +9,7 @@ const { auctionStatus, commands } = require('../../types');
 
 class Bot {
 
-    constructor(botId, serverUrl, city) {
+    constructor(botId, botName, serverUrl, city) {
         /** @type {string} */
         this.id = botId;
 
@@ -23,7 +23,7 @@ class Bot {
         this.profilePicture = lodash.sample(Config.bot.profilePictures);
 
         /** @type {string} */
-        this.name = lodash.sample(Config.bot.names);
+        this.name = botName;
 
         /** @type {string} */
         this.city = city;
@@ -42,10 +42,10 @@ class Bot {
         /** @type {number} */
         this.rank = 1;
 
-        this._generateRandkAndTrophies();
+        this._generateRankAndTrophies();
     }
 
-    _generateRandkAndTrophies() {
+    _generateRankAndTrophies() {
         const milestonesOrdered = lodash.sortBy(Config.milestones, milestone => milestone.trophies);
 
         for (let i=0; i< milestonesOrdered.length; i++) {
@@ -169,19 +169,19 @@ class Bot {
         const difToThinkAbout = this.city.maximumMoney * Config.bot.idealProfitModifier;
 
         const bidProbability = lodash.min([Config.bot.bidProbabilityOnProfit, lodash.max([Config.bot.minimumBidProbability, (Config.bot.bidProbabilityOnProfit - 1) + (1 - Config.bot.minimumBidProbability) / difToThinkAbout * (botItemsValue - lotState.bidValue)])]);
-        this.logger.info(`BOT generating BID probability. itemsValue: ${itemsValue} (visible: ${visibleItemsValue}; hidden: ${hiddenItemsValue}), mod: ${modifier}, difToThinkAbout: ${difToThinkAbout}. Bid probability: ${bidProbability}.`);
+        this.logger.debug(`BOT generating BID probability. itemsValue: ${itemsValue} (visible: ${visibleItemsValue}; hidden: ${hiddenItemsValue}), mod: ${modifier}, difToThinkAbout: ${difToThinkAbout}, botItemsValue: ${botItemsValue}, bidValue: ${lotState.bidValue}. Bid probability: ${bidProbability}.`);
 
         const randomBidChance = lodash.random(true);
         if (randomBidChance <= bidProbability) {
             if (this.money <= lotState.nextBidValue) {
-                this.logger.info(`Bot would bid but has no money. Current money: ${this.money}. Money required to bid: ${lotState.nextBidValue}.`);
+                this.logger.debug(`Bot would bid but has no money. Current money: ${this.money}. Money required to bid: ${lotState.nextBidValue}.`);
 
             } else {
-                this.logger.info(`Bot decided to bid. Bid probability: ${bidProbability}. Random bid chance: ${randomBidChance}.`);
+                this.logger.debug(`Bot decided to bid. Bid probability: ${bidProbability}. Random bid chance: ${randomBidChance}.`);
                 this.sendMessage(commands.AUCTION_BID);
             }
         } else {
-            this.logger.info(`Bot won't bid. Bid probability: ${bidProbability}. Random bid chance: ${randomBidChance}.`);
+            this.logger.debug(`Bot won't bid. Bid probability: ${bidProbability}. Random bid chance: ${randomBidChance}.`);
         }
 
         if (lotState.status === auctionStatus.PLAY) {
