@@ -38,7 +38,7 @@ class AuctionController {
         /** @type {CityConfig} */
         this.city = Config.cities[cityId];
 
-        this.logger = new Logger('AuctionController', { room: this.room.id });
+        this.logger = new Logger('AuctionController', { room: this.room.roomId });
 
         this._generateLots(this.lotsAmount);
     }
@@ -292,7 +292,7 @@ class AuctionController {
     bid(playerId) {
         const playerState = this.state.players[playerId];
 
-        this.logger.info(`Player ${playerId} trying to bid ${this._getCurrentLot().nextBidValue} on lot ${this.state.currentLot}.`, {
+        this.logger.info(`Player ${playerId} (Bot: ${playerState.isBot}) trying to bid ${this._getCurrentLot().nextBidValue} on lot ${this.state.currentLot}.`, {
             firebaseId: playerState.firebaseId,
         });
 
