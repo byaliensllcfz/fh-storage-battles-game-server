@@ -39,7 +39,7 @@ class BidPvpRoom extends Room {
         this.logger.info(`Room Init ${JSON.stringify(options)} - ${this.roomId}`);
 
         // TODO put this on a config
-        this.setSeatReservationTime(5);
+        this.setSeatReservationTime(10);
     }
 
     // Firebase token authentication on matchmaking now
