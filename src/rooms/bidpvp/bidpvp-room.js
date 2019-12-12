@@ -30,6 +30,9 @@ class BidPvpRoom extends Room {
         /** @type {Object<string, Bot>} */
         this.bots = {};
 
+        /** @type {string[]} */
+        this.availableBotNames = lodash.cloneDeep(Config.bot.names);
+
         /** @type {Logger} */
         this.logger = new Logger('BidPvpRoom', { room: this.roomId });
 
@@ -142,9 +145,11 @@ class BidPvpRoom extends Room {
         delete this.addBotTimeout;
 
         if (!this.locked) {
-            const bot = new Bot(uuid(), 'ws://localhost:2567', this.auctionController.city);
-            this.bots[bot.id] = bot;
+            const botName = lodash.sample(this.availableBotNames);
+            this.availableBotNames = lodash.filter(this.availableBotNames, name => name !== botName);
+            const bot = new Bot(uuid(), botName, 'ws://localhost:2567', this.auctionController.city);
 
+            this.bots[bot.id] = bot;
             await bot.joinRoom(this.roomId);
 
             this._setAddBotTimeout();
