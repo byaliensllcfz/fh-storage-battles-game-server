@@ -554,34 +554,34 @@ class AuctionController {
 
         const rewards = await this._calculateRewards();
 
+        let response;
         try {
-            const response = await rewardDao.saveRewards(rewards);
-
-            if (!lodash.isEmpty(response)) {
-                lodash.forEach(response, (rank, firebaseId) => {
-                    const player = lodash.find(this.state.players, player => player.firebaseId === firebaseId);
-                    const client = lodash.find(this.room.clients, client => client.id === player.id);
-
-                    if (!client || !player.connected) {
-                        this.logger.info(`Player ${client.id} is disconnected. Unable to send rank-up message.`, {
-                            firebaseId,
-                        });
-
-                    } else {
-                        this.room.send(client, JSON.stringify({ rank: rank }));
-                    }
-
-                    this.logger.info(`Player ${client.id} was rewarded the rank ${rank}`, {
-                        firebaseId,
-                    });
-                });
-            }
+            response = await rewardDao.saveRewards(rewards);
 
             this.state.status = auctionStatus.REWARDS_SENT;
-
         } catch (error) {
             // TODO: Retry sending rewards later?
             this.logger.critical(`Failed to save rewards. Error: ${error.message} - ${error.stack}`, rewards);
+        }
+
+        if (!lodash.isEmpty(response)) {
+            lodash.forEach(response, (rank, firebaseId) => {
+                const player = lodash.find(this.state.players, player => player.firebaseId === firebaseId);
+                const client = lodash.find(this.room.clients, client => client.id === player.id);
+
+                if (!client || !player.connected) {
+                    this.logger.info('Player disconnected. Unable to send rank-up message.', {
+                        firebaseId,
+                    });
+
+                } else {
+                    this.room.send(client, JSON.stringify({ rank: rank }));
+                }
+
+                this.logger.info(`Player ${client.id} was rewarded the rank ${rank}`, {
+                    firebaseId,
+                });
+            });
         }
     }
 }
