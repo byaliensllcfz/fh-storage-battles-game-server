@@ -1,19 +1,19 @@
 {
     "name": "bidpvp-alpha-game-server",
     "description": "Bid PvP Alpha Colyseus Server",
-    "version": "1.0.28",
+    "version": "1.0.29",
     "private": true,
     "engines": {
         "node": ">=10.0.0"
     },
     "dependencies": {
-        "@colyseus/monitor": "^0.11.7",
+        "@colyseus/monitor": "^0.11.9",
         "@google-cloud/bigquery": "^4.4.0",
         "@tapps-games/server": "^1.1.10",
         "axios": "^0.19.0",
         "body-parser": "^1.18.3",
-        "colyseus": "^0.11.20",
-        "colyseus.js": "^0.11.5",
+        "colyseus": "^0.11.25",
+        "colyseus.js": "^0.11.7",
         "express": "^4.17.1",
         "json-stringify-safe": "^5.0.1",
         "lodash": "^4.17.14",

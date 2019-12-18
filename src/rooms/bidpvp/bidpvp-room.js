@@ -61,7 +61,7 @@ class BidPvpRoom extends Room {
             isBot: options.bot,
         });
 
-        if (this.locked) {
+        if (this.locked && lodash.keys(this.state.players).length === this.maxClients) {
             await this.lock(); // Prevent new players from joining if any players leave.
 
             await this.auctionController.startAuction();
@@ -89,6 +89,12 @@ class BidPvpRoom extends Room {
         if (this.state.status === auctionStatus.WAITING) {
             // Player left before match started.
             delete this.state.players[client.id];
+
+            if (lodash.every(this.state.players, playerState => playerState.isBot)) {
+                lodash.forEach(this.bots, bot => {
+                    bot.disconnect();
+                });
+            }
 
         } else if (this.state.status === auctionStatus.PLAY) {
             // Player left during match wait for him to reconnect.
@@ -119,6 +125,9 @@ class BidPvpRoom extends Room {
                     await this.allowReconnection(client, Config.game.allowReconnectionTimeSeconds);
 
                     // The client has reconnected
+                    this.logger.info(`Client: ${client.id} reconnected.`, {
+                        firebaseId: this.state.players[client.id].firebaseId,
+                    });
                     playerState.connected = true;
                     playerState.reconnections += 1;
                 }
@@ -146,7 +155,7 @@ class BidPvpRoom extends Room {
     async _addBot() {
         delete this.addBotTimeout;
 
-        if (!this.locked) {
+        if (lodash.keys(this.state.players).length < this.maxClients) {
             const botName = lodash.sample(this.availableBotNames);
             this.availableBotNames = lodash.filter(this.availableBotNames, name => name !== botName);
             const bot = new Bot(uuid(), botName, 'ws://localhost:2567', this.auctionController.city);
