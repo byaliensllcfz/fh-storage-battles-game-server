@@ -550,9 +550,9 @@ class AuctionController {
      * @private
      */
     async _finishAuction() {
-        this.state.status = auctionStatus.FINISHED;
-
         const rewards = await this._calculateRewards();
+
+        this.state.status = auctionStatus.FINISHED;
 
         let response;
         try {
@@ -560,7 +560,6 @@ class AuctionController {
 
             this.state.status = auctionStatus.REWARDS_SENT;
         } catch (error) {
-            // TODO: Retry sending rewards later?
             this.logger.critical(`Failed to save rewards. Error: ${error.message} - ${error.stack}`, rewards);
         }
 

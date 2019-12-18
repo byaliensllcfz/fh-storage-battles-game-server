@@ -89,17 +89,17 @@
     lodash "^4.17.13"
     to-fast-properties "^2.0.0"
 
-"@colyseus/monitor@^0.11.7":
-  version "0.11.7"
-  resolved "https://staging.intra.tappsgames.com/verdaccio/@colyseus%2fmonitor/-/monitor-0.11.7.tgz#3d188a176fc39c2944531b269a6087e56be4e388"
-  integrity sha512-Zxavs7YQD9Qha6522LHWQhrOBhGeGztYu2kf90Dack+sB0kH+V1TfTBMibpFPbfgpGg7y74aQ2IAGSFiNFDN+Q==
+"@colyseus/monitor@^0.11.9":
+  version "0.11.9"
+  resolved "https://staging.intra.tappsgames.com/verdaccio/@colyseus%2fmonitor/-/monitor-0.11.9.tgz#5107bd760d67a79f618bff77a9a0913afab8bc02"
+  integrity sha512-ydnScwz0tM2BaUdscQ/cRWF5udoUchS6kgMTnDFVciDFyveAOY7WsoFRUKt4cfGuNiYY5REQMYPae1Yc2HcgJA==
   dependencies:
     express "^4.16.3"
 
-"@colyseus/schema@^0.5.0":
-  version "0.5.5"
-  resolved "https://staging.intra.tappsgames.com/verdaccio/@colyseus%2fschema/-/schema-0.5.5.tgz#a5ec0d53615ee6f8b9ef84649d0409da6ba7eb1a"
-  integrity sha512-p2dY9jnzsXPFpOyhd0Sq0zDbPKC30cxIEbZrFirTXzNnxslfvxijn1PzFL94VX9D25ydw4fQZ5QH17f4yKHGnA==
+"@colyseus/schema@^0.5.1", "@colyseus/schema@^0.5.5":
+  version "0.5.13"
+  resolved "https://staging.intra.tappsgames.com/verdaccio/@colyseus%2fschema/-/schema-0.5.13.tgz#e69b5efd08261c5a838a4ce2a656dbb525bfa804"
+  integrity sha512-NSpCSK+xD4PA9LtdmfrzSqd3477u2CIV3xBJ2jcvRKr2Yl+W4JRgwiSK93ACvsuB8ZtAorWEflQstN6KeMLocw==
 
 "@gamestdio/clock@^1.1.9":
   version "1.1.9"
@@ -1149,12 +1149,12 @@ colorspace@1.1.x:
     color "3.0.x"
     text-hex "1.0.x"
 
-colyseus.js@^0.11.5:
-  version "0.11.5"
-  resolved "https://staging.intra.tappsgames.com/verdaccio/colyseus.js/-/colyseus.js-0.11.5.tgz#e1d36517807f37d8fd682c487454479f16f50447"
-  integrity sha512-H7ptnvfHlENJq7JZSiDJBpzjPeyEaQhX5oXBfyXa3onalRGrDeYH5Ntgfsolf9rXN1ew1WHvQ4RFG9ZbShVjrw==
+colyseus.js@^0.11.7:
+  version "0.11.7"
+  resolved "https://staging.intra.tappsgames.com/verdaccio/colyseus.js/-/colyseus.js-0.11.7.tgz#13eeeb522e4353a45b8ae465c57441ea1183d457"
+  integrity sha512-SIfCvKNb1oOlYTeaVfQRZ8egQXKgM0v93/S1XimiVEFjdcPXHghYLDurvjrOYa6PG0Pwwwwd6DlkBwvcjhpJuQ==
   dependencies:
-    "@colyseus/schema" "^0.5.0"
+    "@colyseus/schema" "^0.5.5"
     "@gamestdio/signals" "^1.0.0"
     "@gamestdio/state-listener" "^3.1.0"
     "@gamestdio/websocket" "^0.3.2"
@@ -1163,12 +1163,12 @@ colyseus.js@^0.11.5:
     notepack.io "^2.1.3"
     strong-events "^1.0.5"
 
-colyseus@^0.11.20:
-  version "0.11.22"
-  resolved "https://staging.intra.tappsgames.com/verdaccio/colyseus/-/colyseus-0.11.22.tgz#cc314ca1ef5937cc0c16b0c88222d5ca2d41dec3"
-  integrity sha512-1ruQ/tU3PUTi2vZkEdXxGnHBav+mE6ZT/Xu0ReujmUkGgznZYWSpIzPi9As00ofzbnaaPNRZuFsDFa2T94eAwA==
+colyseus@^0.11.25:
+  version "0.11.25"
+  resolved "https://staging.intra.tappsgames.com/verdaccio/colyseus/-/colyseus-0.11.25.tgz#f75753a20adebf721fdb753a2862df673db30064"
+  integrity sha512-IaUL04tPc/SRGHzsU4dL7TkdHOzCA5ZkTimDO1azSWlxkjUtX+lVOXXNM1bMrgwix54OsD9PGQoQRi0Bu5l2rQ==
   dependencies:
-    "@colyseus/schema" "^0.5.0"
+    "@colyseus/schema" "^0.5.1"
     "@gamestdio/timer" "^1.3.0"
     "@types/redis" "^2.8.12"
     "@types/ws" "^6.0.1"
