@@ -3,6 +3,7 @@
 const COLYSEUS_PORT = 2567;
 
 const { Logger } = require('@tapps-games/logging');
+const { Retry } = require('@tapps-games/core');
 const { middlewares, routes, utils } = require('@tapps-games/server');
 
 const express = require('express');
