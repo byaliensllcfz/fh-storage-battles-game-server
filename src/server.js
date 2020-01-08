@@ -93,8 +93,11 @@ async function createServer() {
  * @private
  */
 async function _loadConfig() {
-    const configs = await configDao.getConfigs();
-    Config.set(configs);
+    const retry = new Retry({retries: 10});
+    await retry.attempt(async () => {
+        const configs = await configDao.getConfigs();
+        Config.set(configs);
+    });
 }
 
 module.exports = {
