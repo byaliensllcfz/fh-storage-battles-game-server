@@ -3,6 +3,7 @@
 const COLYSEUS_PORT = 2567;
 
 const { Logger } = require('@tapps-games/logging');
+const { Retry } = require('@tapps-games/core');
 const { middlewares, routes, utils } = require('@tapps-games/server');
 
 const express = require('express');
@@ -93,8 +94,11 @@ async function createServer() {
  * @private
  */
 async function _loadConfig() {
-    const configs = await configDao.getConfigs();
-    Config.set(configs);
+    const retry = new Retry({retries: 10});
+    await retry.attempt(async () => {
+        const configs = await configDao.getConfigs();
+        Config.set(configs);
+    });
 }
 
 module.exports = {
