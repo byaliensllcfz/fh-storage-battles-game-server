@@ -134,10 +134,7 @@ class AuctionController {
      * @private
      */
     _generateInitialBid(lotState) {
-        let totalEstimatedValue = 0;
-        lodash.each(lotState.boxes, (boxState, _idx) => {
-            totalEstimatedValue += Config.getBox(boxState.boxId).estimatedValue;
-        });
+        let totalEstimatedValue = lodash.keys(lotState.boxes).length * this.city.estimatedBoxValue;
 
         lodash.each(lotState.items, itemId => {
             totalEstimatedValue += Config.getItem(itemId).price;
