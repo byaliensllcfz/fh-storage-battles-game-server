@@ -1,0 +1,19 @@
+# Dockerfile extending the generic Node image with application files for a
+# single application.
+FROM node:10.18.1-buster
+
+COPY . /app/
+
+WORKDIR /app
+
+RUN cp -r /app/configs/local /app/
+
+ENV NPM_TOKEN KzUrhGQgrXyZdD3JKETT2q1ihhtQ3dfcPQHj3UQqV18=
+ENV NODE_ENV test
+
+RUN yarn --unsafe-perms --frozen-lockfile || \
+  ((if [ -f yarn-debug.log ]; then \
+      cat yarn-debug.log; \
+    fi) && false)
+
+CMD npm test

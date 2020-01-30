@@ -15,8 +15,11 @@
 node_modules
 .dockerignore
 Dockerfile
+Dockerfile.test
 npm-debug.log
 yarn-error.log
 .git
 .hg
 .svn
+.vscode
+/client
