@@ -25,7 +25,7 @@ class Bot {
         /** @type {string} */
         this.name = botName;
 
-        /** @type {string} */
+        /** @type {CityConfig} */
         this.city = city;
 
         const moneyModifier = lodash.random(Config.bot.minimumMoneyModifier, Config.bot.maximumMoneyModifier, true);
@@ -160,7 +160,7 @@ class Bot {
         const auctionBoxesIds = lodash.map(lotState.boxes, boxState => boxState.boxId);
 
         const visibleItemsValue = lodash.sum(lodash.map(auctionItemIds, itemId => Config.getItem(itemId).price));
-        const hiddenItemsValue = lodash.sum(lodash.map(auctionBoxesIds, boxId => Config.getBox(boxId).estimatedValue));
+        const hiddenItemsValue = auctionBoxesIds.length * this.city.estimatedBoxValue;
 
         const itemsValue = visibleItemsValue + hiddenItemsValue;
         const modifier = lodash.random(Config.bot.minimumItemValueModifier, Config.bot.maximumItemValueModifier);

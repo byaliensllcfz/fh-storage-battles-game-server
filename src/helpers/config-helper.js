@@ -12,6 +12,7 @@ let _itemRarities;
 /**
  * @typedef {Object} CityConfig
  * @property {string} id
+ * @property {number} estimatedBoxValue
  * @property {string} name
  * @property {number} trophiesToUnlock
  * @property {number[]} trophyRewards
