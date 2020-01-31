@@ -488,6 +488,7 @@ class AuctionController {
             entry_fee: this.city.minimumMoney,
             total_bots: lodash.keys(this.room.bots).length,
             user_ids: [],
+            characters: [],
             total_trophies: [],
             position: [],
             match_profit: [],
@@ -506,6 +507,7 @@ class AuctionController {
                 botCounter++;
             }
             eventParams.user_ids.push(analyticsUserId);
+            eventParams.characters.push(Config.characters[playerState.character].name); // name a pedido de BI
 
             eventParams.total_trophies.push(playerState.trophies + result.trophies);
             eventParams.position.push(result.position + 1);

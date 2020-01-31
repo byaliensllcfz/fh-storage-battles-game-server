@@ -94,6 +94,13 @@ let _itemRarities;
  * @property {string[]} profilePictures
  */
 
+/**
+ * @typedef {Object} CharacterConfig
+ * @property {string} id
+ * @property {string} name
+ * @property {string} asset
+ */
+
 class Config {
 
     /**
@@ -109,6 +116,7 @@ class Config {
         config.cities = lodash.keyBy(config.cities, city => city.id);
         config.items = lodash.keyBy(config.items, item => item.id);
         config.boxes = lodash.keyBy(config.boxes, box => box.id);
+        config.characters = lodash.keyBy(config.characters, character => character.id);
         config.milestones = lodash.keyBy(config.milestones, milestone => milestone.rank);
 
         _separateCityItemsPerRarity(config);
@@ -149,6 +157,13 @@ class Config {
      */
     static get milestones() {
         return _config.milestones;
+    }
+
+    /**
+     * @return {Object<id, CharacterConfig>}
+     */
+    static get characters() {
+        return _config.characters;
     }
 
     /**
