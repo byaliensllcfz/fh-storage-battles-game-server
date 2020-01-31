@@ -20,16 +20,7 @@
             "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
             "args": ["--opts=.mocha.opts"],
             "console": "integratedTerminal",
-            "internalConsoleOptions": "neverOpen",
-            "env": {
-                "NODE_ENV": "test",
-                "ROLE": "server",
-                "DATASTORE_DATASET": "tpserver-dev-env",
-                "DATASTORE_EMULATOR_HOST": "localhost:8081",
-                "DATASTORE_EMULATOR_HOST_PATH": "localhost:8081/datastore",
-                "DATASTORE_HOST": "http://localhost:8081",
-                "DATASTORE_PROJECT_ID": "tpserver-dev-env"
-            }
+            "internalConsoleOptions": "neverOpen"
         }
     ]
 }

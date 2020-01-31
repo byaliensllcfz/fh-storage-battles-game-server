@@ -6,8 +6,6 @@ COPY . /app/
 
 WORKDIR /app
 
-RUN cp -r /app/configs/local/. /app
-
 ENV NPM_TOKEN KzUrhGQgrXyZdD3JKETT2q1ihhtQ3dfcPQHj3UQqV18=
 ENV NODE_ENV test
 
