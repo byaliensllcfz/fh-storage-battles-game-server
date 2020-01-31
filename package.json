@@ -42,6 +42,6 @@
         "test:run": "cross-env NODE_ENV=test DD_TRACE_ENABLED=false nyc --silent --temp-directory=./.nyc_output mocha --opts=.mocha.opts",
         "test:report": "nyc --no-clean --temp-directory=./.nyc_output report --reporter=text --reporter=html --reporter=lcov",
         "test": "npm-run-all test:run test:report lint",
-        "start": "node -r dotenv/config src/index.js"
+        "start": "node -r ./starter src/index.js"
     }
 }

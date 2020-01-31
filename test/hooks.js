@@ -1,6 +1,6 @@
 'use strict';
 
-require('dotenv').config();
+require('dotenv').config({ path: 'configs/test/.env' });
 
 const { config } = require('@tapps-games/core');
 
@@ -19,10 +19,10 @@ const common = require('./common');
 
 before(async function () {
     await config.load('env');
-    await config.load('json', 'config.json');
+    await config.load('json', 'configs/test/config.json');
     config.set('loggingEnableConsole', false);
 
-    //expect(process.env.DATASTORE_EMULATOR_HOST).to.be.equal('localhost:8081');
+    expect(process.env.DATASTORE_EMULATOR_HOST).to.be.equal('localhost:8081');
     //await common.assertSharedCloudSecret(config);
 });
 
