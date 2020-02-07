@@ -507,7 +507,7 @@ class AuctionController {
                 botCounter++;
             }
             eventParams.user_ids.push(analyticsUserId);
-            eventParams.characters.push(Config.characters[playerState.character].name); // name a pedido de BI
+            eventParams.characters.push(playerState.character);
 
             eventParams.total_trophies.push(playerState.trophies + result.trophies);
             eventParams.position.push(result.position + 1);
