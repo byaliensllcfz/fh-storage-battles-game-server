@@ -67,6 +67,10 @@ let _itemRarities;
  * @property {number} bidBaseIncrement
  * @property {number} bidBaseMultiplier
  * @property {number} bidRepeatValue
+ * @property {number} bidBaseIncrementLinear
+ * @property {number} bidBaseMultiplierLinear
+ * @property {number} bidRepeatValueLinear
+ * @property {number} linearPosValue
  * @property {number} overbidWindow
  * @property {number} lotsAmount
  * @property {number} forceLotStartTimeout
