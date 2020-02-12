@@ -437,6 +437,8 @@ class AuctionController {
         if (endingLot.bidOwner) {
             let bidOwnerState = this.state.players[endingLot.bidOwner];
             bidOwnerState.money = (Number(bidOwnerState.money) || 0) - endingLot.bidValue;
+
+            this.logger.info(`Ended LOT ${lotIndex} - Winner: ${endingLot.bidOwner} - paid:${endingLot.bidValue}`);
         }
     }
 

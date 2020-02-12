@@ -89,14 +89,20 @@
     lodash "^4.17.13"
     to-fast-properties "^2.0.0"
 
-"@colyseus/monitor@^0.11.9":
-  version "0.11.9"
-  resolved "https://staging.intra.tappsgames.com/verdaccio/@colyseus%2fmonitor/-/monitor-0.11.9.tgz#5107bd760d67a79f618bff77a9a0913afab8bc02"
-  integrity sha512-ydnScwz0tM2BaUdscQ/cRWF5udoUchS6kgMTnDFVciDFyveAOY7WsoFRUKt4cfGuNiYY5REQMYPae1Yc2HcgJA==
+"@colyseus/monitor@^0.11.17":
+  version "0.11.17"
+  resolved "https://staging.intra.tappsgames.com/verdaccio/@colyseus%2fmonitor/-/monitor-0.11.17.tgz#38e2d14bbe5d8b8e1d626fa79e1c9b9dda7f574b"
+  integrity sha512-uINVMtohvdGe8se5xJOTGMGmUmWpTVPawvqEA74MrI8Vx7L0JEBpkaVd8bA1N4l1BXCPzWNyBI2VbIcRo7UkYQ==
   dependencies:
     express "^4.16.3"
+    node-os-utils "^1.2.0"
 
-"@colyseus/schema@^0.5.1", "@colyseus/schema@^0.5.5":
+"@colyseus/schema@^0.5.19":
+  version "0.5.28"
+  resolved "https://staging.intra.tappsgames.com/verdaccio/@colyseus%2fschema/-/schema-0.5.28.tgz#443a8b1459814f6a69388d54f74e7850761517c9"
+  integrity sha512-ltgaSKAVuoobHIuINqFt8xKlJMHZISq4BL9CE3b38oMb6laBgBCN1RnXuts+ekYk88XSf+3kDOld28s8Vl8LfQ==
+
+"@colyseus/schema@^0.5.5":
   version "0.5.13"
   resolved "https://staging.intra.tappsgames.com/verdaccio/@colyseus%2fschema/-/schema-0.5.13.tgz#e69b5efd08261c5a838a4ce2a656dbb525bfa804"
   integrity sha512-NSpCSK+xD4PA9LtdmfrzSqd3477u2CIV3xBJ2jcvRKr2Yl+W4JRgwiSK93ACvsuB8ZtAorWEflQstN6KeMLocw==
@@ -347,10 +353,10 @@
     hot-shots "^6.3.0"
     lodash "^4.17.11"
 
-"@tapps-games/datastore@^1.1.3":
-  version "1.1.3"
-  resolved "https://staging.intra.tappsgames.com/verdaccio/@tapps-games%2fdatastore/-/datastore-1.1.3.tgz#871b21f54761ffab8e7110fc689435d8ddbfb201"
-  integrity sha512-c16NxNnpoR91SKKQ+7IQXeMQdEa/sbhuj+nmmHMpN134yuRQ5h43jBuN1K6CYJD3NBxKxxLv/9k12WODvoxOdQ==
+"@tapps-games/datastore@^1.2.0":
+  version "1.2.0"
+  resolved "https://staging.intra.tappsgames.com/verdaccio/@tapps-games%2fdatastore/-/datastore-1.2.0.tgz#033d194ec80c1abd85cd744be4a08f4f461275a3"
+  integrity sha512-TSnf81ojS2zPORgVCHDUeK4dp4eoP4mrrMgl37X+jCnnq6J8SSA2DFUdzqqczfJ7wuNHELaZowCNGcSI252Bpg==
   dependencies:
     "@google-cloud/datastore" "^4.0.0"
     "@tapps-games/core" "^1.0.10"
@@ -362,6 +368,17 @@
   version "1.0.7"
   resolved "https://staging.intra.tappsgames.com/verdaccio/@tapps-games%2flogging/-/logging-1.0.7.tgz#3f72b696f5c7113d9a4bb949836c00db8bb4735f"
   integrity sha512-vAuiAXK9dQwfSF/4J8XbpmuhUJgakiBk4/hT65knKEV0xg+PuzJXMM/e4w6Vs0irwBitfC6XNaepvt78Ttvwug==
+  dependencies:
+    "@tapps-games/core" "^1.0.10"
+    fs-extra "^8.0.1"
+    lodash "^4.17.11"
+    traverse "^0.6.6"
+    winston "^3.2.1"
+
+"@tapps-games/logging@^1.1.0":
+  version "1.1.0"
+  resolved "https://staging.intra.tappsgames.com/verdaccio/@tapps-games%2flogging/-/logging-1.1.0.tgz#204835510608115a5e141dacf6864d37a31d8a26"
+  integrity sha512-2EjAJW9plw16yA+6B5BOCToIzQK0GHWBzyM09l59tbgOUoHMlYgwTh6mxMbWGLrVcGSg5md7FffSutp5vs7yKw==
   dependencies:
     "@tapps-games/core" "^1.0.10"
     fs-extra "^8.0.1"
@@ -394,17 +411,17 @@
     axios "^0.19.0"
     lodash "^4.17.11"
 
-"@tapps-games/server@^1.1.10":
-  version "1.1.11"
-  resolved "https://staging.intra.tappsgames.com/verdaccio/@tapps-games%2fserver/-/server-1.1.11.tgz#cdc8bb8bf1bb7e6be86a7b31ef26f73ff7206e3a"
-  integrity sha512-OtpZRY2RGsr5a9KiLjej8SLKVNn1Wa7/NDzNIXbSpqOzO1puxKDm8kIpBHb+bmK9/DZi3il/F+EYUApvUOmj+A==
+"@tapps-games/server@^1.2.1":
+  version "1.2.1"
+  resolved "https://staging.intra.tappsgames.com/verdaccio/@tapps-games%2fserver/-/server-1.2.1.tgz#ef19de7f37b78d59cddfecf4643d09da5f205ef8"
+  integrity sha512-h7YH5u956rT8mOADvWQS8CFccduGRrIwDYDG1Mq3fQKsYRhDBubf5KquedYvF3/Hz+DWZBskPmy89tCi1NDjSg==
   dependencies:
     "@tapps-games/cache" "^1.0.3"
     "@tapps-games/cluster" "^1.0.4"
     "@tapps-games/core" "^1.0.10"
     "@tapps-games/datadog" "^1.0.3"
-    "@tapps-games/datastore" "^1.1.3"
-    "@tapps-games/logging" "^1.0.6"
+    "@tapps-games/datastore" "^1.2.0"
+    "@tapps-games/logging" "^1.1.0"
     "@tapps-games/requests" "^1.0.5"
     axios "^0.19.0"
     express "^4.17.1"
@@ -1149,26 +1166,26 @@ colorspace@1.1.x:
     color "3.0.x"
     text-hex "1.0.x"
 
-colyseus.js@^0.11.7:
-  version "0.11.7"
-  resolved "https://staging.intra.tappsgames.com/verdaccio/colyseus.js/-/colyseus.js-0.11.7.tgz#13eeeb522e4353a45b8ae465c57441ea1183d457"
-  integrity sha512-SIfCvKNb1oOlYTeaVfQRZ8egQXKgM0v93/S1XimiVEFjdcPXHghYLDurvjrOYa6PG0Pwwwwd6DlkBwvcjhpJuQ==
+colyseus.js@^0.12.0:
+  version "0.12.0"
+  resolved "https://staging.intra.tappsgames.com/verdaccio/colyseus.js/-/colyseus.js-0.12.0.tgz#f774a601c2fa6327dcfed9e005964cff76b7c2fd"
+  integrity sha512-HroQDmuOaaR0SevRZkZUs54SGTVNkxNXDQmsimh5w+ctbOlFz+8ddUi5+n5ZtvIbREzG24RsdDkayC5hhPH9TQ==
   dependencies:
     "@colyseus/schema" "^0.5.5"
     "@gamestdio/signals" "^1.0.0"
     "@gamestdio/state-listener" "^3.1.0"
     "@gamestdio/websocket" "^0.3.2"
     fossil-delta "^1.0.0"
-    httpie "^2.0.0-next.2"
+    httpie "^2.0.0-next.3"
     notepack.io "^2.1.3"
     strong-events "^1.0.5"
 
-colyseus@^0.11.25:
-  version "0.11.25"
-  resolved "https://staging.intra.tappsgames.com/verdaccio/colyseus/-/colyseus-0.11.25.tgz#f75753a20adebf721fdb753a2862df673db30064"
-  integrity sha512-IaUL04tPc/SRGHzsU4dL7TkdHOzCA5ZkTimDO1azSWlxkjUtX+lVOXXNM1bMrgwix54OsD9PGQoQRi0Bu5l2rQ==
+colyseus@^0.12.1:
+  version "0.12.1"
+  resolved "https://staging.intra.tappsgames.com/verdaccio/colyseus/-/colyseus-0.12.1.tgz#1d33c597101e603cac07a316c52a8d59c5f46030"
+  integrity sha512-XJJJSqrxsGR7ao2hX+XADdmqkYE0pJ95TKWHRdIf5VkR3evGierCWnvpAODAuW4S6zAZJNgD3JPkEEiA3cH5wQ==
   dependencies:
-    "@colyseus/schema" "^0.5.1"
+    "@colyseus/schema" "^0.5.19"
     "@gamestdio/timer" "^1.3.0"
     "@types/redis" "^2.8.12"
     "@types/ws" "^6.0.1"
@@ -2657,10 +2674,10 @@ http-proxy-agent@^2.1.0:
     agent-base "4"
     debug "3.1.0"
 
-httpie@^2.0.0-next.2:
-  version "2.0.0-next.2"
-  resolved "https://staging.intra.tappsgames.com/verdaccio/httpie/-/httpie-2.0.0-next.2.tgz#c858f135b09265b2adb7d318198f1822d87253aa"
-  integrity sha512-QcYtyrn69p9VDy9SCNCDWAKmSz+wCHII4dc3fnHKA05ePiTeeltLvnnq+FyQPnsOrtpmLPd805FbmcXhtMljtA==
+httpie@^2.0.0-next.3:
+  version "2.0.0-next.6"
+  resolved "https://staging.intra.tappsgames.com/verdaccio/httpie/-/httpie-2.0.0-next.6.tgz#1d5c182ae1ade633ca97990988cf354d3b4a2b4d"
+  integrity sha512-BDU0Oq2j1mQyRWJYwALKDhRHJtRb90ZY2s+rm86F6PEVO8cn7ugMwD2ZzdV09IvJcRg6lz1I/5Op9Uvpb7v66g==
 
 https-proxy-agent@^3.0.0:
   version "3.0.1"
@@ -3805,6 +3822,11 @@ node-mocks-http@^1.7.3:
     parseurl "^1.3.3"
     range-parser "^1.2.0"
     type-is "^1.6.18"
+
+node-os-utils@^1.2.0:
+  version "1.2.2"
+  resolved "https://staging.intra.tappsgames.com/verdaccio/node-os-utils/-/node-os-utils-1.2.2.tgz#57acb6a26a79314a0156804b3f347608db406571"
+  integrity sha512-QepEuY8kw+kRPdpciSSB2AFLM76RNRiSxtlXG5AisIQ8ow9tuSZ/QiS8cFro1iA843ZjSvaoM8DGa8R9loDlWA==
 
 nonenumerable@^1.0.1:
   version "1.1.1"
