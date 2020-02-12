@@ -95,17 +95,47 @@ class AuctionController {
      * @param {number} currentBid
      */
     setNextBidValue(currentBid) {
-        let incrementalFactor = Math.log(currentBid / Config.game.bidBaseIncrement) / Math.log(Config.game.bidBaseMultiplier);
+        //Doc: https://tappsgames.atlassian.net/wiki/spaces/PD/pages/977633395/Comportamento+do+Auctioneer
+
+        //Caculate exponential incremental value
+        let incrementalFactor = this._exponentialIncrementalFactor(currentBid);
         incrementalFactor = Math.floor(Math.max(0, incrementalFactor));
 
-        const growth = Config.game.bidBaseIncrement * Config.game.bidBaseMultiplier ** incrementalFactor;
-        let bidIncrement = (growth / Config.game.bidRepeatValue);
-        if (bidIncrement < Config.game.bidBaseIncrement / 2) {
-            bidIncrement = Config.game.bidBaseIncrement / 2;
-        }
+        // see if exponential increment will be used
+        let exponentialToggle = incrementalFactor - this._exponentialIncrementalFactor(Config.game.linearPosValue) + 0.001;
+        exponentialToggle = Math.max(0, exponentialToggle);
+        this.logger.debug(`CurrentBid: ${currentBid}, incrementalFactor: ${incrementalFactor}, exponentialToggle: ${exponentialToggle}`);
+
+        incrementalFactor = incrementalFactor * (0 ** exponentialToggle);
+        const exponentialGrowth = Config.game.bidBaseIncrement * Config.game.bidBaseMultiplier ** incrementalFactor;
+        this.logger.debug(`CurrentBid: ${currentBid}, incrementalFactorAfterToggle: ${incrementalFactor}, exponentialGrowth: ${exponentialGrowth}`);
+
+        //calculate linear incremental value
+        let delta = (Config.game.bidBaseIncrementLinear * Config.game.bidRepeatValueLinear) / Config.game.bidBaseMultiplierLinear;
+        const linearModifier = this._linearModifier(currentBid, delta);
+
+        // see if linear increment will be used
+        let linearToggle = linearModifier - this._linearModifier(Config.game.linearPosValue, delta) + 0.001;
+        linearToggle = Math.abs(Math.min(0, linearToggle));
+        this.logger.debug(`CurrentBid: ${currentBid}, linearModifier: ${linearModifier}, linearToggle: ${linearToggle}, delta: ${delta}`);
+
+        const linearGrowth = linearModifier * Config.game.bidBaseIncrementLinear * ( 0 ** linearToggle );
+        this.logger.debug(`CurrentBid: ${currentBid}, linearGrowth: ${linearGrowth}`);
+
+        //increments the bid by linear OR exponential growth (one of them will be 0)
+        let bidIncrement = exponentialGrowth + linearGrowth;
+
         this._getCurrentLot().nextBidValue = Math.round(bidIncrement + currentBid);
 
-        this.logger.debug(`CurrentBid: ${currentBid}, incrementalFactor:${incrementalFactor}, Growth:${growth}, nextBid:${this._getCurrentLot().nextBidValue}`);
+        this.logger.debug(`CurrentBid: ${currentBid}, bidIncrement: ${bidIncrement}, nextBid:${this._getCurrentLot().nextBidValue}`);
+    }
+
+    _linearModifier(bidOrToggle, delta) {
+        return Math.floor ( ( delta + ( Math.sqrt( ( (-1 * delta) ** 2 ) - ( 4 * delta * -1 * bidOrToggle) ) ) ) / 2 * delta );
+    }
+
+    _exponentialIncrementalFactor(bidOrToggle) {
+        return Math.log(bidOrToggle / (Config.game.bidBaseIncrement * Config.game.bidRepeatValue )) / Math.log(Config.game.bidBaseMultiplier);
     }
 
     /**
