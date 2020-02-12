@@ -18,11 +18,11 @@ const LobbyRoom = require('./rooms/lobby/lobby-room');
 
 const configDao = require('./daos/config-dao');
 const { Config } = require('./helpers/config-helper');
+const agonesHelper = require('./helpers/agones-helper');
+
 const { LocalDriver } = require('colyseus/lib/matchmaker/drivers/LocalDriver');
 
 const logger = new Logger('Server');
-
-const AgonesSDK = require('@googleforgames/agones');
 
 /**
  * @return {Promise<void>}
@@ -30,7 +30,7 @@ const AgonesSDK = require('@googleforgames/agones');
 async function createServer() {
     const app = express();
 
-    let agonesSDK = new AgonesSDK();
+    await agonesHelper.connectToAgones();
 
     app.disable('x-powered-by');
     app.enable('trust proxy');
@@ -48,22 +48,14 @@ async function createServer() {
 
     app.use(bodyParser.json({ limit: '10mb' }));
 
-//    app.use('/liveness-check', routes.livenessCheck());
+    agonesHelper.setUpHealthCheck(app, utils);
+
     app.use('/readiness-check', routes.readinessCheck());
     app.use('/resource-status', routes.resourceStatus());
     app.use(middlewares.responseTime());
 
-    await agonesSDK.connect();
-
     //gets all DB configs and cache it
     await _loadConfig();
-
-    //app.use(middlewares.validateSharedCloudSecret());
-
-    app.get('/liveness-check', utils.asyncRoute(async (_req, res) => {
-        agonesSDK.health();
-        res.send('ok');
-    }));
 
     // register colyseus monitor AFTER registering your room handlers
     app.use('/colyseus', monitor(gameServer));
@@ -98,7 +90,7 @@ async function createServer() {
     gameServer.listen(COLYSEUS_PORT);
     logger.info(`Listening on ws://localhost:${COLYSEUS_PORT}`);
 
-    await agonesSDK.ready();
+    await agonesHelper.sendAgonesReady();
 }
 
 /**
