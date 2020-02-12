@@ -553,34 +553,43 @@ class AuctionController {
 
         this.state.status = auctionStatus.FINISHED;
 
-        let response;
         try {
-            response = await rewardDao.saveRewards(rewards);
+            const response = await rewardDao.saveRewards(rewards);
+
+            if (!lodash.isEmpty(response)) {
+                lodash.forEach(response, (rank, firebaseId) => {
+                    const player = lodash.find(this.state.players, player => player.firebaseId === firebaseId);
+                    const client = lodash.find(this.room.clients, client => client.id === player.id);
+
+                    if (!client || !player.connected) {
+                        this.logger.info('Player disconnected. Unable to send rank-up message.', {
+                            firebaseId,
+                        });
+
+                    } else {
+                        this.room.send(client, JSON.stringify({ rank: rank }));
+
+                        this.logger.info(`Player ${client.id} was rewarded the rank ${rank}`, {
+                            firebaseId,
+                        });
+                    }
+                });
+            }
 
             this.state.status = auctionStatus.REWARDS_SENT;
         } catch (error) {
             this.logger.critical(`Failed to save rewards. Error: ${error.message} - ${error.stack}`, rewards);
+            this.state.status = auctionStatus.REWARDS_ERROR;
         }
 
-        if (!lodash.isEmpty(response)) {
-            lodash.forEach(response, (rank, firebaseId) => {
-                const player = lodash.find(this.state.players, player => player.firebaseId === firebaseId);
-                const client = lodash.find(this.room.clients, client => client.id === player.id);
+        this.logger.info(`GAME ENDED. closing room in ${Math.ceil(Config.game.disposeRoomTimeout / 1000)} seconds`);
 
-                if (!client || !player.connected) {
-                    this.logger.info('Player disconnected. Unable to send rank-up message.', {
-                        firebaseId,
-                    });
-
-                } else {
-                    this.room.send(client, JSON.stringify({ rank: rank }));
-                }
-
-                this.logger.info(`Player ${client.id} was rewarded the rank ${rank}`, {
-                    firebaseId,
-                });
-            });
-        }
+        this.room.clock.setTimeout(() => {
+            if (this.room) {
+                this.logger.info('GAME ENDED. disposing room if needed');
+                this.room._dispose();
+            }
+        }, Config.game.disposeRoomTimeout);
     }
 }
 

@@ -6,4 +6,5 @@ module.exports = {
     INSPECT: 'INSPECT',
     FINISHED: 'FINISHED',
     REWARDS_SENT: 'REWARDS_SENT',
+    REWARDS_ERROR: 'REWARDS_ERROR',
 };
