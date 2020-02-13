@@ -18,6 +18,8 @@ const LobbyRoom = require('./rooms/lobby/lobby-room');
 
 const configDao = require('./daos/config-dao');
 const { Config } = require('./helpers/config-helper');
+const agonesHelper = require('./helpers/agones-helper');
+
 const { LocalDriver } = require('colyseus/lib/matchmaker/drivers/LocalDriver');
 
 const logger = new Logger('Server');
@@ -27,6 +29,8 @@ const logger = new Logger('Server');
  */
 async function createServer() {
     const app = express();
+
+    await agonesHelper.connectToAgones();
 
     app.disable('x-powered-by');
     app.enable('trust proxy');
@@ -44,15 +48,14 @@ async function createServer() {
 
     app.use(bodyParser.json({ limit: '10mb' }));
 
-    app.use('/liveness-check', routes.livenessCheck());
+    agonesHelper.setUpHealthCheck(app, utils);
+
     app.use('/readiness-check', routes.readinessCheck());
     app.use('/resource-status', routes.resourceStatus());
     app.use(middlewares.responseTime());
 
     //gets all DB configs and cache it
     await _loadConfig();
-
-    //app.use(middlewares.validateSharedCloudSecret());
 
     // register colyseus monitor AFTER registering your room handlers
     app.use('/colyseus', monitor(gameServer));
@@ -83,10 +86,11 @@ async function createServer() {
 
     app.use(middlewares.notFoundHandler());
     app.use(middlewares.errorHandler());
-    app.listen(8081);
 
     gameServer.listen(COLYSEUS_PORT);
     logger.info(`Listening on ws://localhost:${COLYSEUS_PORT}`);
+
+    await agonesHelper.sendAgonesReady();
 }
 
 /**

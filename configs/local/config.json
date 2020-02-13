@@ -3,5 +3,6 @@
     "loggingEnableConsole" : true,
     "apiUrl": "http://localhost:8080",
     "bundleId": "com.megastorm.bidpvp.powerups",
-    "loggingLevel": "debug"
+    "loggingLevel": "debug",
+    "ignoreAgones": true
 }
