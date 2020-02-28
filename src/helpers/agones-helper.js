@@ -16,12 +16,12 @@ async function connectToAgones() {
 }
 
 function setUpHealthCheck(app, utils) {
-    if (!ignoreAgones) {
-        app.get('/liveness-check', utils.asyncRoute(async (_req, res) => {
+    app.get('/liveness-check', utils.asyncRoute(async (_req, res) => {
+        if (!ignoreAgones) {
             agonesSDK.health();
-            res.send('ok');
-        }));
-    }
+        }
+        res.send('ok');
+    }));
 }
 
 async function sendAgonesReady() {
