@@ -3,5 +3,6 @@
     "loggingEnableConsole" : true,
     "apiUrl": "https://bidpvp-alpha-api-v1-dot-tpserver-dev-env.appspot.com",
     "bundleId": "com.megastorm.bidpvp.powerups",
-    "loggingLevel": "debug"
+    "loggingLevel": "debug",
+    "ignoreAgones": true
 }
