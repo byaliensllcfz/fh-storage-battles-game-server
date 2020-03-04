@@ -82,7 +82,8 @@ class BidPvpRoom extends Room {
     }
 
     async onLeave(client, consented) {
-        this.logger.info(`Client: ${client.id} left. Consented: ${consented}`, {
+        const isBot = this.state.players[client.id].isBot;
+        this.logger.info(`Client: ${client.id} left (Bot? ${isBot}). Consented: ${consented}`, {
             firebaseId: this.state.players[client.id].firebaseId,
         });
 

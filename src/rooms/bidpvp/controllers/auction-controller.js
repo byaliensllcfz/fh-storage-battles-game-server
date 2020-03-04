@@ -464,12 +464,12 @@ class AuctionController {
             lodash.each(lotState.boxes, (boxState, idx) => {
                 boxState.itemId = lotState.boxedItems[idx];
                 const item = Config.getItem(boxState.itemId);
-                lotState.lotItemsPrice += item.price;
+                lotState.lotItemsPrice += item.price; //TODO change here for item state price
             });
 
             lodash.each(lotState.items, itemId => {
                 const item = Config.getItem(itemId);
-                lotState.lotItemsPrice += item.price;
+                lotState.lotItemsPrice += item.price; //TODO change here for item state price
             });
 
             if (lotState.bidOwner) {
@@ -478,12 +478,33 @@ class AuctionController {
                 playerResult.price += lotState.bidValue;
                 playerResult.score += lotState.lotItemsPrice - lotState.bidValue;
 
+                // TODO join stage items and boxed items before this
                 lodash.each(lotState.items, itemId => {
-                    playerResult.items[itemId] = (playerResult.items[itemId] || 0) + 1;
+                    const key = `${itemId}-WORN`; //TODO CHANGE for item state
+                    if (playerResult.items[key]) {
+                        playerResult.items[key].quantity += 1;
+                    }
+                    else {
+                        playerResult.items[key] = {
+                            itemId: itemId,
+                            quantity: 1,
+                            state: 'WORN',
+                        };
+                    }
                 });
 
                 lodash.each(lotState.boxes, (boxState, _idx) => {
-                    playerResult.items[boxState.itemId] = (playerResult.items[boxState.itemId] || 0) + 1;
+                    const key = `${boxState.itemId}-WORN`; //TODO CHANGE for item state
+                    if (playerResult.items[key]) {
+                        playerResult.items[key].quantity += 1;
+                    }
+                    else {
+                        playerResult.items[key] = {
+                            itemId: boxState.itemId,
+                            quantity: 1,
+                            state: 'WORN',
+                        };
+                    }
                 });
             }
         });
