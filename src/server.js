@@ -65,6 +65,16 @@ async function createServer() {
         res.send('configs reloaded');
     }));
 
+    app.get('/rooms', utils.asyncRoute(async (_req, res) => {
+        const rooms = await matchMaker.query({});
+        const data = {
+            rooms: rooms.length,
+        };
+
+        res.contentType('application/json');
+        res.send(JSON.stringify(data));
+    }));
+
     app.post('/reserve', utils.asyncRoute(async (req, res) => {
         let reservation;
 
