@@ -576,8 +576,8 @@ class AuctionController {
             eventParams.lockers_purchased.push(lockersPurchased);
 
             let itemsValue = 0;
-            lodash.forEach(result.items, (quantity, id) => {
-                itemsValue += quantity * Config.getItem(id).price;
+            lodash.forEach(result.items, (item, _id) => {
+                itemsValue += item.quantity * Config.getItem(item.itemId).price; //TODO change for item state
             });
             eventParams.match_profit.push(itemsValue - result.price);
         });
