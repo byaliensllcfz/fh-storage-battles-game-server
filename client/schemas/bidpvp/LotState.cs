@@ -21,8 +21,8 @@ public class LotState : Schema
     [Type(3, "int8")]
 	public int dole = 0;
 
-    [Type(4, "map", "string")]
-	public MapSchema<string> items = new MapSchema<string>();
+    [Type(4, "map", typeof(MapSchema<ItemState>))]
+	public MapSchema<ItemState> items = new MapSchema<ItemState>();
 
     [Type(5, "map", typeof(MapSchema<BoxState>))]
 	public MapSchema<BoxState> boxes = new MapSchema<BoxState>();

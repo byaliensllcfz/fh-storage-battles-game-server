@@ -5,6 +5,8 @@ const { Logger } = require('@tapps-games/logging');
 const { Client } = require('colyseus.js');
 
 const { Config } = require('../../helpers/config-helper');
+const itemStateHelper = require('../../helpers/item-state-helper');
+
 const { auctionStatus, commands } = require('../../types');
 
 class Bot {
@@ -156,10 +158,13 @@ class Bot {
         const auctionState = this.room.state;
         const lotState = auctionState.lots[auctionState.currentLot];
 
-        const auctionItemIds = lodash.map(lotState.items);
         const auctionBoxesIds = lodash.map(lotState.boxes, boxState => boxState.boxId);
 
-        const visibleItemsValue = lodash.sum(lodash.map(auctionItemIds, itemId => Config.getItem(itemId).price));
+        const visibleItemsValue = lodash.sum(lodash.map(lotState.items, lotItem => {
+            const item = Config.getItem(lotItem.itemId);
+            return itemStateHelper.getItemPrice(Config, item.price, lotItem.state);
+        }));
+
         const hiddenItemsValue = auctionBoxesIds.length * this.city.estimatedBoxValue;
 
         const itemsValue = visibleItemsValue + hiddenItemsValue;

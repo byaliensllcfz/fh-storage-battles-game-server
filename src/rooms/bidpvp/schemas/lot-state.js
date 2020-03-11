@@ -4,6 +4,7 @@ const { Schema, MapSchema, type } = require('@colyseus/schema');
 
 const { auctionStatus } = require('../../../types');
 const { BoxState } = require('./box-state');
+const { ItemState } = require('./item-state');
 
 class LotState extends Schema {
 
@@ -22,7 +23,7 @@ class LotState extends Schema {
         /** @type {number} */
         this.dole = 0;
 
-        /** @type {Object<string, string>} */
+        /** @type {Object<string, ItemState>} */
         this.items = new MapSchema();
 
         /** @type {Object<string, BoxState>} */
@@ -46,7 +47,7 @@ type('int32')(LotState.prototype, 'bidValue');
 type('int32')(LotState.prototype, 'nextBidValue');
 type('string')(LotState.prototype, 'bidOwner');
 type('int8')(LotState.prototype, 'dole');
-type({ map: 'string' })(LotState.prototype, 'items');
+type({ map: ItemState })(LotState.prototype, 'items');
 type({ map: BoxState })(LotState.prototype, 'boxes');
 type('int32')(LotState.prototype, 'randomSeed');
 type('string')(LotState.prototype, 'status');

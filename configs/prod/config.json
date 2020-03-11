@@ -1,7 +1,7 @@
 {
     "serverEnableDatadog" : false,
     "loggingEnableConsole" : true,
-    "apiUrl": "https://bidpvp-alpha-api-v1-dot-tp-server.appspot.com",
+    "apiUrl": "https://storage-battles-v1-dot-tp-server.appspot.com",
     "bundleId": "com.megastorm.bidpvp.powerups",
     "ignoreAgones": true
 }
