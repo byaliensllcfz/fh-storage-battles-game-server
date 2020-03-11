@@ -15,5 +15,7 @@
     "maxPlayers": 2,
     "maximumInitialBidPercentage": 10,
     "minimumInitialBidPercentage": 20,
-    "overbidWindow": 500
+    "overbidWindow": 500,
+	"oldItemStatePriceModifier" : 0.9,
+	"newItemStatePriceModifier" : 1.1
 }

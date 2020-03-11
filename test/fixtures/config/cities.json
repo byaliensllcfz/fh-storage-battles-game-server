@@ -3,6 +3,8 @@
         "id": "City01",
         "maximumItemsInLot": 4,
         "minimumItemsInLot": 10,
+		"wornItemStateChance": 0.3,
+		"newItemStateChance": 0.3,
         "itemRarities": ["Common", "Rare", "Epic"],
         "itemsRarity": {
             "Epic": {
@@ -62,6 +64,8 @@
         "id": "City02",
         "maximumItemsInLot": 3,
         "minimumItemsInLot": 14,
+		"wornItemStateChance": 0.3,
+		"newItemStateChance": 0.3,
         "itemsRarity": {
             "Epic": {
                 "rarity": "Epic",
