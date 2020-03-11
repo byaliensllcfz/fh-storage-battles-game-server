@@ -12,11 +12,15 @@ class BoxState extends Schema {
 
         /** @type {string} */
         this.itemId;
+
+        /** @type {string} */
+        this.state;
     }
 }
 
 type('string')(BoxState.prototype, 'boxId');
 type('string')(BoxState.prototype, 'itemId');
+type('string')(BoxState.prototype, 'state');
 
 module.exports = {
     BoxState,

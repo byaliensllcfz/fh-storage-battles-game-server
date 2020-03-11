@@ -6,6 +6,8 @@ const { MapSchema } = require('@colyseus/schema');
 const { Logger } = require('@tapps-games/logging');
 
 const bigQueryHelper = require('../../../helpers/big-query-helper');
+const itemStateHelper = require('../../../helpers/item-state-helper');
+
 const profileDao = require('../../../daos/profile-dao');
 const rewardDao = require('../../../daos/reward-dao');
 const { auctionStatus } = require('../../../types');
@@ -13,6 +15,7 @@ const { BidInterval } = require('../../../helpers/bid-interval');
 const { Config } = require('../../../helpers/config-helper');
 const { LotState } = require('../schemas/lot-state');
 const { BoxState } = require('../schemas/box-state');
+const { ItemState } = require('../schemas/item-state');
 
 class AuctionController {
 
@@ -166,8 +169,9 @@ class AuctionController {
     _generateInitialBid(lotState) {
         let totalEstimatedValue = lodash.keys(lotState.boxes).length * this.city.estimatedBoxValue;
 
-        lodash.each(lotState.items, itemId => {
-            totalEstimatedValue += Config.getItem(itemId).price;
+        lodash.each(lotState.items, lotItem => {
+            const item = Config.getItem(lotItem.itemId);
+            totalEstimatedValue += itemStateHelper.getItemPrice(Config, item.price, lotItem.state);
         });
 
         this.logger.info(`Lot total estimated value: ${totalEstimatedValue}`);
@@ -238,8 +242,9 @@ class AuctionController {
 
             const selectedRarity = this._pickItemRarity(itemsPerRarity);
             const itemId = lodash.sample(this.city.itemsRarity[selectedRarity].items);
+            const state = this._pickItemState();
             const boxed = this._calculateItemBoxed(selectedRarity, boxedItemsPerRarity);
-            this.logger.debug(`Drawing item ${itemId} from rarity ${selectedRarity}, boxed: ${boxed}.`);
+            this.logger.debug(`Drawing item ${itemId}, state:${state} from rarity ${selectedRarity}, boxed: ${boxed}.`);
 
             itemsPerRarity[selectedRarity]++;
 
@@ -250,11 +255,14 @@ class AuctionController {
 
                 this.logger.debug(`- Item ${item.id} - was boxed on ${box.id})`);
                 lotBoxes[boxedItems] = new BoxState(box.id);
-                lotBoxedItems[boxedItems] = item.id;
+                lotBoxedItems[boxedItems] = {
+                    itemId: item.id,
+                    state,
+                };
                 boxedItems++;
             }
             else {
-                lotItems[unboxedItems] = itemId;
+                lotItems[unboxedItems] = new ItemState(itemId, state);
                 unboxedItems++;
             }
         }
@@ -262,6 +270,18 @@ class AuctionController {
         lot.items = lotItems;
         lot.boxes = lotBoxes;
         lot.boxedItems = lotBoxedItems;
+    }
+
+    /**
+     * pick an item state depending on city config
+     * @return  {string}    item state
+     * @private
+     */
+    _pickItemState() {
+        const oldItemStateChance = 1 - (this.city.wornItemStateChance + this.city.newItemStateChance);
+        const options = ['OLD', 'WORN', 'NEW'];
+        const weights = [oldItemStateChance, this.city.wornItemStateChance, this.city.newItemStateChance];
+        return weighted.select(options, weights);
     }
 
     /**
@@ -462,14 +482,16 @@ class AuctionController {
 
         lodash.each(this.state.lots, lotState => {
             lodash.each(lotState.boxes, (boxState, idx) => {
-                boxState.itemId = lotState.boxedItems[idx];
+                boxState.itemId = lotState.boxedItems[idx].itemId;
+                boxState.state = lotState.boxedItems[idx].state;
+
                 const item = Config.getItem(boxState.itemId);
-                lotState.lotItemsPrice += item.price; //TODO change here for item state price
+                lotState.lotItemsPrice += itemStateHelper.getItemPrice(Config, item.price, boxState.state);
             });
 
-            lodash.each(lotState.items, itemId => {
-                const item = Config.getItem(itemId);
-                lotState.lotItemsPrice += item.price; //TODO change here for item state price
+            lodash.each(lotState.items, lotItem => {
+                const item = Config.getItem(lotItem.itemId);
+                lotState.lotItemsPrice += itemStateHelper.getItemPrice(Config, item.price, lotItem.state);
             });
 
             if (lotState.bidOwner) {
@@ -479,22 +501,22 @@ class AuctionController {
                 playerResult.score += lotState.lotItemsPrice - lotState.bidValue;
 
                 // TODO join stage items and boxed items before this
-                lodash.each(lotState.items, itemId => {
-                    const key = `${itemId}-WORN`; //TODO CHANGE for item state
+                lodash.each(lotState.items, lotItem => {
+                    const key = `${lotItem.itemId}-${lotItem.state}`;
                     if (playerResult.items[key]) {
                         playerResult.items[key].quantity += 1;
                     }
                     else {
                         playerResult.items[key] = {
-                            itemId: itemId,
+                            itemId: lotItem.itemId,
                             quantity: 1,
-                            state: 'WORN',
+                            state: lotItem.state,
                         };
                     }
                 });
 
                 lodash.each(lotState.boxes, (boxState, _idx) => {
-                    const key = `${boxState.itemId}-WORN`; //TODO CHANGE for item state
+                    const key = `${boxState.itemId}-${boxState.state}`;
                     if (playerResult.items[key]) {
                         playerResult.items[key].quantity += 1;
                     }
@@ -502,7 +524,7 @@ class AuctionController {
                         playerResult.items[key] = {
                             itemId: boxState.itemId,
                             quantity: 1,
-                            state: 'WORN',
+                            state: boxState.state,
                         };
                     }
                 });
@@ -577,7 +599,8 @@ class AuctionController {
 
             let itemsValue = 0;
             lodash.forEach(result.items, (item, _id) => {
-                itemsValue += item.quantity * Config.getItem(item.itemId).price; //TODO change for item state
+                const price = itemStateHelper.getItemPrice(Config, Config.getItem(item.itemId).price, item.state);
+                itemsValue += item.quantity * price;
             });
             eventParams.match_profit.push(itemsValue - result.price);
         });
