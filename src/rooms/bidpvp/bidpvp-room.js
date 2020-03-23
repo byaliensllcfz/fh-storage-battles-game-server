@@ -91,13 +91,18 @@ class BidPvpRoom extends Room {
             // Player left before match started.
             delete this.state.players[client.id];
 
-            if (lodash.every(this.state.players, playerState => playerState.isBot)) {
-                lodash.forEach(this.bots, bot => {
-                    bot.disconnect();
-                });
-            }
+            //isBotAmount[false] will return undefined if no human player on room (isBot=false)
+            const isBotAmount = lodash.groupBy(this.state.players, 'isBot');
+            if (!isBotAmount[false]) {
+                if (this.addBotTimeout) {
+                    this.addBotTimeout.clear();
+                }
 
-        } else if (this.state.status === auctionStatus.PLAY) {
+                this.logger.info('Game didnt start because the only player left. disposing room');
+                this.disconnect();
+            }
+        }
+        else if (this.state.status === auctionStatus.PLAY) {
             // Player left during match wait for him to reconnect.
             const playerState = this.state.players[client.id];
             playerState.connected = false;

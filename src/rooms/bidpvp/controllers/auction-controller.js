@@ -50,10 +50,12 @@ class AuctionController {
      * @return {Promise<void>}
      */
     async startAuction() {
-        // Avoid duplicated calls to start auction
+        this.logger.info(`Attempting to start auction on ${this.city.id}`);
         if (this._started) {
             return;
         }
+
+        this.logger.info('Auction started - GAME ON');
         this._started = true;
 
         lodash.each(this.state.players, player => {
@@ -673,7 +675,7 @@ class AuctionController {
         this.room.clock.setTimeout(() => {
             if (this.room) {
                 this.logger.info('GAME ENDED. disposing room if needed');
-                this.room._dispose();
+                this.room.disconnect();
             }
         }, Config.game.disposeRoomTimeout);
     }
