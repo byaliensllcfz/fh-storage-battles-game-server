@@ -23,6 +23,8 @@ let _itemRarities;
  * @property {number} maximumItemsInLot
  * @property {number} minimumBoxesPerLot
  * @property {number} maximumBoxesPerLot
+ * @property {number} trophyThresholdMin
+ * @property {number} trophyThresholdMax
  * @property {Object<string, ItemRarity>} itemsRarity
  */
 
