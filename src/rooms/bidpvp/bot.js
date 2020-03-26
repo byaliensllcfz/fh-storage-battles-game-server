@@ -93,6 +93,11 @@ class Bot {
      */
     disconnect() {
         this.logger.info(`Bot: ${this.id} disconnecting.`);
+
+        if (this.bidTimeout) {
+            clearTimeout(this.bidTimeout);
+        }
+
         if (this.room && this.room.hasJoined) {
             this.room.leave(true);
         }

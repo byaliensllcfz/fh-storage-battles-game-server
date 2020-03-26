@@ -40,6 +40,9 @@ class LotState extends Schema {
 
         /** @type {number} */
         this.lotItemsPrice = 0;
+
+        /** @type {number} */
+        this.initialBid = 0;
     }
 }
 
