@@ -549,16 +549,6 @@ class AuctionController {
             resultsOrdered[idx].position = lodash.indexOf(this.city.trophyRewards, trophies);
 
             if (!result.isBot) {
-                const playerTrophies = this.state.players[result.playerId].trophies;
-                if ( (playerTrophies + trophies) > this.city.trophyThresholdMax) {
-                    this.logger.info(`Player ${result.firebaseId} had ${playerTrophies} trophies (would get ${trophies}) and would pass city's ${this.city.cityId} MAX cap of ${this.city.trophyThresholdMax}`);
-                    trophies = Math.min(0, this.city.trophyThresholdMax - playerTrophies);
-                }
-                else if ( (playerTrophies + trophies) < this.city.trophyThresholdMin) {
-                    this.logger.info(`Player ${result.firebaseId} had ${playerTrophies} trophies (would get ${trophies}) and would go under city's ${this.city.cityId} MIN cap of ${this.city.trophyThresholdMin}`);
-                    trophies = this.city.trophyThresholdMin - playerTrophies;
-                }
-
                 rewards[result.firebaseId] = {
                     trophies: trophies,
                     price: result.price,
