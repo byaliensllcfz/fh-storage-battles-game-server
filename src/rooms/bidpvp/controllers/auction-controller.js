@@ -99,48 +99,19 @@ class AuctionController {
      * Calculates the next bid value and updates the state.
      * @param {number} currentBid
      */
-    setNextBidValue(currentBid) {
-        //Doc: https://tappsgames.atlassian.net/wiki/spaces/PD/pages/977633395/Comportamento+do+Auctioneer
+    _setNextBidValue(currentBid) {
+        // TODO: create a config for this: bidIncreaseSpeed (using bidBaseMultiplier for now)
+        const incrementGrowth = Config.game.bidBaseMultiplier;
 
-        //Caculate exponential incremental value
-        let incrementalFactor = this._exponentialIncrementalFactor(currentBid);
-        incrementalFactor = Math.floor(Math.max(0, incrementalFactor));
+        // TODO: create a config for this: bidIncrementLimit (using bidBaseIncrementLinear for now)
+        const incrementLimit = this._getCurrentLot().initialBid * Config.game.bidBaseIncrementLinear;
 
-        // see if exponential increment will be used
-        let exponentialToggle = incrementalFactor - this._exponentialIncrementalFactor(Config.game.linearPosValue) + 0.001;
-        exponentialToggle = Math.max(0, exponentialToggle);
-        this.logger.debug(`CurrentBid: ${currentBid}, incrementalFactor: ${incrementalFactor}, exponentialToggle: ${exponentialToggle}`);
-
-        incrementalFactor = incrementalFactor * (0 ** exponentialToggle);
-        const exponentialGrowth = Config.game.bidBaseIncrement * Config.game.bidBaseMultiplier ** incrementalFactor;
-        this.logger.debug(`CurrentBid: ${currentBid}, incrementalFactorAfterToggle: ${incrementalFactor}, exponentialGrowth: ${exponentialGrowth}`);
-
-        //calculate linear incremental value
-        let delta = (Config.game.bidBaseIncrementLinear * Config.game.bidRepeatValueLinear) / Config.game.bidBaseMultiplierLinear;
-        const linearModifier = this._linearModifier(currentBid, delta);
-
-        // see if linear increment will be used
-        let linearToggle = linearModifier - this._linearModifier(Config.game.linearPosValue, delta) + 0.001;
-        linearToggle = Math.abs(Math.min(0, linearToggle));
-        this.logger.debug(`CurrentBid: ${currentBid}, linearModifier: ${linearModifier}, linearToggle: ${linearToggle}, delta: ${delta}`);
-
-        const linearGrowth = linearModifier * Config.game.bidBaseIncrementLinear * ( 0 ** linearToggle );
-        this.logger.debug(`CurrentBid: ${currentBid}, linearGrowth: ${linearGrowth}`);
-
-        //increments the bid by linear OR exponential growth (one of them will be 0)
-        let bidIncrement = exponentialGrowth + linearGrowth;
+        const bidAux = Math.floor(Math.min(currentBid * incrementGrowth, incrementLimit));
+        const bidIncrement = Math.ceil(bidAux / this._getCurrentLot().initialBid) * this._getCurrentLot().initialBid;
 
         this._getCurrentLot().nextBidValue = Math.round(bidIncrement + currentBid);
 
-        this.logger.debug(`CurrentBid: ${currentBid}, bidIncrement: ${bidIncrement}, nextBid:${this._getCurrentLot().nextBidValue}`);
-    }
-
-    _linearModifier(bidOrToggle, delta) {
-        return Math.floor ( ( delta + ( Math.sqrt( ( (-1 * delta) ** 2 ) - ( 4 * delta * -1 * bidOrToggle) ) ) ) / 2 * delta );
-    }
-
-    _exponentialIncrementalFactor(bidOrToggle) {
-        return Math.log(bidOrToggle / (Config.game.bidBaseIncrement * Config.game.bidRepeatValue )) / Math.log(Config.game.bidBaseMultiplier);
+        this.logger.debug(`InitialBid: ${this._getCurrentLot().initialBid}, CurrentBid: ${currentBid}, incrementLimit: ${incrementLimit}, bidIncrementAux: ${bidAux}, bidIncrement: ${bidIncrement}, newBidValue: ${this._getCurrentLot().nextBidValue}`);
     }
 
     /**
@@ -181,7 +152,8 @@ class AuctionController {
         const maxValue = (Config.game.maximumInitialBidPercentage / 100) * totalEstimatedValue;
 
         const baseBid = Math.round(lodash.random(minValue, maxValue));
-        lotState.nextBidValue = Math.ceil(baseBid / Config.game.bidBaseIncrement) * Config.game.bidBaseIncrement;
+        lotState.initialBid = Math.ceil(baseBid / Config.game.bidBaseIncrement) * Config.game.bidBaseIncrement;
+        lotState.nextBidValue = lotState.initialBid;
         this.logger.info(`Lot initial bid value: ${baseBid} (rounded: ${lotState.nextBidValue})`);
     }
 
@@ -200,7 +172,7 @@ class AuctionController {
         const bidValue = this._getCurrentLot().nextBidValue;
         this._getCurrentLot().bidValue =  bidValue;
 
-        this.setNextBidValue(bidValue);
+        this._setNextBidValue(bidValue);
         this._getCurrentLot().bidOwner = this.bidInterval.getWinner();
 
         this.logger.debug(`Trying to finish bid interval. bid: ${bidValue} from ${this.bidInterval.getWinner()}`);
