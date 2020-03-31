@@ -100,11 +100,9 @@ class AuctionController {
      * @param {number} currentBid
      */
     _setNextBidValue(currentBid) {
-        // TODO: create a config for this: bidIncreaseSpeed (using bidBaseMultiplier for now)
-        const incrementGrowth = Config.game.bidBaseMultiplier;
+        const incrementGrowth = Config.game.bidIncreaseSpeed;
 
-        // TODO: create a config for this: bidIncrementLimit (using bidBaseIncrementLinear for now)
-        const incrementLimit = this._getCurrentLot().initialBid * Config.game.bidBaseIncrementLinear;
+        const incrementLimit = this._getCurrentLot().initialBid * Config.game.bidIncrementLimitMultiplier;
 
         const bidAux = Math.floor(Math.min(currentBid * incrementGrowth, incrementLimit));
         const bidIncrement = Math.ceil(bidAux / this._getCurrentLot().initialBid) * this._getCurrentLot().initialBid;
