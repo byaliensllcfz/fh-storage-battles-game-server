@@ -167,17 +167,23 @@ class AuctionController {
      * Updates the current bid and who owns the bid.
      */
     finishBidInterval() {
-        const bidValue = this._getCurrentLot().nextBidValue;
-        this._getCurrentLot().bidValue =  bidValue;
+        if (!this.bidInterval) {
+            this.logger.info(`NO one has yet bid on lot ${this.state.currentLot}. Starting countdown anyway.`);
+            this._getCurrentLot().bidOwner = '';
+        }
+        else {
+            const bidValue = this._getCurrentLot().nextBidValue;
+            this._getCurrentLot().bidValue =  bidValue;
+            this._setNextBidValue(bidValue);
 
-        this._setNextBidValue(bidValue);
-        this._getCurrentLot().bidOwner = this.bidInterval.getWinner();
+            this._getCurrentLot().bidOwner = this.bidInterval.getWinner();
+            this.logger.debug(`Trying to finish bid interval. bid: ${bidValue} from ${this.bidInterval.getWinner()}`);
 
-        this.logger.debug(`Trying to finish bid interval. bid: ${bidValue} from ${this.bidInterval.getWinner()}`);
+            lodash.forEach(this.bidInterval.drawPlayers, (playerId) => {
+                this.state.players[playerId].lastBid = bidValue;
+            });
+        }
 
-        lodash.forEach(this.bidInterval.drawPlayers, (playerId) => {
-            this.state.players[playerId].lastBid = bidValue;
-        });
         this.bidInterval = null;
         this.bidIntervalTimeout = null;
 
@@ -327,6 +333,10 @@ class AuctionController {
 
         if (this.bidInterval === null) {
             this.bidInterval = new BidInterval();
+            if (this.bidIntervalTimeout) {
+                this.bidIntervalTimeout.clear();
+            }
+
             this.bidIntervalTimeout = this.room.clock.setTimeout(() => this.finishBidInterval(), Config.game.bidTimeTolerance);
         }
         this.bidInterval.addBid(playerId);
@@ -411,6 +421,9 @@ class AuctionController {
     _startLot(lotIndex) {
         this.logger.info(`Starting LOT ${lotIndex}`);
         this.state.lots[lotIndex].status = auctionStatus.PLAY;
+
+        //force lot end if noone bids
+        this.bidIntervalTimeout = this.room.clock.setTimeout(() => this.finishBidInterval(), 10000); // TODO get from config
     }
 
     /**

@@ -126,7 +126,7 @@ class Bot {
             lodash.forEach(changes, (value, field) => {
                 if (field === 'status') {
                     if (value === auctionStatus.PLAY) {
-                        this._setBidTimeout();
+                        this._setBidTimeout(state.currentLot);
 
                     } else if (value === auctionStatus.FINISHED) {
                         this._sendReady();
@@ -150,18 +150,23 @@ class Bot {
         }
     }
 
-    _setBidTimeout() {
+    _setBidTimeout(lot) {
         if (!this.bidTimeout) {
             this.bidTimeout = setTimeout(() => {
                 delete this.bidTimeout;
-                this._bid();
+                this._bid(lot);
             }, 1000 * lodash.random(Config.bot.minimumTimeToBidSeconds, Config.bot.maximumTimeToBidSeconds));
         }
     }
 
-    _bid() {
+    _bid(lot) {
         const auctionState = this.room.state;
         const lotState = auctionState.lots[auctionState.currentLot];
+
+        // Dont try to bid if its not the same active lot or lot FINISHED
+        if ( (lotState.status === auctionStatus.FINISHED) || (auctionState.currentLot != lot) ){
+            return;
+        }
 
         const auctionBoxesIds = lodash.map(lotState.boxes, boxState => boxState.boxId);
 
@@ -187,15 +192,15 @@ class Bot {
                 this.logger.debug(`Bot would bid but has no money. Current money: ${this.money}. Money required to bid: ${lotState.nextBidValue}.`);
 
             } else {
-                this.logger.debug(`Bot decided to bid. Bid probability: ${bidProbability}. Random bid chance: ${randomBidChance}.`);
+                this.logger.info(`Bot decided to bid on lot ${auctionState.currentLot}. Bid probability: ${bidProbability}. Random bid chance: ${randomBidChance}.`);
                 this.sendMessage(commands.AUCTION_BID);
             }
         } else {
-            this.logger.debug(`Bot won't bid. Bid probability: ${bidProbability}. Random bid chance: ${randomBidChance}.`);
+            this.logger.debug(`Bot won't bid on lot ${auctionState.currentLot}. Bid probability: ${bidProbability}. Random bid chance: ${randomBidChance}.`);
         }
 
         if (lotState.status === auctionStatus.PLAY) {
-            this._setBidTimeout();
+            this._setBidTimeout(lot);
         }
     }
 
