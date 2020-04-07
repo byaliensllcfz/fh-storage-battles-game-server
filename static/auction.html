@@ -37,6 +37,10 @@
                                 <v-text-field v-model="firebaseId" label="Firebase ID" outlined append-icon="mdi-reload" @click:append="reloadId" :disabled="connected">
                                 </v-text-field>
                             </v-col>
+                            <v-col cols="12" sm="2">
+                                <v-text-field v-model="reservation" label="Reservation" outlined append-icon="mdi-reload" @click:append="reloadId" :disabled="connected">
+                                </v-text-field>
+                            </v-col>
                         </v-row>
                         <v-divider></v-divider>
 
@@ -96,17 +100,33 @@
             console.log('command', command, args);
         },
 
-        async connect(firebaseId) {
+        async connect(firebaseId, reservation) {
             if (serverService.connected) return;
 
             //dev -- dev.bidpvpalpha.tapps.games
             serverService.client = new Colyseus.Client('ws://localhost:2567');
-            serverService.room = await serverService.client.joinOrCreate('bidpvp', {
-                city: 'City01',
-                userId: firebaseId,
-                clientWeb: true,
-                character: 'char1',
-            });
+
+            if (reservation) {
+                let response = JSON.parse(reservation);
+                console.log(`Trying to connect using reservation ${reservation}`);
+                serverService.client.consumeSeatReservation(response).then(room => {
+                    serverService.room = room;
+                    console.log("joined successfully", room);
+                }).catch(e => {
+                    console.error("join error", e);
+                });
+
+            }
+            else {
+                const cityId = 'City01';
+                serverService.room = await serverService.client.joinOrCreate('bidpvp', {
+                    city: cityId,
+                    userId: firebaseId,
+                    clientWeb: true,
+                    character: 'char1',
+                });
+                console.log(`Connected on city ${cityId}`);
+            }
             serverService.connected = true;
             serverService._addListeners();
         },
@@ -137,6 +157,7 @@
                 clientId: null,
                 firebaseId: '',
                 state: {},
+                reservation: '',
             }
         },
 
@@ -177,7 +198,7 @@
 
         methods: {
             async onGameJoin() {
-                await serverService.connect(this.firebaseId);
+                await serverService.connect(this.firebaseId, this.reservation);
 
                 this.connected = true;
                 this.clientId = serverService.room.sessionId;
