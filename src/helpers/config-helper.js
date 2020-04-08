@@ -79,6 +79,7 @@ let _itemRarities;
  * @property {number} inspectDuration
  * @property {number} allowReconnectionTimeSeconds
  * @property {number} disposeRoomTimeout
+ * @property {number} zeroBidsLotTimeout
  * @property {string[]} characters
  */
 

@@ -423,7 +423,7 @@ class AuctionController {
         this.state.lots[lotIndex].status = auctionStatus.PLAY;
 
         //force lot end if noone bids
-        this.bidIntervalTimeout = this.room.clock.setTimeout(() => this.finishBidInterval(), 10000); // TODO get from config
+        this.bidIntervalTimeout = this.room.clock.setTimeout(() => this.finishBidInterval(), Config.game.zeroBidsLotTimeout);
     }
 
     /**
