@@ -28,7 +28,9 @@ spec:
           value: dev
         - name: GOOGLE_APPLICATION_CREDENTIALS
           value: /var/secrets/google/key.json
-        image: gcr.io/forhumans-gameservices-dev/bidpvpalpha:1.2.2.1
+        - name: GOOGLE_CLOUD_PROJECT
+          value: forhumans-gameservices-dev
+        image: gcr.io/forhumans-gameservices-dev/bidpvpalpha:1.2.2.2
         imagePullPolicy: IfNotPresent
         livenessProbe:
           failureThreshold: 5
