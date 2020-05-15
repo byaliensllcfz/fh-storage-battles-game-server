@@ -1,4 +1,4 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
@@ -28,7 +28,7 @@ spec:
           value: dev
         - name: GOOGLE_APPLICATION_CREDENTIALS
           value: /var/secrets/google/key.json
-        image: gcr.io/tpserver-dev-env/bidpvpalpha:1.2.0.24
+        image: gcr.io/forhumans-gameservices-dev/bidpvpalpha:1.2.2.1
         imagePullPolicy: IfNotPresent
         livenessProbe:
           failureThreshold: 5
@@ -68,4 +68,4 @@ spec:
       - name: google-cloud-key
         secret:
           defaultMode: 420
-          secretName: datastore-sa-key
+          secretName: gcp-api-key

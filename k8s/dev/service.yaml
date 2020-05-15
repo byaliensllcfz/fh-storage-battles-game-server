@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: bidpvp-alpha-gs
+  name: bidpvp-alpha-gs-service
+spec:
+  type: LoadBalancer
+  ports:
+  - name: 2567-to-2567-tcp
+    port: 2567
+    protocol: TCP
+    targetPort: 2567
+  selector:
+    app: bidpvp-alpha-gs
+  sessionAffinity: None
