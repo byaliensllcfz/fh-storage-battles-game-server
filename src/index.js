@@ -5,10 +5,8 @@ require('@tapps-games/datadog');
 
 (async function () {
     const { config } = require('@tapps-games/core');
-    const kubernetesEnv = process.env.KUBERNETES_ENV;
-
     await config.load('env');
-    await config.load('json', `configs/${kubernetesEnv}/config.json`);
+    await config.load('json', './configuration/config.json');
 
     const { Logger } = require('@tapps-games/logging');
     const logger = new Logger();

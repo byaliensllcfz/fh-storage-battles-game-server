@@ -9,12 +9,10 @@
             "request": "launch",
             "name": "Alpha Launch",
             "program": "${workspaceFolder}/src/index.js",
-            "runtimeArgs": ["-r", "./starter"],
+            "runtimeArgs": ["-r", "dotenv/config"],
+            "args": ["dotenv_config_path=configuration/.env"],
             "internalConsoleOptions": "neverOpen",
-            "autoAttachChildProcesses": true,
-            "env": {
-                "KUBERNETES_ENV" :"local"
-            }
+            "autoAttachChildProcesses": true
         },
         {
             "type": "node",

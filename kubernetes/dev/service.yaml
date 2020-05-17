@@ -2,8 +2,8 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    app: bidpvp-alpha-gs
-  name: bidpvp-alpha-gs-service
+    app: <NAME>-<URL_VERSION>
+  name: storage-battles-game-server-service
 spec:
   type: LoadBalancer
   ports:
@@ -12,5 +12,5 @@ spec:
     protocol: TCP
     targetPort: 2567
   selector:
-    app: bidpvp-alpha-gs
+    app: <NAME>-<URL_VERSION>
   sessionAffinity: None

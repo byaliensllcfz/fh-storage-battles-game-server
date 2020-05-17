@@ -1,7 +1,0 @@
-{
-    "serverEnableDatadog" : false,
-    "loggingEnableConsole" : true,
-    "apiUrl": "http://api:8080",
-    "bundleId": "com.megastorm.bidpvp.powerups",
-    "loggingLevel": "debug"
-}
