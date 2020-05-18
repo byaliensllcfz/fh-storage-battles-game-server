@@ -126,6 +126,7 @@ class Config {
         config.boxes = lodash.keyBy(config.boxes, box => box.id);
         config.characters = lodash.keyBy(config.characters, character => character.id);
         config.milestones = lodash.keyBy(config.milestones, milestone => milestone.rank);
+        config.milestonesV2 = lodash.keyBy(config.milestonesV2, milestone => milestone.rank);
 
         _separateCityItemsPerRarity(config);
 
@@ -165,6 +166,13 @@ class Config {
      */
     static get milestones() {
         return _config.milestones;
+    }
+
+    /**
+     * @return {Object<rank, Object>}
+     */
+    static get milestonesV2() {
+        return _config.milestonesV2;
     }
 
     /**

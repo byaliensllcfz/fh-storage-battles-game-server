@@ -8,9 +8,8 @@ FROM gcr.io/google_appengine/nodejs
 RUN /usr/local/bin/install_node '>=8.9.4'
 COPY . /app/
 
-ENV NPM_TOKEN KzUrhGQgrXyZdD3JKETT2q1ihhtQ3dfcPQHj3UQqV18=
-
 ENV NODE_ENV production
+ENV NPM_TOKEN zxBEd6yrWCcmIxwPMPgrRTCpWLiHtbQ0ziMJvwn+tYAN/y5bCY4CrN1NIIhz/zXlJCGrO754fBzV9y04IZUHJHi7mvpAqzHUZeCXM3/Py2Q=
 
 EXPOSE 2567
 EXPOSE 8081
