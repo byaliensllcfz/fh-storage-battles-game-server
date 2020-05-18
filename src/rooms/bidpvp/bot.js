@@ -51,17 +51,16 @@ class Bot {
         const milestonesOrdered = lodash.sortBy(Config.milestonesV2, milestone => milestone.trophies);
 
         for (let i=0; i< milestonesOrdered.length; i++) {
-            for (let j=0; j < milestonesOrdered[i].rewards.length; j++) {
-                if (milestonesOrdered[i].rewards[j].rewardType === 'city' && milestonesOrdered[i].rewards[j].rewardId === this.city.id) {
-                    const initTrophies = milestonesOrdered[i].trophies;
-                    this.rank = milestonesOrdered[i].rank;
+            const cityReward = lodash.filter(milestonesOrdered[i].rewards, reward => reward.rewardType === 'city' && reward.rewardId === this.city.id);
+            if (!lodash.isEmpty(cityReward)) {
+                const initTrophies = milestonesOrdered[i].trophies;
+                this.rank = milestonesOrdered[i].rank;
 
-                    if (milestonesOrdered[i+1]) {
-                        this.trophies = lodash.random(initTrophies, milestonesOrdered[i+1].trophies);
-                    }
-                    else {
-                        this.trophies = lodash.random(initTrophies, initTrophies*2);
-                    }
+                if (milestonesOrdered[i+1]) {
+                    this.trophies = lodash.random(initTrophies, milestonesOrdered[i+1].trophies);
+                }
+                else {
+                    this.trophies = lodash.random(initTrophies, initTrophies*2);
                 }
             }
         }
