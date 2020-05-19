@@ -6,7 +6,7 @@ COPY . /app/
 
 WORKDIR /app
 
-ENV NPM_TOKEN KzUrhGQgrXyZdD3JKETT2q1ihhtQ3dfcPQHj3UQqV18=
+ENV NPM_TOKEN zxBEd6yrWCcmIxwPMPgrRTCpWLiHtbQ0ziMJvwn+tYAN/y5bCY4CrN1NIIhz/zXlJCGrO754fBzV9y04IZUHJHi7mvpAqzHUZeCXM3/Py2Q=
 ENV NODE_ENV test
 
 RUN yarn --unsafe-perms --frozen-lockfile || \
