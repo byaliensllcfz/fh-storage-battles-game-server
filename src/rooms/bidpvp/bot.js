@@ -48,10 +48,11 @@ class Bot {
     }
 
     _generateRankAndTrophies() {
-        const milestonesOrdered = lodash.sortBy(Config.milestones, milestone => milestone.trophies);
+        const milestonesOrdered = lodash.sortBy(Config.milestonesV2, milestone => milestone.trophies);
 
         for (let i=0; i< milestonesOrdered.length; i++) {
-            if (!lodash.isEmpty(milestonesOrdered[i].cities) && lodash.find(milestonesOrdered[i].cities, city => city === this.city.id)) {
+            const cityReward = lodash.filter(milestonesOrdered[i].rewards, reward => reward.rewardType === 'city' && reward.rewardId === this.city.id);
+            if (!lodash.isEmpty(cityReward)) {
                 const initTrophies = milestonesOrdered[i].trophies;
                 this.rank = milestonesOrdered[i].rank;
 
