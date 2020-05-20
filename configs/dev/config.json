@@ -1,8 +1,0 @@
-{
-    "serverEnableDatadog" : false,
-    "loggingEnableConsole" : true,
-    "apiUrl": "https://storage-battles-v1-dot-tpserver-dev-env.appspot.com",
-    "bundleId": "com.megastorm.bidpvp.powerups",
-    "loggingLevel": "debug",
-    "ignoreAgones": true
-}

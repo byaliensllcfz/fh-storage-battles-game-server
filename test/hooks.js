@@ -1,6 +1,6 @@
 'use strict';
 
-require('dotenv').config({ path: 'configs/test/.env' });
+require('dotenv').config({ path: 'test/config/.env' });
 
 const { config } = require('@tapps-games/core');
 
@@ -19,7 +19,7 @@ const common = require('./common');
 
 before(async function () {
     await config.load('env');
-    await config.load('json', 'configs/test/config.json');
+    await config.load('json', 'test/config/config.json');
     config.set('loggingEnableConsole', false);
 
     expect(process.env.DATASTORE_EMULATOR_HOST).to.be.equal('localhost:8081');

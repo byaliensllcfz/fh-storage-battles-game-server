@@ -1,17 +1,19 @@
-# Dockerfile extending the generic Node image with application files for a
-# single application.
-FROM node:10.18.1-buster
+# syntax=docker/dockerfile:experimental
+# Must run with DOCKER_BUILDKIT=1 defined (or enabled in daemon config)
+# e.g. DOCKER_BUILDKIT=1 docker build --secret id=npmtoken,src=/Users/tapps/.npm_token -t <tag> --progress plain ./
+FROM gcr.io/forhumans-infrastructure/node-test-base:latest
 
-COPY . /app/
-
-WORKDIR /app
-
-ENV NPM_TOKEN zxBEd6yrWCcmIxwPMPgrRTCpWLiHtbQ0ziMJvwn+tYAN/y5bCY4CrN1NIIhz/zXlJCGrO754fBzV9y04IZUHJHi7mvpAqzHUZeCXM3/Py2Q=
 ENV NODE_ENV test
+ENV NPM_TOKEN placeholder
+ENV GOOGLE_CLOUD_PROJECT forhumans-gameservices-dev
 
-RUN yarn --unsafe-perms --frozen-lockfile || \
+COPY --chown=${USER_ID}:${USER_GID} . /app/
+WORKDIR /app/
+
+RUN --mount=type=secret,id=npmtoken,mode=666 \
+  NPM_TOKEN=$(cat /run/secrets/npmtoken) yarn --unsafe-perms --frozen-lockfile || \
   ((if [ -f yarn-debug.log ]; then \
       cat yarn-debug.log; \
     fi) && false)
 
-CMD npm test
+CMD ["yarn", "test"]
