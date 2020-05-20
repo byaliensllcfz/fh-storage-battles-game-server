@@ -329,9 +329,9 @@
   integrity sha512-ONhaKPIufzzrlNbqtWFFd+jlnemX6lJAgq9ZeiZtS7I1PIf/la7CW4m83rTXRnVnsMbW2k56pGYu7AUFJD9Pow==
 
 "@sinonjs/commons@^1", "@sinonjs/commons@^1.3.0", "@sinonjs/commons@^1.4.0", "@sinonjs/commons@^1.7.0":
-  version "1.7.2"
-  resolved "https://registry.forhumans.games/node/@sinonjs%2fcommons/-/commons-1.7.2.tgz#505f55c74e0272b43f6c52d81946bed7058fc0e2"
-  integrity sha512-+DUO6pnp3udV/v2VfUWgaY5BIE1IfT7lLfeDzPVeMT1XKkaAp9LgSI9x5RtrFQoZ9Oi0PgXQQHPaoKu7dCjVxw==
+  version "1.8.0"
+  resolved "https://registry.forhumans.games/node/@sinonjs%2fcommons/-/commons-1.8.0.tgz#c8d68821a854c555bba172f3b06959a0039b236d"
+  integrity sha512-wEj54PfsZ5jGSwMX68G8ZXFawcSglQSXqCftWX3ec8MDUzQdHgcKvw97awHbY0efQEL5iKUOAmmVtoYgmrSG4Q==
   dependencies:
     type-detect "4.0.8"
 
@@ -378,10 +378,10 @@
     lodash "^4.17.11"
     uuid "^3.3.2"
 
-"@tapps-games/core@^1.0.10":
-  version "1.0.10"
-  resolved "https://registry.forhumans.games/node/@tapps-games%2fcore/-/core-1.0.10.tgz#55f21d34e38d5cfcc0e73c3252149c710f755c59"
-  integrity sha512-1u4HbWdylKOLLHpvzCVODaoXAarC/El/dFoplcGbUQ4OPKamK2OuU4g6xijTbuvxJ1Mt8CXeRitpK+NZXFMyAA==
+"@tapps-games/core@^1.0.10", "@tapps-games/core@^1.0.11":
+  version "1.0.11"
+  resolved "https://registry.forhumans.games/node/@tapps-games%2fcore/-/core-1.0.11.tgz#708fb692edc8ced32e36537310a085dbd0379616"
+  integrity sha512-9io/7hX172izTo+vRFnm6ysBrBFDUz93swm6Mk5PVqlcT/U73xp6H2/IBZXfpbZzWq2fRW2X4bMIveW+dj4V/w==
   dependencies:
     deep-rename-keys "^0.2.1"
     dotenv "^8.0.0"
@@ -436,28 +436,28 @@
     traverse "^0.6.6"
     uuidv4 "^4.0.0"
 
-"@tapps-games/requests@^2.1.2":
-  version "2.1.2"
-  resolved "https://registry.forhumans.games/node/@tapps-games%2frequests/-/requests-2.1.2.tgz#637b0a89b4415cf73b8dc2c9bf6f7b740568b295"
-  integrity sha512-vr3Dbl92RBCZsp4AqanZvmGQOV+WphKi2qmTlhUmAntqnL4fi3Hy0iDe+/c0HqB2B6yAWiFt0oamdt+BmjTL7g==
+"@tapps-games/requests@^2.1.3":
+  version "2.1.3"
+  resolved "https://registry.forhumans.games/node/@tapps-games%2frequests/-/requests-2.1.3.tgz#38b94d9e9cb63a77f70c31ff8a77d7af8a0aab70"
+  integrity sha512-5sJw+lIYUoG6GlJuuVlrQTx4eUQGEwYHxXaGlg+rNUg8cRaJbXMdJgr3VtGOKbQIOElhimYOCYNNANg6mkG31g==
   dependencies:
-    "@tapps-games/core" "^1.0.10"
+    "@tapps-games/core" "^1.0.11"
     "@tapps-games/datastore" "^1.2.0"
     axios "^0.19.0"
     lodash "^4.17.11"
 
 "@tapps-games/server@^1.2.1":
-  version "1.2.4"
-  resolved "https://registry.forhumans.games/node/@tapps-games%2fserver/-/server-1.2.4.tgz#abf1c7d9bb1d70b3f60a1cbb3d5f09a52c945803"
-  integrity sha512-zp2mRJaZ4l+RtkI4kxZnjxp8+PAr4FHPjXLv3zHG1vL8VfDHRGd8tZEwjQyI5jbIO7pQOWogB34DUxrG8hpzHw==
+  version "1.2.5"
+  resolved "https://registry.forhumans.games/node/@tapps-games%2fserver/-/server-1.2.5.tgz#180e4b4f9256c0c1d1900e9a661bc8d0cb129b93"
+  integrity sha512-OrylQyMcoDLRIvQZxEnLGw+FwjxO46CdP1DISlDakoQci5FNoD9+NQos0F2aasiaNVEfiAvBQijqxJ+lXx+E2Q==
   dependencies:
     "@tapps-games/cache" "^1.0.3"
     "@tapps-games/cluster" "^1.0.4"
-    "@tapps-games/core" "^1.0.10"
+    "@tapps-games/core" "^1.0.11"
     "@tapps-games/datadog" "^1.0.3"
     "@tapps-games/datastore" "^1.2.0"
     "@tapps-games/logging" "^1.1.0"
-    "@tapps-games/requests" "^2.1.2"
+    "@tapps-games/requests" "^2.1.3"
     axios "^0.19.0"
     express "^4.17.1"
     json-stringify-safe "^5.0.1"
@@ -518,19 +518,19 @@
   integrity sha512-5tXH6Bx/kNGd3MgffdmP4dy2Z+G4eaXw0SE81Tq3BNadtnMR5/ySMzX4SLEzHJzSmPNn4HIdpQsBvXMUykr58w==
 
 "@types/node@*":
-  version "14.0.1"
-  resolved "https://registry.forhumans.games/node/@types%2fnode/-/node-14.0.1.tgz#5d93e0a099cd0acd5ef3d5bde3c086e1f49ff68c"
-  integrity sha512-FAYBGwC+W6F9+huFIDtn43cpy7+SzG+atzRiTfdp3inUKL2hXnd4rG8hylJLIh4+hqrQy1P17kvJByE/z825hA==
+  version "14.0.4"
+  resolved "https://registry.forhumans.games/node/@types%2fnode/-/node-14.0.4.tgz#43a63fc5edce226bed106b31b875165256271107"
+  integrity sha512-k3NqigXWRzQZVBDS5D1U70A5E8Qk4Kh+Ha/x4M8Bt9pF0X05eggfnC9+63Usc9Q928hRUIpIhTQaXsZwZBl4Ew==
 
 "@types/node@^10.12.18":
-  version "10.17.21"
-  resolved "https://registry.forhumans.games/node/@types%2fnode/-/node-10.17.21.tgz#c00e9603399126925806bed2d9a1e37da506965e"
-  integrity sha512-PQKsydPxYxF1DsAFWmunaxd3sOi3iMt6Zmx/tgaagHYmwJ/9cRH91hQkeJZaUGWbvn0K5HlSVEXkn5U/llWPpQ==
+  version "10.17.24"
+  resolved "https://registry.forhumans.games/node/@types%2fnode/-/node-10.17.24.tgz#c57511e3a19c4b5e9692bb2995c40a3a52167944"
+  integrity sha512-5SCfvCxV74kzR3uWgTYiGxrd69TbT1I6+cMx1A5kEly/IVveJBimtAMlXiEyVFn5DvUFewQWxOOiJhlxeQwxgA==
 
 "@types/node@^13.7.0":
-  version "13.13.6"
-  resolved "https://registry.forhumans.games/node/@types%2fnode/-/node-13.13.6.tgz#caa6756b64d30547a2082235531fa0dd8cba1b6e"
-  integrity sha512-zqRj8ugfROCjXCNbmPBe2mmQ0fJWP9lQaN519hwunOgpHgVykme4G6FW95++dyNFDvJUk4rtExkVkL0eciu5NA==
+  version "13.13.8"
+  resolved "https://registry.forhumans.games/node/@types%2fnode/-/node-13.13.8.tgz#39fa1c8563bce1077507fea05699437f112ecbcc"
+  integrity sha512-WJoiKALUF5exZo0G3T5coauJR2Tmc6rdE9/kgppZVnV6rlUB2dl3gTu2GTNBKhKF6SZ/WFfpEUIGNC/0qvdMWA==
 
 "@types/redis@^2.8.12":
   version "2.8.21"
@@ -3862,9 +3862,9 @@ mongoose-legacy-pluralize@1.0.2:
   integrity sha512-Yo/7qQU4/EyIS8YDFSeenIvXxZN+ld7YdV9LqFVQJzTLye8unujAWPZ4NWKfFA+RNjh+wvTWKY9Z3E5XM6ZZiQ==
 
 mongoose@^5.6.9:
-  version "5.9.14"
-  resolved "https://registry.forhumans.games/node/mongoose/-/mongoose-5.9.14.tgz#73dff38457c254f6a0eff2741642a62c5138b4c8"
-  integrity sha512-LScxCruQv0YpU/9DasKdThd+3r3PFQbCgesmfa6g0pTDOIiD1A9N9OQsGYrDf+dyUksfLCxJYYF9qpBHLvS1tg==
+  version "5.9.15"
+  resolved "https://registry.forhumans.games/node/mongoose/-/mongoose-5.9.15.tgz#935e157d1429c0702b71c5ecf0e6801faa771091"
+  integrity sha512-dGIDqaQkAJoLl7lsRLy70mDg+VcL1IPOHr/0f23MLF45PtnM5exRdmienfyVjdrSVGgTus+1sMUKef6vSnrDZg==
   dependencies:
     bson "^1.1.4"
     kareem "2.3.1"
