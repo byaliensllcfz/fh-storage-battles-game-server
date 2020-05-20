@@ -256,10 +256,7 @@ class AuctionController {
      * @private
      */
     _pickItemState() {
-        const oldItemStateChance = 1 - (this.city.wornItemStateChance + this.city.newItemStateChance);
-        const options = ['OLD', 'WORN', 'NEW'];
-        const weights = [oldItemStateChance, this.city.wornItemStateChance, this.city.newItemStateChance];
-        return weighted.select(options, weights);
+        return 'WORN';
     }
 
     /**
