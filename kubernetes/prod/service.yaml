@@ -6,7 +6,7 @@ metadata:
   name: storage-battles-game-server-service
 spec:
   type: LoadBalancer
-  loadBalancerIp: storage-battles-prod-lb-ip
+  loadBalancerIP: 35.196.255.173
   ports:
   - name: 2567-to-2567-tcp
     port: 2567
