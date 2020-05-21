@@ -57,7 +57,7 @@ spec:
         - name: google-cloud-key
           secret:
             defaultMode: 420
-            secretName: tpserver-api-key
+            secretName: gcp-api-key
         - name: config-files
           configMap:
             name: config-<NAME>-<URL_VERSION>

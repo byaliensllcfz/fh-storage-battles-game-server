@@ -20,8 +20,8 @@ data:
     ENV=prod
     PORT=2567
     GOOGLE_APPLICATION_CREDENTIALS=/var/secrets/google/key.json
-    GOOGLE_CLOUD_PROJECT=tp-server
-    DATASTORE_PROJECT_ID=tp-server
+    GOOGLE_CLOUD_PROJECT=forhumans-gameservices
+    DATASTORE_PROJECT_ID=forhumans-gameservices
     SERVICE_NAME=<NAME>
     SERVICE_DEPLOY_ID=<NAME>-v<MAJOR_VERSION>
     SERVICE_DEPLOY_VERSION=<BUILD_VERSION>
