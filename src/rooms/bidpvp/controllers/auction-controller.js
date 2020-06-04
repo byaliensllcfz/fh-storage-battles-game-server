@@ -691,10 +691,10 @@ class AuctionController {
                     return;
                 }
 
-                // Execute skill hightlight odds.
+                // Execute skill highlight odds.
                 if (skillConfig.type === 'highlight') {
-                    if (lodash.isUndefined(notification.hightlight)) {
-                        notification.hightlight = [];
+                    if (lodash.isUndefined(notification.highlight)) {
+                        notification.highlight = [];
                     }
                     const skillItemCategory = skillConfig.category;
                     const skillItemRarity = skillConfig.rarity;
@@ -704,12 +704,12 @@ class AuctionController {
                     lodash.each(currentLot.items, lotItem => {
                         const lotItemConfig = Config.getItem(lotItem.itemId);
                         if (lotItemConfig.category === skillItemCategory && lotItemConfig.rarity === skillItemRarity && lodash.random(0.0, 1.0, true) < skillProbability) {
-                            notification.hightlight.push({ itemId: lotItem.itemId, type: skillConfig.type } );
+                            notification.highlight.push({ itemId: lotItem.itemId } );
                         }
                     });
                 }
-                if (lodash.isEmpty(notification.hightlight)) {
-                    delete notification.hightlight;
+                if (lodash.isEmpty(notification.highlight)) {
+                    delete notification.highlight;
                 }
             });
 
