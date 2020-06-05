@@ -696,12 +696,16 @@ class AuctionController {
                 if (skillConfig.type === 'highlight') {
                     const skillItemCategory = skillConfig.category;
                     const skillItemRarity = skillConfig.rarity;
-                    const skillProbability = lodash.find(skillConfig.levelProgression, sp => sp.level === profile.character.level).probability;
-                    if (lodash.isUndefined(skillProbability)) {
-                        this.logger.error(`Cannot apply skill to user=${player.id}. Failed to get probability. level=${profile.character.level}`);
+                    const skillLevel = lodash.find(skillConfig.levelProgression, sp => sp.level === profile.character.level);
+                    if (lodash.isUndefined(skillLevel)) {
+                        this.logger.error(`Cannot apply skill to user=${player.id}. Failed to get skill level. level=${profile.character.level}`);
                         return;
                     }
-
+                    const skillProbability = skillLevel.probability;
+                    if (lodash.isUndefined(skillProbability)) {
+                        this.logger.error(`Cannot apply skill to user=${player.id}. Probability is undefined. level=${profile.character.level}`);
+                        return;
+                    }
                     // Get all itens based on rarity and category.
                     lodash.each(currentLot.items, lotItem => {
                         const lotItemConfig = Config.getItem(lotItem.itemId);
