@@ -73,6 +73,13 @@
                                     </div>
                                 </v-flex>
 
+                                <v-flex xs4>
+                                    <div class="pa-5 mt-2">
+                                        <b> MESSAGE: </b><br />
+                                        <pre>{{messageInfo}} </pre>
+                                    </div>
+                                </v-flex>
+
                             </v-card>
                         </v-container>
 
@@ -94,7 +101,7 @@
         room: null,
         connected: false,
         serverData: null,
-
+        
         sendMessage(command, args) {
             serverService.room.send({ command, args, commandIndex: 0 });
             console.log('command', command, args);
@@ -123,7 +130,6 @@
                     city: cityId,
                     userId: firebaseId,
                     clientWeb: true,
-                    character: 'char1',
                 });
                 console.log(`Connected on city ${cityId}`);
             }
@@ -144,7 +150,8 @@
             serverService.room.onLeave(() => {
                 console.log("Left room", arguments);
             });
-        }
+        },
+        
     };
 
     let app = new Vue({
@@ -193,7 +200,17 @@
                 }
 
                 return info;
-            }
+            },
+            messageInfo() {
+                let info = '';
+
+                if (this.state && this.state.status === 'PLAY') {
+                    return JSON.parse(serverService.serverData);
+                }
+
+                return info;
+            },
+            
         },
 
         methods: {

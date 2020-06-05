@@ -74,6 +74,7 @@ class AuctionController {
                 player.money = lodash.min([playerData.currencies.softCurrency, this.city.maximumMoney]);
                 player.trophies = playerData.currencies.trophies;
                 player.rank = playerData.currencies.rank;
+                player.character = playerData.profile.selectedCharacter;
             }
         });
 
@@ -94,6 +95,11 @@ class AuctionController {
             return false;
         }
     }
+
+    _getPlayerProfile(player) {
+        return this.profiles[player.firebaseId];
+    }
+
 
     /**
      * Calculates the next bid value and updates the state.
@@ -407,6 +413,8 @@ class AuctionController {
                 this.lotStartTimeout.clear();
             }
 
+            this._notifyPlayerSkills();
+
             this.room.clock.setTimeout(() => this._startLot(lotIndex), Config.game.inspectDuration);
         }
     }
@@ -648,6 +656,79 @@ class AuctionController {
                 this.room.disconnect();
             }
         }, Config.game.disposeRoomTimeout);
+    }
+
+    /**
+     * Apply the players skills, sending a message with affected items or boxes.
+     */
+    async _notifyPlayerSkills() {
+
+        const currentLot = this._getCurrentLot();
+
+        // Interact each real player.
+        lodash.each(this.state.players, player => {
+            if (player.isBot) {
+                return; // Same as continue;
+            }
+            let notification = {}; // Base awnser.
+
+            // Get player's skills
+            const profile = this._getPlayerProfile(player);
+            if (lodash.isUndefined(profile.character)) {
+                this.logger.error(`Cannot apply skill to user=${player.id}. Character not found.`);
+                return;
+            }
+            const characterConfig = Config.getCharacter(profile.character.id);
+            if (lodash.isUndefined(characterConfig)) {
+                this.logger.error(`Cannot apply skill to user=${player.id}. Character config for characterId=${profile.character.id} not found.`);
+                return; // Character config not found. Ignore.
+            }
+
+            // Character can have more than one skill.
+            lodash.each(characterConfig.skills, skillId => {
+                const skillConfig = Config.getSkill(skillId);
+                if (!skillConfig) {
+                    this.logger.error(`Cannot apply skill to user=${player.id}. Skill config ${skillId} not found.`);
+                    return;
+                }
+
+                // Execute skill highlight odds.
+                if (skillConfig.type === 'highlight') {
+                    const skillItemCategory = skillConfig.category;
+                    const skillItemRarity = skillConfig.rarity;
+                    const skillLevel = lodash.find(skillConfig.levelProgression, sp => sp.level === profile.character.level);
+                    if (lodash.isUndefined(skillLevel)) {
+                        this.logger.error(`Cannot apply skill to user=${player.id}. Failed to get skill level. level=${profile.character.level}`);
+                        return;
+                    }
+                    const skillProbability = skillLevel.probability;
+                    if (lodash.isUndefined(skillProbability)) {
+                        this.logger.error(`Cannot apply skill to user=${player.id}. Probability is undefined. level=${profile.character.level}`);
+                        return;
+                    }
+                    // Get all itens based on rarity and category.
+                    lodash.each(currentLot.items, lotItem => {
+                        const lotItemConfig = Config.getItem(lotItem.itemId);
+                        if (lotItemConfig.category === skillItemCategory && lotItemConfig.rarity === skillItemRarity && lodash.random(0.0, 1.0, true) <= skillProbability) {
+                            if (lodash.isUndefined(notification.highlight) || lodash.isNull(notification.highlight)) {
+                                notification.highlight = [];
+                            }
+                            notification.highlight.push({ itemId: lotItem.itemId } );
+                        }
+                    });
+                }
+            });
+
+            // Any notification to send to client?
+            if (!lodash.isEmpty(notification)) {
+                const client = lodash.find(this.room.clients, client => client.id === player.id);
+                if (!client || !player.connected) {
+                    this.logger.info(`Player ${player.firebaseId} disconnected. Unable to send skill message.`);
+                } else {
+                    this.room.send(client, JSON.stringify(notification));
+                }
+            }
+        });
     }
 }
 
