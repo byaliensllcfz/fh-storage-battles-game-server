@@ -57,6 +57,7 @@ class BidPvpRoom extends Room {
         this.state.players[client.id] = new PlayerState({
             id: client.id,
             firebaseId: options.userId,
+            character: options.character,
             isBot: options.bot,
         });
 
