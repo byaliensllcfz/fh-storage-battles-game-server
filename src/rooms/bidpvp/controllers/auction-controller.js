@@ -74,6 +74,7 @@ class AuctionController {
                 player.money = lodash.min([playerData.currencies.softCurrency, this.city.maximumMoney]);
                 player.trophies = playerData.currencies.trophies;
                 player.rank = playerData.currencies.rank;
+                player.character = playerData.profile.selectedCharacter;
             }
         });
 
@@ -679,7 +680,7 @@ class AuctionController {
             }
             const characterConfig = Config.getCharacter(profile.character.id);
             if (lodash.isUndefined(characterConfig)) {
-                this.logger.error(`Cannot apply skill to user=${player.id}. Character config for characterId=${profile.characters.id} not found.`);
+                this.logger.error(`Cannot apply skill to user=${player.id}. Character config for characterId=${profile.character.id} not found.`);
                 return; // Character config not found. Ignore.
             }
 
@@ -687,7 +688,7 @@ class AuctionController {
             lodash.each(characterConfig.skills, skillId => {
                 const skillConfig = Config.getSkill(skillId);
                 if (!skillConfig) {
-                    this.logger.info(`Cannot apply skill to user=${player.id}. Skill config ${skillId} not found.`);
+                    this.logger.error(`Cannot apply skill to user=${player.id}. Skill config ${skillId} not found.`);
                     return;
                 }
 
@@ -695,7 +696,11 @@ class AuctionController {
                 if (skillConfig.type === 'highlight') {
                     const skillItemCategory = skillConfig.category;
                     const skillItemRarity = skillConfig.rarity;
-                    const skillProbability = lodash.find(skillConfig.levelProgression, sp => sp.level == profile.character.level).probability;
+                    const skillProbability = lodash.find(skillConfig.levelProgression, sp => sp.level === profile.character.level).probability;
+                    if (lodash.isUndefined(skillProbability)) {
+                        this.logger.error(`Cannot apply skill to user=${player.id}. Failed to get probability. level=${profile.character.level}`);
+                        return;
+                    }
 
                     // Get all itens based on rarity and category.
                     lodash.each(currentLot.items, lotItem => {
@@ -713,7 +718,11 @@ class AuctionController {
             // Any notification to send to client?
             if (!lodash.isEmpty(notification)) {
                 const client = lodash.find(this.room.clients, client => client.id === player.id);
-                this.room.send(client, JSON.stringify(notification));
+                if (!client || !player.connected) {
+                    this.logger.info(`Player ${player.firebaseId} disconnected. Unable to send skill message.`);
+                } else {
+                    this.room.send(client, JSON.stringify(notification));
+                }
             }
         });
     }
