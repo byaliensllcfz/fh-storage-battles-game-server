@@ -705,7 +705,7 @@ class AuctionController {
                     // Get all itens based on rarity and category.
                     lodash.each(currentLot.items, lotItem => {
                         const lotItemConfig = Config.getItem(lotItem.itemId);
-                        if (lotItemConfig.category === skillItemCategory && lotItemConfig.rarity === skillItemRarity && lodash.random(0.0, 1.0, true) < skillProbability) {
+                        if (lotItemConfig.category === skillItemCategory && lotItemConfig.rarity === skillItemRarity && lodash.random(0.0, 1.0, true) <= skillProbability) {
                             if (lodash.isUndefined(notification.highlight) || lodash.isNull(notification.highlight)) {
                                 notification.highlight = [];
                             }
