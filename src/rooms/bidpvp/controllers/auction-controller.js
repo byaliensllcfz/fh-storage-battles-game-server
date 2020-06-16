@@ -696,24 +696,37 @@ class AuctionController {
                 if (skillConfig.type === 'highlight') {
                     const skillItemCategory = skillConfig.category;
                     const skillItemRarity = skillConfig.rarity;
-                    const skillLevel = lodash.find(skillConfig.levelProgression, sp => sp.level === profile.character.level);
+                    let skillLevel = lodash.find(skillConfig.levelProgression, sp => sp.level === profile.character.level);
                     if (lodash.isUndefined(skillLevel)) {
-                        this.logger.error(`Cannot apply skill to user=${player.id}. Failed to get skill level. level=${profile.character.level}`);
-                        return;
+                        this.logger.warning(`Cannot get right skill level to user=${player.id}. Failed to get skill level. level=${profile.character.level}`);
+
+                        const maxLevel = lodash.maxBy(skillConfig.levelProgression, function(o) { return o.level; });
+                        // Get the last level.
+                        if (profile.character.level > maxLevel) {
+                            skillLevel = lodash.find(skillConfig.levelProgression, sp => sp.level === maxLevel);
+                        }
+                        else{
+                            this.logger.error(`Cannot get skill level to user=${player.id}. Failed to get skill level. level=${profile.character.level}`);
+                            return;
+                        }
                     }
                     const skillProbability = skillLevel.probability;
                     if (lodash.isUndefined(skillProbability)) {
                         this.logger.error(`Cannot apply skill to user=${player.id}. Probability is undefined. level=${profile.character.level}`);
                         return;
                     }
+
                     // Get all itens based on rarity and category.
                     lodash.each(currentLot.items, lotItem => {
                         const lotItemConfig = Config.getItem(lotItem.itemId);
-                        if (lotItemConfig.category === skillItemCategory && lotItemConfig.rarity === skillItemRarity && lodash.random(0.0, 1.0, true) <= skillProbability) {
-                            if (lodash.isUndefined(notification.highlight) || lodash.isNull(notification.highlight)) {
-                                notification.highlight = [];
+                        const rarityFound = lodash.find(skillItemRarity, r => r === lotItemConfig.rarity);
+                        if (!lodash.isUndefined(rarityFound)) {
+                            if (lotItemConfig.category === skillItemCategory && lodash.random(0.0, 1.0, true) <= skillProbability) {
+                                if (lodash.isUndefined(notification.highlight) || lodash.isNull(notification.highlight)) {
+                                    notification.highlight = [];
+                                }
+                                notification.highlight.push({ itemId: lotItem.itemId } );
                             }
-                            notification.highlight.push({ itemId: lotItem.itemId } );
                         }
                     });
                 }
