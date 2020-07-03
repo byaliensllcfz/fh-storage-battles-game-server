@@ -738,6 +738,7 @@ class AuctionController {
                 if (!client || !player.connected) {
                     this.logger.info(`Player ${player.firebaseId} disconnected. Unable to send skill message.`);
                 } else {
+                    this.logger.info(`Player ${player.id} got skills. ${JSON.stringify(notification)}`);
                     this.room.send(client, JSON.stringify(notification));
                 }
             }
