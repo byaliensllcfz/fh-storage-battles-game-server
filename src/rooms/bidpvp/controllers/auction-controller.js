@@ -211,7 +211,9 @@ class AuctionController {
         const lotBoxedItems = {};
 
         const lotItemsAmount = lodash.random(this.city.minimumItemsInLot, this.city.maximumItemsInLot);
-        this.logger.debug(`Lot ${index} will have ${lotItemsAmount} items`);
+        const lotJunkItemsAmount = lodash.random(this.city.minimumJunkItemsInLot, this.city.maximumJunkItemsInLot);
+
+        this.logger.debug(`Lot ${index} will have ${lotItemsAmount} items and ${lotJunkItemsAmount} junk items`);
 
         let itemsPerRarity = {};
         let boxedItemsPerRarity = {};
@@ -246,6 +248,17 @@ class AuctionController {
                 boxedItems++;
             }
             else {
+                lotItems[unboxedItems] = new ItemState(itemId, state);
+                unboxedItems++;
+            }
+        }
+
+        if (!lodash.isEmpty(this.city.junkItems)) {
+            for (let index = 0; index < lotJunkItemsAmount; index++) {
+                const itemId = lodash.sample(this.city.junkItems);
+                const state = this._pickItemState();
+                this.logger.debug(`Drawing JUNK item ${itemId}, state:${state}.`);
+
                 lotItems[unboxedItems] = new ItemState(itemId, state);
                 unboxedItems++;
             }

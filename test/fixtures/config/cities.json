@@ -107,7 +107,9 @@
             "rare01",
             "rare02",
             "epic01",
-            "epic02"
+            "epic02",
+            "junk01",
+            "junk02"
         ],
         "minimumMoney": 2000,
         "name": "City02",
