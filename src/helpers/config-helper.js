@@ -130,6 +130,7 @@ class Config {
         config.skills = lodash.keyBy(config.skills, skill => skill.id);
 
         _separateCityItemsPerRarity(config);
+        _separateCityJunkItems(config);
 
         _config = config;
     }
@@ -231,6 +232,8 @@ class Config {
  * @private
  */
 function _separateCityItemsPerRarity(config) {
+    const junkItems = lodash.filter(config.items, item => item.category === 'junk').map(item => item.id);
+
     lodash.each(_itemRarities, rarity => {
         const itemsForRarity = lodash.filter(config.items, item => item.rarity === rarity).map(item => item.id);
 
@@ -239,7 +242,8 @@ function _separateCityItemsPerRarity(config) {
                 city.itemRarities = [];
             }
 
-            const cityItemsForRarity = lodash.intersection(itemsForRarity, city.availableItems);
+            //gets the intersection between items of rarity and city.availableItems and remove junkItems
+            const cityItemsForRarity = lodash.difference(lodash.intersection(itemsForRarity, city.availableItems), junkItems);
 
             logger.debug(`City ${city.id}, rarity ${rarity} - Items: ${JSON.stringify(cityItemsForRarity)}`);
             city.itemsRarity[rarity].items = cityItemsForRarity;
@@ -248,6 +252,15 @@ function _separateCityItemsPerRarity(config) {
                 city.itemRarities.push(rarity);
             }
         });
+    });
+}
+
+function _separateCityJunkItems(config) {
+    // the ideal is to get JUNKITEMCATEGORY from API on getConfig
+    const junkItems = lodash.filter(config.items, item => item.category === 'junk').map(item => item.id);
+    lodash.each(config.cities, city => {
+        city.junkItems = lodash.intersection(junkItems, city.availableItems);
+        logger.debug(`City ${city.id}, JUNK Items: ${JSON.stringify(city.junkItems)}`);
     });
 }
 

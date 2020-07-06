@@ -1,4 +1,15 @@
 {
+    "junk01": {
+		"id": "junk01",
+		"pawnTimerSeconds": 60,
+		"price": 5,
+		"name": "Empty Bottles",
+		"pawnTokens": 1,
+		"rarity": "Common",
+		"archive": "Bottles",
+		"category": "junk",
+		"boxType": "SSquare"
+	},
     "common01": {
         "id": "common01",
         "name": "Flip Flop",
@@ -58,5 +69,16 @@
         "price": 3200,
         "boxType": "LSquare",
         "rarity": "Epic"
-    }
+    },
+    "junk02": {
+		"id": "junk02",
+		"rarity": "Common",
+		"archive": "Umbrella",
+		"category": "junk",
+		"boxType": "MSquare",
+		"pawnTimerSeconds": 60,
+		"price": 5,
+		"name": "Umbrella",
+		"pawnTokens": 1
+	}
 }
