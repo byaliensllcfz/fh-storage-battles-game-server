@@ -129,6 +129,7 @@ class Config {
         config.milestonesV2 = lodash.keyBy(config.milestonesV2, milestone => milestone.rank);
         config.skills = lodash.keyBy(config.skills, skill => skill.id);
 
+        _putEventsOnCities(config);
         _separateCityItemsPerRarity(config);
         _separateCityJunkItems(config);
 
@@ -231,6 +232,21 @@ class Config {
  * @param {Object} config
  * @private
  */
+function _putEventsOnCities(config) {
+    lodash.each(config.cities, city => city.isEvent = false);
+
+    if (config.events) {
+        lodash.each(config.events, event => {
+            event.isEvent = true;
+            config.cities[event.id] = event;
+        });
+    }
+}
+
+/**
+ * @param {Object} config
+ * @private
+ */
 function _separateCityItemsPerRarity(config) {
     const junkItems = lodash.filter(config.items, item => item.category === 'junk').map(item => item.id);
 
@@ -250,6 +266,23 @@ function _separateCityItemsPerRarity(config) {
 
             if (!lodash.isEmpty(cityItemsForRarity)) {
                 city.itemRarities.push(rarity);
+            }
+
+            if (city.isEvent) {
+                if (!city.eventItemRarities) {
+                    city.eventItemRarities = [];
+                }
+                if (!city.eventItemsPerRarity) {
+                    city.eventItemsPerRarity = {};
+                }
+
+                const cityEventItemsForRarity = lodash.intersection(itemsForRarity, city.eventItems);
+                logger.debug(`City EVENT ${city.id}, rarity ${rarity} - Items: ${JSON.stringify(cityEventItemsForRarity)}`);
+                city.eventItemsPerRarity[rarity] = cityEventItemsForRarity;
+
+                if (!lodash.isEmpty(cityEventItemsForRarity)) {
+                    city.eventItemRarities.push(rarity);
+                }
             }
         });
     });

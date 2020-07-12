@@ -50,7 +50,7 @@ class AuctionController {
      * @return {Promise<void>}
      */
     async startAuction() {
-        this.logger.info(`Attempting to start auction on ${this.city.id}`);
+        this.logger.info(`Attempting to start auction on ${this.city.id} - (event? ${this.city.isEvent})`);
         if (this._started) {
             return;
         }
@@ -135,7 +135,55 @@ class AuctionController {
             this.state.lots.push(newLot);
 
             this._generateLotItems(index, newLot);
-            this._generateInitialBid(newLot);
+        }
+
+        if (this.city.isEvent) {
+            this._generateLotsEventItems(lotAmount);
+        }
+
+        lodash.forEach(this.state.lots, (lot, idx) => this._generateInitialBid(lot, idx));
+    }
+
+    _generateLotsEventItems(lotAmount) {
+        const shuffledLots = lodash.shuffle(Array.from(Array(lotAmount).keys()));
+        const probabilityPerRarity = lodash.keyBy(this.city.eventItemsRarity, prob => prob.rarity);
+
+        let eventItemsDrawn = 0;
+        for (let index = 0; index < lotAmount; index++) {
+            const lot = this.state.lots[shuffledLots[index]];
+            let lotItemsAmount = lodash.keys(lot.items).length;
+
+            const eventItemsPerRarity = lodash.clone(this.city.eventItemsPerRarity);
+            //only once per rarity, per lot
+            lodash.each(this.city.eventItemRarities, rarity => {
+                if (!lodash.isEmpty(eventItemsPerRarity[rarity])) {
+                    const probability = probabilityPerRarity[rarity].drawProbability;
+
+                    const options = [true, false];
+                    const weights = [probability, 1 - probability];
+                    if (weighted.select(options, weights)) {
+                        const itemId = lodash.sample(eventItemsPerRarity[rarity]);
+                        const state = this._pickItemState();
+                        this.logger.debug(`Drawing EVENT item ${itemId}, from rarity ${rarity} on lot ${shuffledLots[index]}`);
+
+                        lot.items[lotItemsAmount] = new ItemState(itemId, state);
+
+                        //remove item already drawn
+                        lodash.remove(eventItemsPerRarity[rarity], itemId);
+                        eventItemsDrawn++;
+                        lotItemsAmount++;
+                    }
+                }
+            });
+
+            //if no event item drawn, select one at random
+            if (eventItemsDrawn === 0 && index === (lotAmount-1)) {
+                const itemId = lodash.sample(this.city.eventItems);
+                const state = this._pickItemState();
+                this.logger.debug(`Drawing EVENT item ${itemId} on last LOT ${shuffledLots[index]} because no event item was drawn`);
+
+                lot.items[lotItemsAmount] = new ItemState(itemId, state);
+            }
         }
     }
 
@@ -143,7 +191,7 @@ class AuctionController {
      * @param {LotState} lotState
      * @private
      */
-    _generateInitialBid(lotState) {
+    _generateInitialBid(lotState, idx) {
         let totalEstimatedValue = lodash.keys(lotState.boxes).length * this.city.estimatedBoxValue;
 
         lodash.each(lotState.items, lotItem => {
@@ -151,14 +199,14 @@ class AuctionController {
             totalEstimatedValue += itemStateHelper.getItemPrice(Config, item.price, lotItem.state);
         });
 
-        this.logger.info(`Lot total estimated value: ${totalEstimatedValue}`);
+        this.logger.info(`Lot ${idx} - total estimated value: ${totalEstimatedValue}`);
         const minValue = (Config.game.minimumInitialBidPercentage / 100) * totalEstimatedValue;
         const maxValue = (Config.game.maximumInitialBidPercentage / 100) * totalEstimatedValue;
 
         const baseBid = Math.round(lodash.random(minValue, maxValue));
         lotState.initialBid = Math.ceil(baseBid / Config.game.bidBaseIncrement) * Config.game.bidBaseIncrement;
         lotState.nextBidValue = lotState.initialBid;
-        this.logger.info(`Lot initial bid value: ${baseBid} (rounded: ${lotState.nextBidValue})`);
+        this.logger.info(`Lot ${idx} - initial bid value: ${baseBid} (rounded: ${lotState.nextBidValue})`);
     }
 
     /**
@@ -230,7 +278,7 @@ class AuctionController {
             const itemId = lodash.sample(this.city.itemsRarity[selectedRarity].items);
             const state = this._pickItemState();
             const boxed = this._calculateItemBoxed(selectedRarity, boxedItemsPerRarity);
-            this.logger.debug(`Drawing item ${itemId}, state:${state} from rarity ${selectedRarity}, boxed: ${boxed}.`);
+            //this.logger.debug(`Drawing item ${itemId}, state:${state} from rarity ${selectedRarity}, boxed: ${boxed}.`);
 
             itemsPerRarity[selectedRarity]++;
 
@@ -253,6 +301,7 @@ class AuctionController {
             }
         }
 
+        //add junkItems
         if (!lodash.isEmpty(this.city.junkItems)) {
             for (let index = 0; index < lotJunkItemsAmount; index++) {
                 const itemId = lodash.sample(this.city.junkItems);
@@ -541,17 +590,20 @@ class AuctionController {
         lodash.each(resultsOrdered, (result, idx) => {
 
             let trophies = this.city.trophyRewards[idx];
-
+            let position = idx + 1;
             if (idx > 0 && result.score === resultsOrdered[idx - 1].score) {
                 trophies = resultsOrdered[idx - 1].trophies;
+                position = resultsOrdered[idx - 1].position;
             }
 
             resultsOrdered[idx].trophies = trophies;
-            resultsOrdered[idx].position = lodash.indexOf(this.city.trophyRewards, trophies);
+            resultsOrdered[idx].position = position;
 
             if (!result.isBot) {
                 rewards[result.firebaseId] = {
+                    city: this.city.id,
                     trophies: trophies,
+                    position: position,
                     price: result.price,
                     items: result.items,
                 };

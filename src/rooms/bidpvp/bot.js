@@ -50,17 +50,22 @@ class Bot {
     _generateRankAndTrophies() {
         const milestonesOrdered = lodash.sortBy(Config.milestonesV2, milestone => milestone.trophies);
 
-        for (let i=0; i< milestonesOrdered.length; i++) {
-            const cityReward = lodash.filter(milestonesOrdered[i].rewards, reward => reward.rewardType === 'city' && reward.rewardId === this.city.id);
-            if (!lodash.isEmpty(cityReward)) {
-                const initTrophies = milestonesOrdered[i].trophies;
-                this.rank = milestonesOrdered[i].rank;
+        if (this.city.isEvent) {
+            this.trophies = 0;
+        }
+        else {
+            for (let i=0; i< milestonesOrdered.length; i++) {
+                const cityReward = lodash.filter(milestonesOrdered[i].rewards, reward => reward.rewardType === 'city' && reward.rewardId === this.city.id);
+                if (!lodash.isEmpty(cityReward)) {
+                    const initTrophies = milestonesOrdered[i].trophies;
+                    this.rank = milestonesOrdered[i].rank;
 
-                if (milestonesOrdered[i+1]) {
-                    this.trophies = lodash.random(initTrophies, milestonesOrdered[i+1].trophies);
-                }
-                else {
-                    this.trophies = lodash.random(initTrophies, initTrophies*2);
+                    if (milestonesOrdered[i+1]) {
+                        this.trophies = lodash.random(initTrophies, milestonesOrdered[i+1].trophies);
+                    }
+                    else {
+                        this.trophies = lodash.random(initTrophies, initTrophies*2);
+                    }
                 }
             }
         }
