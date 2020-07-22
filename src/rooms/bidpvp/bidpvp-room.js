@@ -61,6 +61,10 @@ class BidPvpRoom extends Room {
             isBot: options.bot,
         });
 
+        if (options.clientWeb) {
+            this.send(client, JSON.stringify({ items: Config.items }));
+        }
+
         if (this.locked && lodash.keys(this.state.players).length === this.maxClients) {
             await this.lock(); // Prevent new players from joining if any players leave.
 

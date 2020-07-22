@@ -69,9 +69,11 @@ class AuctionController {
             }
             else {
                 const playerData = this.profiles[player.firebaseId];
+                const maxMoney = this._getInitialMaxMoney(player);
+
                 player.name = playerData.profile.alias;
                 player.photoUrl = playerData.profile.picture;
-                player.money = lodash.min([playerData.currencies.softCurrency, this.city.maximumMoney]);
+                player.money = lodash.min([playerData.currencies.softCurrency, maxMoney]);
                 player.trophies = playerData.currencies.trophies;
                 player.rank = playerData.currencies.rank;
                 player.character = playerData.profile.selectedCharacter;
@@ -83,23 +85,78 @@ class AuctionController {
         this.lotStartTimeout = this.room.clock.setTimeout(() => this._startInspect(true), Config.game.forceLotStartTimeout);
     }
 
+    // called on bidpvp-room.onAuth so if anything is wrong with the player, returns false and log
     async validatePlayerProfile(userId) {
         const profiles = await profileDao.getProfiles([userId]);
         const profile = profiles[userId];
 
-        if (profile && profile.profile && profile.currencies) {
+        if (profile && profile.profile && profile.currencies && profile.character) {
             this.profiles[userId] = profile;
+
+            const characterConfig = Config.getCharacter(profile.character.id);
+            if (lodash.isUndefined(characterConfig)) {
+                this.logger.error(`Character ${profile.character.id} used by ${userId} not found.`, {
+                    firebaseId: userId,
+                });
+                return false;
+            }
+
             return true;
 
         } else {
+            this.logger.error(`User ${userId} attempted to join but his profile is incomplete. profile=${JSON.stringify(profile)}.`, {
+                firebaseId: userId,
+            });
+
             return false;
         }
+    }
+
+    _getInitialMaxMoney(player) {
+        const profile = this._getPlayerProfile(player);
+        const characterConfig = Config.getCharacter(profile.character.id);
+        let maxMoney = this.city.maximumMoney;
+
+        // Character can have more than one skill.
+        lodash.each(characterConfig.skills, skillId => {
+            const skillConfig = Config.getSkill(skillId);
+            if (!skillConfig) {
+                this.logger.error(`Cannot apply skill to user=${player.id}. Skill config ${skillId} not found.`, {
+                    firebaseId: player.firebaseId,
+                });
+                return;
+            }
+
+            // Execute skill highlight odds.
+            if (skillConfig.type === 'pimpmybid') {
+                const skillProbability = this._findSkillProbability(player, profile, skillConfig);
+                maxMoney = parseInt( (maxMoney + (maxMoney * skillProbability) ).toFixed(0));
+            }
+        });
+
+        return maxMoney;
     }
 
     _getPlayerProfile(player) {
         return this.profiles[player.firebaseId];
     }
 
+    _getPlayerCharacter(player) {
+        const profile = this.profiles[player.firebaseId];
+        if (lodash.isUndefined(profile.character)) {
+            this.logger.error(`Cannot apply skill to user=${player.id}. Character not found.`);
+            return;
+        }
+        const characterConfig = Config.getCharacter(profile.character.id);
+        if (lodash.isUndefined(characterConfig)) {
+            this.logger.error(`Cannot apply skill to user=${player.id}. Character config for characterId=${profile.character.id} not found.`);
+            return; // Character config not found. Ignore.
+        }
+
+        this.logger.info(`Player ${playerId} (Bot: ${playerState.isBot}) trying to bid ${this._getCurrentLot().nextBidValue} on lot ${this.state.currentLot}.`, {
+            firebaseId: playerState.firebaseId,
+        });
+    }
 
     /**
      * Calculates the next bid value and updates the state.
@@ -723,6 +780,38 @@ class AuctionController {
         }, Config.game.disposeRoomTimeout);
     }
 
+    _findSkillProbability(player, profile, skillConfig) {
+        let skillLevel = lodash.find(skillConfig.levelProgression, sp => sp.level === profile.character.level);
+
+        if (lodash.isUndefined(skillLevel)) {
+            this.logger.warning(`Cannot get right skill ${skillConfig.id} level to user=${player.id}. Failed to get skill level. level=${profile.character.level}`, {
+                firebaseId: player.firebaseId,
+            });
+
+            const maxLevel = lodash.maxBy(skillConfig.levelProgression, function(o) { return o.level; });
+            // Get the last level.
+            if (profile.character.level > maxLevel) {
+                skillLevel = lodash.find(skillConfig.levelProgression, sp => sp.level === maxLevel);
+            }
+            else{
+                this.logger.error(`Cannot get skill ${skillConfig.id} level to user=${player.id}. Failed to get skill level. level=${profile.character.level}`, {
+                    firebaseId: player.firebaseId,
+                });
+                return 0;
+            }
+        }
+
+        const skillProbability = skillLevel.probability;
+        if (lodash.isUndefined(skillProbability)) {
+            this.logger.error(`Cannot apply skill ${skillConfig.id} to user=${player.id}. Probability is undefined. level=${profile.character.level}`, {
+                firebaseId: player.firebaseId,
+            });
+            return 0;
+        }
+
+        return skillProbability;
+    }
+
     /**
      * Apply the players skills, sending a message with affected items or boxes.
      */
@@ -739,21 +828,15 @@ class AuctionController {
 
             // Get player's skills
             const profile = this._getPlayerProfile(player);
-            if (lodash.isUndefined(profile.character)) {
-                this.logger.error(`Cannot apply skill to user=${player.id}. Character not found.`);
-                return;
-            }
             const characterConfig = Config.getCharacter(profile.character.id);
-            if (lodash.isUndefined(characterConfig)) {
-                this.logger.error(`Cannot apply skill to user=${player.id}. Character config for characterId=${profile.character.id} not found.`);
-                return; // Character config not found. Ignore.
-            }
 
             // Character can have more than one skill.
             lodash.each(characterConfig.skills, skillId => {
                 const skillConfig = Config.getSkill(skillId);
                 if (!skillConfig) {
-                    this.logger.error(`Cannot apply skill to user=${player.id}. Skill config ${skillId} not found.`);
+                    this.logger.error(`Cannot apply skill to user=${player.id}. Skill config ${skillId} not found.`, {
+                        firebaseId: player.firebaseId,
+                    });
                     return;
                 }
 
@@ -761,30 +844,13 @@ class AuctionController {
                 if (skillConfig.type === 'highlight') {
                     const skillItemCategory = skillConfig.category;
                     const skillItemRarity = skillConfig.rarity;
-                    let skillLevel = lodash.find(skillConfig.levelProgression, sp => sp.level === profile.character.level);
-                    if (lodash.isUndefined(skillLevel)) {
-                        this.logger.warning(`Cannot get right skill level to user=${player.id}. Failed to get skill level. level=${profile.character.level}`);
-
-                        const maxLevel = lodash.maxBy(skillConfig.levelProgression, function(o) { return o.level; });
-                        // Get the last level.
-                        if (profile.character.level > maxLevel) {
-                            skillLevel = lodash.find(skillConfig.levelProgression, sp => sp.level === maxLevel);
-                        }
-                        else{
-                            this.logger.error(`Cannot get skill level to user=${player.id}. Failed to get skill level. level=${profile.character.level}`);
-                            return;
-                        }
-                    }
-                    const skillProbability = skillLevel.probability;
-                    if (lodash.isUndefined(skillProbability)) {
-                        this.logger.error(`Cannot apply skill to user=${player.id}. Probability is undefined. level=${profile.character.level}`);
-                        return;
-                    }
+                    const skillProbability = this._findSkillProbability(player, profile, skillConfig);
 
                     // Get all itens based on rarity and category.
                     lodash.each(currentLot.items, lotItem => {
                         const lotItemConfig = Config.getItem(lotItem.itemId);
                         const rarityFound = lodash.find(skillItemRarity, r => r === lotItemConfig.rarity);
+
                         if (!lodash.isUndefined(rarityFound)) {
                             if (lotItemConfig.category === skillItemCategory && lodash.random(0.0, 1.0, true) <= skillProbability) {
                                 if (lodash.isUndefined(notification.highlight) || lodash.isNull(notification.highlight)) {
@@ -792,6 +858,24 @@ class AuctionController {
                                 }
                                 notification.highlight.push({ itemId: lotItem.itemId } );
                             }
+                        }
+                    });
+                }
+                // Execute skill xray odds.
+                else if (skillConfig.type === 'xray') {
+                    const skillProbability = this._findSkillProbability(player, profile, skillConfig);
+                    const skillItemRarity = skillConfig.rarity;
+
+                    lodash.each(currentLot.boxes, (box, idx) => {
+                        const boxedItemId = currentLot.boxedItems[idx].itemId;
+                        const lotItemConfig = Config.getItem(boxedItemId);
+                        const rarityFound = lodash.find(skillItemRarity, r => r === lotItemConfig.rarity);
+
+                        if (rarityFound && lodash.random(0.0, 1.0, true) <= skillProbability) {
+                            if (lodash.isUndefined(notification.xray) || lodash.isNull(notification.xray)) {
+                                notification.xray = [];
+                            }
+                            notification.xray.push({ index: idx, boxId: box.boxId , itemId: boxedItemId } );
                         }
                     });
                 }

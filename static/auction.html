@@ -62,7 +62,7 @@
                                 <v-flex xs4>
                                     <div class="pa-5 mt-2">
                                         <b> LOT: </b><br />
-                                        <pre>{{lotInfo}} </pre>
+                                        <div v-html="lotInfo"></div>
                                     </div>
                                 </v-flex>
 
@@ -101,6 +101,9 @@
         room: null,
         connected: false,
         serverData: null,
+        items: {},
+        highlights: [],
+        xrays:[],
         
         sendMessage(command, args) {
             serverService.room.send({ command, args, commandIndex: 0 });
@@ -125,7 +128,7 @@
 
             }
             else {
-                const cityId = 'launchEvent01';
+                const cityId = 'City01';
                 serverService.room = await serverService.client.joinOrCreate('bidpvp', {
                     city: cityId,
                     userId: firebaseId,
@@ -139,7 +142,14 @@
 
         _addListeners() {
             serverService.room.onMessage((message) => {
-                console.log("server just sent this message:" + message);
+                //console.log("server just sent this message:" + message);
+                if (message && JSON.parse(message).items) {
+                    const items = JSON.parse(message).items;
+                    lodash.forEach(items, item => {
+                        serverService.items[item.id] = item;
+                        //console.log(`ITEM ${JSON.stringify(item)}`);
+                    });
+                }
                 serverService.serverData = message;
             });
 
@@ -185,7 +195,50 @@
                 let info = '';
 
                 if (this.state && this.state.status === 'PLAY') {
-                    return this.state.lots[this.state.currentLot];
+
+                    if (this.state.lots[this.state.currentLot].status === 'WAITING') {
+                        serverService.highlights = [];
+                        serverService.xray = [];
+                    }
+
+                    const lot = this.state.lots[this.state.currentLot];
+                    let totalItems = 0
+                    lodash.forEach(this.state.lots[this.state.currentLot].items, item => {
+                        const itemInfo = serverService.items[item.itemId];
+                        totalItems += itemInfo.price;
+                    });
+
+                    info += `<b>current lot: ${this.state.currentLot} </b><br>`;
+                    info += `status: ${this.state.lots[this.state.currentLot].status} <br>`;
+                    info += `DOLE: ${lot.dole} <br><br>`;
+                    info += `bidValue: ${lot.bidValue} <br>`;
+                    info += `nextBidValue: ${lot.nextBidValue} <br>`;
+                    info += `bidOwner: ${lot.bidOwner} <br>`;
+                    info += `<br><b>Items:</b> $${totalItems}<br>`;
+                    lodash.forEach(this.state.lots[this.state.currentLot].items, item => {
+                        const itemInfo = serverService.items[item.itemId];
+                        let color = 'black';
+                        let highlight = '';
+
+                        if (itemInfo.rarity === 'Rare') color = 'blue';
+                        else if (itemInfo.rarity === 'Epic') color = 'purple';
+
+                        if (lodash.includes(serverService.highlights, item.itemId)) highlight = ';font-weight: bold';
+                        info += `&nbsp;&nbsp;&nbsp; <span style="color:${color}${highlight}">[${item.itemId}] ${itemInfo.category}: $${itemInfo.price} </span><br>`;
+                    });
+                    info += `<br><b>Boxes:</b> <br>`;
+                    lodash.forEach(this.state.lots[this.state.currentLot].boxes, (box, idx) => {
+                        let color = 'black';
+                        let highlight = '';
+                        let item = '';
+
+                        const xray = lodash.find(serverService.xray, xray => xray.index === idx);
+                        if (xray) {
+                            highlight = ';font-weight: bold';
+                            item = xray.itemId;
+                        }
+                        info += `&nbsp;&nbsp;&nbsp; <span style="color:${color}${highlight}">${idx}: ${box.boxId} ${item}</span><br>`;
+                    });
                 }
 
                 return info;
@@ -204,8 +257,31 @@
             messageInfo() {
                 let info = '';
 
-                if (this.state && this.state.status === 'PLAY') {
-                    return JSON.parse(serverService.serverData);
+                if (this.state && this.state.status === 'PLAY' && serverService.serverData) {
+
+                    serverService.highlights = [];
+                    serverService.xray = [];
+
+                    if (this.state.lots[this.state.currentLot].status === 'WAITING') {
+                        return '';
+                    }
+
+                    const message = JSON.parse(serverService.serverData);
+
+                    if (message.highlight) {
+                        info += `Highlight:`;
+                        lodash.forEach(message.highlight, item =>{
+                            serverService.highlights.push(item.itemId);
+                            info += ` ${item.itemId}\n`;
+                        });
+                    }
+                    if (message.xray) {
+                        info += `Xray:`;
+                        lodash.forEach(message.xray, item =>{
+                            serverService.xray.push(item);
+                            info += ` ${item.index}: ${item.boxId} ${item.itemId}\n`;
+                        });
+                    }
                 }
 
                 return info;
