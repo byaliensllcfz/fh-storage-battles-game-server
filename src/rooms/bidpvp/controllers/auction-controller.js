@@ -141,23 +141,6 @@ class AuctionController {
         return this.profiles[player.firebaseId];
     }
 
-    _getPlayerCharacter(player) {
-        const profile = this.profiles[player.firebaseId];
-        if (lodash.isUndefined(profile.character)) {
-            this.logger.error(`Cannot apply skill to user=${player.id}. Character not found.`);
-            return;
-        }
-        const characterConfig = Config.getCharacter(profile.character.id);
-        if (lodash.isUndefined(characterConfig)) {
-            this.logger.error(`Cannot apply skill to user=${player.id}. Character config for characterId=${profile.character.id} not found.`);
-            return; // Character config not found. Ignore.
-        }
-
-        this.logger.info(`Player ${playerId} (Bot: ${playerState.isBot}) trying to bid ${this._getCurrentLot().nextBidValue} on lot ${this.state.currentLot}.`, {
-            firebaseId: playerState.firebaseId,
-        });
-    }
-
     /**
      * Calculates the next bid value and updates the state.
      * @param {number} currentBid
