@@ -127,7 +127,9 @@ class BidPvpRoom extends Room {
                     userIds: [playerState.firebaseId],
                 });
             } catch (error) {
-                this.logger.error('Failed to log match interrupted analytics.', error);
+                const newError = new Error(error.message);
+                newError.oldStack = error.stack;
+                this.logger.error('Failed to log match interrupted analytics.', newError);
             }
 
             try {
