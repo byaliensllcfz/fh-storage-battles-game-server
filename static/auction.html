@@ -113,7 +113,7 @@
         async connect(firebaseId, reservation) {
             if (serverService.connected) return;
 
-            //dev -- dev.bidpvpalpha.tapps.games
+            //dev -- 34.75.203.64:
             serverService.client = new Colyseus.Client('ws://localhost:2567');
 
             if (reservation) {

@@ -586,6 +586,14 @@ class AuctionController {
                 lotState.lotItemsPrice += itemStateHelper.getItemPrice(Config, item.price, lotItem.state);
             });
 
+            this.logger.info('Match Lot info', {
+                bwsMatch: {
+                    cityId: this.city.id,
+                    lotValue: lotState.lotItemsPrice,
+                    cityMaxMoney: this.city.maximumMoney,
+                },
+            });
+
             if (lotState.bidOwner) {
                 let playerResult = endGameResults[this.state.players[lotState.bidOwner].firebaseId];
 
