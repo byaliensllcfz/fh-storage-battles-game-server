@@ -647,6 +647,16 @@ class AuctionController {
                     price: result.price,
                     items: result.items,
                 };
+
+                this.logger.info('Game result tally.', {
+                    bwsMatch: {
+                        firebaseId: result.firebaseId,
+                        cityId: this.city.id,
+                        trophies: trophies,
+                        position: position,
+                        score: result.score,
+                    },
+                });
             }
 
             this.state.players[result.playerId].trophiesEarned = trophies;
@@ -707,7 +717,9 @@ class AuctionController {
                 userIds: eventParams.user_ids,
             });
         } catch (error) {
-            this.logger.error('Failed to log match finished analytics.', error);
+            const newError = new Error(error.message);
+            newError.oldStack = error.stack;
+            this.logger.error('Failed to log match finished analytics.', newError);
         }
 
         this.logger.info(`Sending rewards ${JSON.stringify(rewards)}`);
