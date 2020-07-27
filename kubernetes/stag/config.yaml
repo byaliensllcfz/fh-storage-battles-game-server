@@ -17,7 +17,7 @@ data:
       "ignoreAgones": true
     }
   .env: |
-    ENV=prod
+    ENV=stag
     PORT=2567
     GOOGLE_APPLICATION_CREDENTIALS=/var/secrets/google/key.json
     GOOGLE_CLOUD_PROJECT=forhumans-gameservices-stag
