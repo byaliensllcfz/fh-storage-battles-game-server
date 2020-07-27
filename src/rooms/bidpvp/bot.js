@@ -30,6 +30,7 @@ class Bot {
         /** @type {CityConfig} */
         this.city = city;
 
+        //TODO deprecate this properties
         const moneyModifier = lodash.random(Config.bot.minimumMoneyModifier, Config.bot.maximumMoneyModifier, true);
 
         /** @type {number} */

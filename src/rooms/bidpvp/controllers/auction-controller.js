@@ -61,22 +61,24 @@ class AuctionController {
         lodash.each(this.state.players, player => {
             if (player.isBot) {
                 const bot = this.room.bots[player.firebaseId];
+                const maxMoney = this._getInitialMaxMoney(player, {}, bot.character);
+
                 player.name = bot.name;
                 player.photoUrl = bot.profilePicture;
-                player.money = bot.startingMoney;
+                player.money = maxMoney;
                 player.trophies = bot.trophies;
                 player.rank = bot.rank;
             }
             else {
                 const playerData = this.profiles[player.firebaseId];
-                const maxMoney = this._getInitialMaxMoney(player);
+                const maxMoney = this._getInitialMaxMoney(player, playerData, playerData.character.id);
 
                 player.name = playerData.profile.alias;
                 player.photoUrl = playerData.profile.picture;
                 player.money = lodash.min([playerData.currencies.softCurrency, maxMoney]);
                 player.trophies = playerData.currencies.trophies;
                 player.rank = playerData.currencies.rank;
-                player.character = playerData.profile.selectedCharacter;
+                player.character = playerData.character.id;
             }
         });
 
@@ -112,16 +114,15 @@ class AuctionController {
         }
     }
 
-    _getInitialMaxMoney(player) {
-        const profile = this._getPlayerProfile(player);
-        const characterConfig = Config.getCharacter(profile.character.id);
+    _getInitialMaxMoney(player, profile, characterId) {
+        const characterConfig = Config.getCharacter(characterId);
         let maxMoney = this.city.maximumMoney;
 
         // Character can have more than one skill.
         lodash.each(characterConfig.skills, skillId => {
             const skillConfig = Config.getSkill(skillId);
             if (!skillConfig) {
-                this.logger.error(`Cannot apply skill to user=${player.id}. Skill config ${skillId} not found.`, {
+                this.logger.error(`Cannot apply skill to user=${player.id} bot:(${player.isBot}). Skill config ${skillId} not found.`, {
                     firebaseId: player.firebaseId,
                 });
                 return;
@@ -784,29 +785,35 @@ class AuctionController {
     }
 
     _findSkillProbability(player, profile, skillConfig) {
-        let skillLevel = lodash.find(skillConfig.levelProgression, sp => sp.level === profile.character.level);
+        let skillLevel;
+        if (!player.isBot) {
+            skillLevel = lodash.find(skillConfig.levelProgression, sp => sp.level === profile.character.level);
 
-        if (lodash.isUndefined(skillLevel)) {
-            this.logger.warning(`Cannot get right skill ${skillConfig.id} level to user=${player.id}. Failed to get skill level. level=${profile.character.level}`, {
-                firebaseId: player.firebaseId,
-            });
-
-            const maxLevel = lodash.maxBy(skillConfig.levelProgression, function(o) { return o.level; });
-            // Get the last level.
-            if (profile.character.level > maxLevel) {
-                skillLevel = lodash.find(skillConfig.levelProgression, sp => sp.level === maxLevel);
-            }
-            else{
-                this.logger.error(`Cannot get skill ${skillConfig.id} level to user=${player.id}. Failed to get skill level. level=${profile.character.level}`, {
+            if (lodash.isUndefined(skillLevel)) {
+                this.logger.warning(`Cannot get right skill ${skillConfig.id} level to user=${player.id}. Failed to get skill level. level=${profile.character.level}`, {
                     firebaseId: player.firebaseId,
                 });
-                return 0;
+
+                const maxLevel = lodash.maxBy(skillConfig.levelProgression, function(o) { return o.level; });
+                // Get the last level.
+                if (profile.character.level > maxLevel) {
+                    skillLevel = lodash.find(skillConfig.levelProgression, sp => sp.level === maxLevel);
+                }
+                else{
+                    this.logger.error(`Cannot get skill ${skillConfig.id} level to user=${player.id}. Failed to get skill level. level=${profile.character.level}`, {
+                        firebaseId: player.firebaseId,
+                    });
+                    return 0;
+                }
             }
+        }
+        else {
+            skillLevel = lodash.sample(skillConfig.levelProgression);
         }
 
         const skillProbability = skillLevel.probability;
         if (lodash.isUndefined(skillProbability)) {
-            this.logger.error(`Cannot apply skill ${skillConfig.id} to user=${player.id}. Probability is undefined. level=${profile.character.level}`, {
+            this.logger.error(`Cannot apply skill ${skillConfig.id} to user=${player.id}. Probability is undefined. skill level=${JSON.stringify(skillLevel)}`, {
                 firebaseId: player.firebaseId,
             });
             return 0;
