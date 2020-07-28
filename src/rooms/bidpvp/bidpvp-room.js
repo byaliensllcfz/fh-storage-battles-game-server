@@ -63,6 +63,7 @@ class BidPvpRoom extends Room {
 
         if (options.clientWeb) {
             this.send(client, JSON.stringify({ items: Config.items }));
+            this.send(client, JSON.stringify({ emojis: Config.emojis }));
         }
 
         if (this.locked && lodash.keys(this.state.players).length === this.maxClients) {

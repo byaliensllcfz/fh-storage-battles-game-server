@@ -109,6 +109,12 @@ let _itemRarities;
  * @property {string} asset
  */
 
+/**
+ * @typedef {Object} EmojiConfig
+ * @property {string} id
+ * @property {string} name
+ * @property {string} asset
+ */
 class Config {
 
     /**
@@ -128,6 +134,7 @@ class Config {
         config.milestones = lodash.keyBy(config.milestones, milestone => milestone.rank);
         config.milestonesV2 = lodash.keyBy(config.milestonesV2, milestone => milestone.rank);
         config.skills = lodash.keyBy(config.skills, skill => skill.id);
+        config.emojis = lodash.keyBy(config.emojis, emoji => emoji.id);
 
         _putEventsOnCities(config);
         _separateCityItemsPerRarity(config);
@@ -185,6 +192,12 @@ class Config {
         return _config.characters;
     }
 
+    /**
+     * @return {Object<id, EmojiConfig>}
+     */
+    static get emojis() {
+        return _config.emojis;
+    }
     /**
      * @return {ItemConfig}
      */

@@ -34,6 +34,7 @@ class AuctionController {
         this._started = false;
         this.playersLotReady = {};
         this.profiles = {};
+        this.lastSentEmoji = {};
 
         /** @type {number} */
         this.lotsAmount = Config.game.lotsAmount;
@@ -477,6 +478,23 @@ class AuctionController {
         } else {
             currentLot.dole++;
             this.lotEndTimeout = this.room.clock.setTimeout(() => this._runDole(), Config.game.auctionDoleDuration);
+        }
+    }
+
+    /**
+     * Send emoji message to all if possible
+     * @param {string} playerId
+     */
+    tryToSendEmoji(playerId, message) {
+        if (!this.lastSentEmoji[playerId] || (this.lastSentEmoji[playerId] + Config.game.playerEmojiCooldownMs) <= Date.now()) {
+            this.lastSentEmoji[playerId] = Date.now();
+
+            if (message.emoji && lodash.find(Config.emojis, emoji => message.emoji === emoji.id)) {
+                this.room.broadcast(JSON.stringify(lodash.merge({client: playerId}, message)));
+            }
+            else {
+                this.logger.warning(`EMOJI ${message.emoji} sent from ${playerId} not found on config`);
+            }
         }
     }
 
