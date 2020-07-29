@@ -9,6 +9,9 @@ async function handleAuctionCommand(room, playerId, message = {}) {
     else if (message.command === commands.AUCTION_LOT_READY && room.auctionController.getCurrentLotStatus() === auctionStatus.WAITING) {
         room.auctionController.tryToStartLot(playerId);
     }
+    else if (message.command === commands.EMOJI && room.auctionController.getCurrentLotStatus() === auctionStatus.PLAY) {
+        room.auctionController.tryToSendEmoji(playerId, message.args);
+    }
 }
 
 module.exports = {

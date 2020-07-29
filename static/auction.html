@@ -47,6 +47,8 @@
                         <p>
                             <v-btn text @click="onBid" class="ml-2" :disabled="!canBid">Bid</v-btn>
                             <v-btn text @click="onLotReady" class="ml-2" :disabled="!waitingLot">LotReady</v-btn>
+                            
+                            <v-btn v-for="(p, i) in pis" :key='i' text @click="onEmoji(p.id)" style="padding:0;min-width:0;" class="ml-2" :disabled="!canBid"><span v-html="p.n"></span></v-btn>
                         </p>
 
                         <v-divider></v-divider>
@@ -69,7 +71,9 @@
                                 <v-flex xs4>
                                     <div class="pa-5 mt-2">
                                         <b> PLAYER: </b><br />
-                                        <pre>{{playerInfo}} </pre>
+                                        <pre>{{playerInfo}} </pre><br /><br />
+                                        <b> EMOJI: </b><br />
+                                        <div v-html="emoji"></div>
                                     </div>
                                 </v-flex>
 
@@ -102,8 +106,10 @@
         connected: false,
         serverData: null,
         items: {},
+        emojis: {},
         highlights: [],
         xrays:[],
+        emoji: {},
         
         sendMessage(command, args) {
             serverService.room.send({ command, args, commandIndex: 0 });
@@ -142,7 +148,6 @@
 
         _addListeners() {
             serverService.room.onMessage((message) => {
-                //console.log("server just sent this message:" + message);
                 if (message && JSON.parse(message).items) {
                     const items = JSON.parse(message).items;
                     lodash.forEach(items, item => {
@@ -150,7 +155,27 @@
                         //console.log(`ITEM ${JSON.stringify(item)}`);
                     });
                 }
-                serverService.serverData = message;
+                else if (message && JSON.parse(message).emojis) {
+                    const emojis = JSON.parse(message).emojis;
+                    lodash.forEach(emojis, emoji => {
+                        if (emoji.id === 'sunglass') emoji.rep = '&#128526;';
+                        else if (emoji.id === 'money') emoji.rep = '&#129297;';
+                        else if (emoji.id === 'silence') emoji.rep = '&#129323;';
+                        else if (emoji.id === 'anxiety') emoji.rep = '&#128556;';
+                        else if (emoji.id === 'angry') emoji.rep = '&#128545;';
+                        else if (emoji.id === 'silly') emoji.rep = '&#128540;';
+                        else if (emoji.id === 'cry') emoji.rep = '&#128557;';
+                        else if (emoji.id === 'think') emoji.rep = '&#129300;';
+                        else if (emoji.id === 'upset') emoji.rep = '&#128533;';
+                    });
+                    Vue.set(app, 'emojiList', emojis);
+                }
+                else if (message && JSON.parse(message).emoji) {
+                    app.setEmoji(message);
+                }
+                else {
+                    serverService.serverData = message;
+                }
             });
 
             serverService.room.onJoin(() => {
@@ -175,11 +200,26 @@
                 firebaseId: '',
                 state: {},
                 reservation: '',
+                emoji: '',
+                emojiList: {},
             }
         },
 
         computed: {
             me() { return lodash.get(this, `state.players.${this.clientId}`) },
+
+            pis() {
+                const info = [];
+                if (this.emojiList) {
+                    lodash.forEach(this.emojiList, emoji => {
+                        info.push({
+                            id: emoji.id,
+                            n: emoji.rep,
+                        });
+                    });
+                }
+                return info;
+            },
 
             canBid() {
                 return this.state.status === 'PLAY'
@@ -199,6 +239,8 @@
                     if (this.state.lots[this.state.currentLot].status === 'WAITING') {
                         serverService.highlights = [];
                         serverService.xray = [];
+                        serverService.emoji = {};
+                        this.setEmoji('{}');
                     }
 
                     const lot = this.state.lots[this.state.currentLot];
@@ -290,6 +332,48 @@
         },
 
         methods: {
+            setEmoji(emojiMessage) {
+                const message = JSON.parse(emojiMessage);
+                let info = '';
+
+                if (this.state && this.state.status === 'PLAY') {
+                    if (message.emoji) {
+                        if (!serverService.emoji[message.client]) {
+                            serverService.emoji[message.client] = {};
+                        }
+
+                        serverService.emoji[message.client].emoji = message.emoji;
+                        if (serverService.emoji[message.client].timeout) {
+                            clearTimeout(serverService.emoji[message.client].timeout);
+                        }
+
+                        serverService.emoji[message.client].timeout = setTimeout(function() {
+                            delete serverService.emoji[message.client];
+                        }, 2000);
+                    }
+
+                    //console.log(`-- ${JSON.stringify(serverService.emoji)}`);
+                    lodash.forEach(lodash.keys(this.state.players), player => {
+                        let emoji = '';
+                        if (serverService.emoji[player]) {
+                            emoji = serverService.emoji[player].emoji;
+                            if (emoji === 'sunglass') emoji = '&#128526;';
+                            else if (emoji === 'money') emoji = '&#129297;';
+                            else if (emoji === 'silence') emoji = '&#129323;';
+                            else if (emoji === 'anxiety') emoji = '&#128556;';
+                            else if (emoji === 'angry') emoji = '&#128545;';
+                            else if (emoji === 'silly') emoji = '&#128540;';
+                            else if (emoji === 'cry') emoji = '&#128557;';
+                            else if (emoji === 'think') emoji = '&#129300;';
+                            else if (emoji === 'upset') emoji = '&#128533;';
+                        }
+                        info += `${player}: ${emoji}<br>`;
+                    });
+                }
+
+                this.emoji = info;
+            },
+
             async onGameJoin() {
                 await serverService.connect(this.firebaseId, this.reservation);
 
@@ -303,6 +387,10 @@
 
             async onBid() {
                 await serverService.sendMessage('AUCTION_BID');
+            },
+
+            async onEmoji(emoji) {
+                await serverService.sendMessage('EMOJI',{'emoji': emoji});
             },
 
             async onLotReady() {

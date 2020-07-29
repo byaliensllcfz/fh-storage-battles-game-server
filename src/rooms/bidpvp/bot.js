@@ -45,6 +45,9 @@ class Bot {
         /** @type {number} */
         this.rank = 1;
 
+        /** @type {boolean} */
+        this.hadBid = false;
+
         this._generateRankAndTrophies();
     }
 
@@ -116,6 +119,14 @@ class Bot {
      */
     _start() {
         const state = this.room.state;
+        this.clientId = this.room.sessionId;
+
+        this.room.onMessage((messageString) => {
+            const message = JSON.parse(messageString);
+            if (message.emoji && message.client != this.clientId) {
+                this._tryTriggerEmoji('reaction', message.emoji);
+            }
+        });
 
         state.onChange = (changes) => {
             lodash.forEach(changes, ({field, value}) => {
@@ -137,6 +148,16 @@ class Bot {
 
                     } else if (value === auctionStatus.FINISHED) {
                         this._sendReady();
+                    }
+                }
+                else if (field === 'bidOwner') {
+                    if (value === this.clientId) {
+                        this._tryTriggerEmoji('bidded');
+                        this.hadBid = true;
+                    }
+                    else if (this.hadBid) {
+                        this._tryTriggerEmoji('outbidded');
+                        this.hadBid = false;
                     }
                 }
             });
@@ -209,6 +230,39 @@ class Bot {
         if (lotState.status === auctionStatus.PLAY) {
             this._setBidTimeout(lot);
         }
+    }
+
+    _tryTriggerEmoji(trigger, emoji) {
+        if (Config.bot.emojiTriggers && Config.emojis) {
+            const triggerFound = lodash.find(Config.bot.emojiTriggers, configTrigger => configTrigger.trigger === trigger);
+            let triggered = true;
+            if (triggerFound) {
+                if (triggerFound.trigger === 'reaction' && !lodash.includes(triggerFound.extraTrigger, emoji)) {
+                    triggered = false;
+                }
+
+                if (triggered && lodash.random(0.0, 1.0, true) <= triggerFound.probability) {
+                    const emojiResponse = lodash.sample(triggerFound.emojis);
+                    if (!Config.emojis[emojiResponse]) {
+                        this.logger.error(`Emoji ${emojiResponse} used on bot config does not exist`);
+                        return;
+                    }
+                    this.logger.debug(`Bot triggered by ${triggerFound.trigger} (${emoji}) sent an EMOJI ${emojiResponse}`);
+                    this._sendEmojiAfterTime(emojiResponse);
+                }
+            }
+        }
+    }
+
+    _sendEmojiAfterTime(emoji) {
+        if (this.emojiTimeout) {
+            clearTimeout(this.emojiTimeout);
+        }
+
+        this.emojiTimeout = setTimeout(() => {
+            delete this.emojiTimeout;
+            this.sendMessage(commands.EMOJI, {emoji: emoji});
+        }, lodash.random(Config.bot.minEmojiReactionTimerMs, Config.bot.maxEmojiReactionTimerMs));
     }
 
     /**
