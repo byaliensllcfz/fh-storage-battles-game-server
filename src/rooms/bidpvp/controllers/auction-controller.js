@@ -717,7 +717,7 @@ class AuctionController {
             eventParams.characters.push(playerState.character);
 
             eventParams.total_trophies.push(playerState.trophies + result.trophies);
-            eventParams.position.push(result.position + 1);
+            eventParams.position.push(result.position);
             eventParams.interrupted.push(playerState.interruptions);
             eventParams.reconnected.push(playerState.reconnections);
 
