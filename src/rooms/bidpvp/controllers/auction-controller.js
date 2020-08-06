@@ -44,6 +44,7 @@ class AuctionController {
 
         this.logger = new Logger('AuctionController', { room: this.room.roomId });
 
+        this.bidStep = 0;
         this._generateLots(this.lotsAmount);
     }
 
@@ -148,16 +149,13 @@ class AuctionController {
      * @param {number} currentBid
      */
     _setNextBidValue(currentBid) {
-        const incrementGrowth = Config.game.bidIncreaseSpeed;
-
-        const incrementLimit = this._getCurrentLot().initialBid * Config.game.bidIncrementLimitMultiplier;
-
-        const bidAux = Math.floor(Math.min(currentBid * incrementGrowth, incrementLimit));
-        const bidIncrement = Math.ceil(bidAux / this._getCurrentLot().initialBid) * this._getCurrentLot().initialBid;
+        this.bidStep++;
+        const stepIncrement = Math.ceil(this.bidStep / this.city.bidRepeatValue);
+        const bidIncrement = stepIncrement * this.city.minBidIncrement;
 
         this._getCurrentLot().nextBidValue = Math.round(bidIncrement + currentBid);
 
-        this.logger.debug(`InitialBid: ${this._getCurrentLot().initialBid}, CurrentBid: ${currentBid}, incrementLimit: ${incrementLimit}, bidIncrementAux: ${bidAux}, bidIncrement: ${bidIncrement}, newBidValue: ${this._getCurrentLot().nextBidValue}`);
+        this.logger.debug(`InitialBid: ${this._getCurrentLot().initialBid}, CurrentBid: ${currentBid}, stepIncrement: ${stepIncrement}, bidIncrement: ${bidIncrement}, newBidValue: ${this._getCurrentLot().nextBidValue}`);
     }
 
     /**
@@ -234,21 +232,10 @@ class AuctionController {
      * @private
      */
     _generateInitialBid(lotState, idx) {
-        let totalEstimatedValue = lodash.keys(lotState.boxes).length * this.city.estimatedBoxValue;
-
-        lodash.each(lotState.items, lotItem => {
-            const item = Config.getItem(lotItem.itemId);
-            totalEstimatedValue += itemStateHelper.getItemPrice(Config, item.price, lotItem.state);
-        });
-
-        this.logger.info(`Lot ${idx} - total estimated value: ${totalEstimatedValue}`);
-        const minValue = (Config.game.minimumInitialBidPercentage / 100) * totalEstimatedValue;
-        const maxValue = (Config.game.maximumInitialBidPercentage / 100) * totalEstimatedValue;
-
-        const baseBid = Math.round(lodash.random(minValue, maxValue));
-        lotState.initialBid = Math.ceil(baseBid / Config.game.bidBaseIncrement) * Config.game.bidBaseIncrement;
+        const baseBid = Math.round(lodash.random(this.city.minInitialBidRange, this.city.maxInitialBidRange));
+        lotState.initialBid = Math.round(baseBid / this.city.minBidIncrement) * this.city.minBidIncrement;
         lotState.nextBidValue = lotState.initialBid;
-        this.logger.info(`Lot ${idx} - initial bid value: ${baseBid} (rounded: ${lotState.nextBidValue})`);
+        this.logger.info(`Lot ${idx} city ${this.city.id} - initial bid value: ${baseBid} (rounded: ${lotState.initialBid})`);
     }
 
     /**
@@ -467,6 +454,7 @@ class AuctionController {
                 if (this.state.currentLot < this.lotsAmount - 1) {
                     this.state.currentLot = this.state.currentLot + 1;
                     this.playersLotReady = {};
+                    this.bidStep = 0;
                     this.lotStartTimeout = this.room.clock.setTimeout(() => this._startInspect(true), Config.game.forceLotStartTimeout);
                 } else {
                     this._finishAuction().catch(error => {
@@ -573,6 +561,24 @@ class AuctionController {
         }
     }
 
+    addItemStats(valuePerRarity, item) {
+        let key = item.rarity;
+        if (key === 'Common' && item.category === 'junk') {
+            key = 'junk';
+        }
+
+        const quantity = valuePerRarity[key].quantity + 1;
+        const total = valuePerRarity[key].totalPrice + item.price;
+        const avg = total / quantity;
+        valuePerRarity[key] = {
+            quantity: quantity,
+            totalPrice: total,
+            avgPrice: avg,
+        };
+
+        return valuePerRarity;
+    }
+
     /**
      * @private
      */
@@ -592,17 +598,31 @@ class AuctionController {
         });
 
         lodash.each(this.state.lots, lotState => {
+            let valuePerRarity = {};
+            let statKeys = lodash.clone(Config.getItemRarities());
+            statKeys.push('junk');
+
+            lodash.forEach(statKeys, key => {
+                valuePerRarity[key] = {
+                    quantity: 0,
+                    totalPrice: 0,
+                    avgPrice: 0,
+                };
+            });
+
             lodash.each(lotState.boxes, (boxState, idx) => {
                 boxState.itemId = lotState.boxedItems[idx].itemId;
                 boxState.state = lotState.boxedItems[idx].state;
 
                 const item = Config.getItem(boxState.itemId);
                 lotState.lotItemsPrice += itemStateHelper.getItemPrice(Config, item.price, boxState.state);
+                valuePerRarity = this.addItemStats(valuePerRarity, item);
             });
 
             lodash.each(lotState.items, lotItem => {
                 const item = Config.getItem(lotItem.itemId);
                 lotState.lotItemsPrice += itemStateHelper.getItemPrice(Config, item.price, lotItem.state);
+                valuePerRarity = this.addItemStats(valuePerRarity, item);
             });
 
             this.logger.info('Match Lot info', {
@@ -611,6 +631,18 @@ class AuctionController {
                     lotValue: lotState.lotItemsPrice,
                     cityMaxMoney: this.city.maximumMoney,
                 },
+            });
+
+            lodash.forEach(lodash.keys(valuePerRarity), key => {
+                this.logger.info('Match Lot item info', {
+                    bwsMatch: {
+                        rarity: key,
+                        cityId: this.city.id,
+                        quantity: valuePerRarity[key].quantity,
+                        totalPrice: valuePerRarity[key].totalPrice,
+                        avgPrice: valuePerRarity[key].avgPrice,
+                    },
+                });
             });
 
             if (lotState.bidOwner) {

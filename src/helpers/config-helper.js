@@ -239,6 +239,10 @@ class Config {
     static getCharacter(characterId) {
         return _config.characters[characterId];
     }
+
+    static getItemRarities() {
+        return _itemRarities;
+    }
 }
 
 /**
