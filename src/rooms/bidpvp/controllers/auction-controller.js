@@ -153,7 +153,10 @@ class AuctionController {
         const incrementLimit = this._getCurrentLot().initialBid * Config.game.bidIncrementLimitMultiplier;
 
         const bidAux = Math.floor(Math.min(currentBid * incrementGrowth, incrementLimit));
-        const bidIncrement = Math.ceil(bidAux / this._getCurrentLot().initialBid) * this._getCurrentLot().initialBid;
+        let bidIncrement = Math.ceil(bidAux / this._getCurrentLot().initialBid) * this._getCurrentLot().initialBid;
+        if (bidIncrement === 0) {
+            bidIncrement = this._getCurrentLot().initialBid;
+        }
 
         this._getCurrentLot().nextBidValue = Math.round(bidIncrement + currentBid);
 
