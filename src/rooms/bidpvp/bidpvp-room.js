@@ -52,6 +52,10 @@ class BidPvpRoom extends Room {
     }
 
     async onJoin(client, options, _auth) {
+        if (options.loadtest && options.bot && process.env['ENV'] === 'dev') {
+            this.logger.info('Adding load test remote bot.');
+            this._addRemoteBot(options);
+        }
         this.logger.info(`Client: ${client.id} joined. ${JSON.stringify(options)}`);
 
         this.state.players[client.id] = new PlayerState({
@@ -68,7 +72,6 @@ class BidPvpRoom extends Room {
 
         if (this.locked && lodash.keys(this.state.players).length === this.maxClients) {
             await this.lock(); // Prevent new players from joining if any players leave.
-
             await this.auctionController.startAuction();
 
         } else {
@@ -178,6 +181,11 @@ class BidPvpRoom extends Room {
 
             this._setAddBotTimeout();
         }
+    }
+
+    async _addRemoteBot(options) {
+        const bot = new Bot(options.userId, options.botName, 'ws://localhost:2567', options.city);
+        this.bots[bot.id] = bot;
     }
 
 }
