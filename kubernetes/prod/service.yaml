@@ -15,3 +15,21 @@ spec:
   selector:
     app: <NAME>-<URL_VERSION>
   sessionAffinity: None
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: <NAME>-<URL_VERSION>-replica
+  name: storage-battles-game-server-service-replica
+spec:
+  type: LoadBalancer
+  loadBalancerIP: 34.75.61.26
+  ports:
+    - name: 2567-to-2567-tcp
+      port: 2567
+      protocol: TCP
+      targetPort: 2567
+  selector:
+    app: <NAME>-<URL_VERSION>-replica
+  sessionAffinity: None
