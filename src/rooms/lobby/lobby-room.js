@@ -16,17 +16,17 @@ class LobbyRoom extends Room {
         /** @type {Logger} */
         this.logger = new Logger('LobbyRoom', { room: this.roomId });
 
-        this.logger.info(`Room Init ${JSON.stringify(options)} - ${this.roomId}`);
+        this.logger.debug(`Room Init ${JSON.stringify(options)} - ${this.roomId}`);
     }
 
     onJoin(client, options) {
-        this.logger.info(`Client: ${client.id} joined. ${JSON.stringify(options)}`);
+        this.logger.debug(`Client: ${client.id} joined. ${JSON.stringify(options)}`);
 
         this.sendConfig(client);
     }
 
     onMessage(client, message) {
-        this.logger.info(`Client: ${client.id} sent message ${JSON.stringify(message)}`);
+        this.logger.debug(`Client: ${client.id} sent message ${JSON.stringify(message)}`);
     }
 
     onLeave(client, consented) {

@@ -235,7 +235,7 @@ class AuctionController {
         const baseBid = Math.round(lodash.random(this.city.minInitialBidRange, this.city.maxInitialBidRange));
         lotState.initialBid = Math.round(baseBid / this.city.minBidIncrement) * this.city.minBidIncrement;
         lotState.nextBidValue = lotState.initialBid;
-        this.logger.info(`Lot ${idx} city ${this.city.id} - initial bid value: ${baseBid} (rounded: ${lotState.initialBid})`);
+        this.logger.debug(`Lot ${idx} city ${this.city.id} - initial bid value: ${baseBid} (rounded: ${lotState.initialBid})`);
     }
 
     /**
@@ -411,7 +411,7 @@ class AuctionController {
     bid(playerId) {
         const playerState = this.state.players[playerId];
 
-        this.logger.info(`Player ${playerId} (Bot: ${playerState.isBot}) trying to bid ${this._getCurrentLot().nextBidValue} on lot ${this.state.currentLot}.`, {
+        this.logger.debug(`Player ${playerId} (Bot: ${playerState.isBot}) trying to bid ${this._getCurrentLot().nextBidValue} on lot ${this.state.currentLot}.`, {
             firebaseId: playerState.firebaseId,
         });
 
@@ -533,7 +533,7 @@ class AuctionController {
      * @private
      */
     _startLot(lotIndex) {
-        this.logger.info(`Starting LOT ${lotIndex}`);
+        this.logger.debug(`Starting LOT ${lotIndex}`);
         this.state.lots[lotIndex].status = auctionStatus.PLAY;
 
         //force lot end if noone bids
@@ -557,7 +557,7 @@ class AuctionController {
             let bidOwnerState = this.state.players[endingLot.bidOwner];
             bidOwnerState.money = (Number(bidOwnerState.money) || 0) - endingLot.bidValue;
 
-            this.logger.info(`Ended LOT ${lotIndex} - Winner: ${endingLot.bidOwner} - paid:${endingLot.bidValue}`);
+            this.logger.debug(`Ended LOT ${lotIndex} - Winner: ${endingLot.bidOwner} - paid:${endingLot.bidValue}`);
         }
     }
 
