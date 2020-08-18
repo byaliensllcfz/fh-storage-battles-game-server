@@ -433,6 +433,11 @@ class AuctionController {
 
             this.bidIntervalTimeout = this.room.clock.setTimeout(() => this.finishBidInterval(), Config.game.bidTimeTolerance);
         }
+
+        this.logger.info(`Player ${playerId} (Bot: ${playerState.isBot}) bid ${this._getCurrentLot().nextBidValue} on lot ${this.state.currentLot}.`, {
+            firebaseId: playerState.firebaseId,
+        });
+
         this.bidInterval.addBid(playerId);
     }
 
@@ -533,7 +538,7 @@ class AuctionController {
      * @private
      */
     _startLot(lotIndex) {
-        this.logger.debug(`Starting LOT ${lotIndex}`);
+        this.logger.info(`Starting LOT ${lotIndex}`);
         this.state.lots[lotIndex].status = auctionStatus.PLAY;
 
         //force lot end if noone bids
@@ -557,7 +562,7 @@ class AuctionController {
             let bidOwnerState = this.state.players[endingLot.bidOwner];
             bidOwnerState.money = (Number(bidOwnerState.money) || 0) - endingLot.bidValue;
 
-            this.logger.debug(`Ended LOT ${lotIndex} - Winner: ${endingLot.bidOwner} - paid:${endingLot.bidValue}`);
+            this.logger.info(`Ended LOT ${lotIndex} - Winner: ${endingLot.bidOwner} - paid:${endingLot.bidValue}`);
         }
     }
 
