@@ -16,6 +16,8 @@ spec:
     type: RollingUpdate
   template:
     metadata:
+      annotations:
+        ad.datadoghq.com/<NAME>-<URL_VERSION>.logs: '[{"service":"<NAME>", "source":"nodejs"}]'
       labels:
         app: <NAME>-<URL_VERSION>
     spec:
@@ -43,6 +45,10 @@ spec:
             periodSeconds: 10
             successThreshold: 1
             timeoutSeconds: 1
+          resources:
+            requests:
+              cpu: 1000m
+              memory: 2Gi
           volumeMounts:
             - name: google-cloud-key
               mountPath: /var/secrets/google

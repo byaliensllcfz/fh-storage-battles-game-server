@@ -16,6 +16,8 @@ spec:
     type: RollingUpdate
   template:
     metadata:
+      annotations:
+        ad.datadoghq.com/<NAME>-<URL_VERSION>.logs: '[{"service":"<NAME>", "source":"nodejs"}]'
       labels:
         app: <NAME>-<URL_VERSION>
     spec:
@@ -43,6 +45,80 @@ spec:
             periodSeconds: 10
             successThreshold: 1
             timeoutSeconds: 1
+          resources:
+            requests:
+              cpu: 1000m
+              memory: 2Gi
+          volumeMounts:
+            - name: google-cloud-key
+              mountPath: /var/secrets/google
+            - name: config-files
+              mountPath: /app/configuration
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - name: google-cloud-key
+          secret:
+            defaultMode: 420
+            secretName: gcp-api-key
+        - name: config-files
+          configMap:
+            name: config-<NAME>-<URL_VERSION>
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: <NAME>-<URL_VERSION>-replica
+  name: <NAME>-deployment-<URL_VERSION>-replica
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: <NAME>-<URL_VERSION>-replica
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        ad.datadoghq.com/<NAME>-<URL_VERSION>.logs: '[{"service":"<NAME>", "source":"nodejs"}]'
+      labels:
+        app: <NAME>-<URL_VERSION>-replica
+    spec:
+      containers:
+        - image: gcr.io/forhumans-gameservices-dev/<NAME>:<BUILD_VERSION>
+          livenessProbe:
+            failureThreshold: 5
+            httpGet:
+              path: /liveness-check
+              port: 2567
+              scheme: HTTP
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: <NAME>-<URL_VERSION>
+          ports:
+            - containerPort: 2567
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 30
+            httpGet:
+              path: /readiness-check
+              port: 2567
+              scheme: HTTP
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            requests:
+              cpu: 1000m
+              memory: 2Gi
           volumeMounts:
             - name: google-cloud-key
               mountPath: /var/secrets/google
