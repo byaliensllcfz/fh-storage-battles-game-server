@@ -220,7 +220,7 @@ class Bot {
                 this.logger.debug(`Bot would bid but has no money. Current money: ${this.money}. Money required to bid: ${lotState.nextBidValue}.`);
 
             } else {
-                this.logger.info(`Bot decided to bid on lot ${auctionState.currentLot}. Bid probability: ${bidProbability}. Random bid chance: ${randomBidChance}.`);
+                this.logger.debug(`Bot decided to bid on lot ${auctionState.currentLot}. Bid probability: ${bidProbability}. Random bid chance: ${randomBidChance}.`);
                 this.sendMessage(commands.AUCTION_BID);
             }
         } else {

@@ -10,7 +10,7 @@ data:
       "loggingEnableFile": false,
       "serverProcesses": 2,
       "forceLocalConfig": false,
-      "loggingLevel": "debug",
+      "loggingLevel": "info",
       "serverEnableDatadog": false,
       "apiUrl": "https://storage-battles-v1.prod.gameservices.forhumans.games",
       "bundleId": "com.megastorm.bidpvp.powerups",

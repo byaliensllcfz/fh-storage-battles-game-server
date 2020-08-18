@@ -107,7 +107,7 @@ class BidPvpRoom extends Room {
                 }
 
                 this.logger.info('Game didnt start because the only player left. disposing room');
-                this.disconnect();
+                await this.disconnect();
             }
         }
         else if (this.state.status === auctionStatus.PLAY) {
@@ -183,7 +183,7 @@ class BidPvpRoom extends Room {
         }
     }
 
-    async _addRemoteBot(options) {
+    _addRemoteBot(options) {
         const bot = new Bot(options.userId, options.botName, 'ws://localhost:2567', options.city);
         this.bots[bot.id] = bot;
     }
