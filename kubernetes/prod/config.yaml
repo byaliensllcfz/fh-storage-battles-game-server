@@ -13,7 +13,7 @@ data:
       "loggingLevel": "info",
       "serverEnableDatadog": false,
       "apiUrl": "https://storage-battles-v1.prod.gameservices.forhumans.games",
-      "bundleId": "com.megastorm.bidpvp.powerups",
+      "bundleId": "com.byaliens.bid.wars.stars.multiplayer.auction.battles",
       "ignoreAgones": true
     }
   .env: |

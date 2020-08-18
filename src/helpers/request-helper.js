@@ -3,6 +3,8 @@
 const { config, TappsHeaders } = require('@tapps-games/core');
 const { tpServerRequest } = require('@tapps-games/requests');
 
+const uuid = require('uuid/v4');
+
 /** @ignore */
 const secretHelper = require('./secret-helper');
 
@@ -18,6 +20,7 @@ async function request(options) {
     options.headers[TappsHeaders.SHARED_CLOUD_SECRET] = secret.key;
     options.headers[TappsHeaders.BUNDLE_ID] = config.get('bundleId');
     options.headers[TappsHeaders.SERVICE_ACCOUNT_NAME] = config.get('serviceName');
+    options.headers[TappsHeaders.TRANSACTION_ID] = `${config.get('serviceName')}-${uuid()}`;
 
     return tpServerRequest(options);
 }
