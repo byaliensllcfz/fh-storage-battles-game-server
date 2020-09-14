@@ -1,20 +1,6 @@
 'use strict';
 
-require('dd-trace').init({
-    tags: {
-        instance: process.env.HOSTNAME,
-        project: process.env.GOOGLE_CLOUD_PROJECT,
-        project_id: process.env.GOOGLE_CLOUD_PROJECT,
-        version: process.env.SERVICE_DEPLOY_VERSION,
-        service: process.env.SERVICE_DEPLOY_ID,
-    },
-    enabled: !(process.env.DD_TRACE_DISABLED == 'true'),
-    env: process.env.ENV,
-    service: process.env.SERVICE_DEPLOY_ID,
-    logInjection: true,
-    runtimeMetrics: true,
-});
-// require('@tapps-games/datadog');
+require('dd-trace').init();
 
 (async function () {
     const { config } = require('@tapps-games/core');
