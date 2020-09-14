@@ -119,19 +119,17 @@
         async connect(firebaseId, reservation) {
             if (serverService.connected) return;
 
-            //dev -- 34.75.203.64:
+            //dev 1 ---- 34.75.203.64
+            //dev rep -- 34.74.97.78
+            //stg 1 ---- 35.237.111.24
             serverService.client = new Colyseus.Client('ws://localhost:2567');
 
             if (reservation) {
                 let response = JSON.parse(reservation);
                 console.log(`Trying to connect using reservation ${reservation}`);
-                serverService.client.consumeSeatReservation(response).then(room => {
-                    serverService.room = room;
-                    console.log("joined successfully", room);
-                }).catch(e => {
-                    console.error("join error", e);
-                });
-
+                serverService.room = await serverService.client.consumeSeatReservation(response);
+                console.log("joined successfully", serverService.room);
+                serverService._addListeners();
             }
             else {
                 const cityId = 'City01';
@@ -141,9 +139,9 @@
                     clientWeb: true,
                 });
                 console.log(`Connected on city ${cityId}`);
+                serverService._addListeners();
             }
             serverService.connected = true;
-            serverService._addListeners();
         },
 
         _addListeners() {
@@ -187,6 +185,16 @@
             });
         },
         
+        getItem(itemId) {
+            if (serverService.items && !lodash.isEmpty(serverService.items)) {
+                return serverService.items[item.itemId];
+            }
+            return {
+                price: 0,
+                category: 'X',
+                rarity: 'X'
+            };
+        }
     };
 
     let app = new Vue({
@@ -246,7 +254,7 @@
                     const lot = this.state.lots[this.state.currentLot];
                     let totalItems = 0
                     lodash.forEach(this.state.lots[this.state.currentLot].items, item => {
-                        const itemInfo = serverService.items[item.itemId];
+                        const itemInfo = serverService.getItem(item.itemId);
                         totalItems += itemInfo.price;
                     });
 
@@ -258,7 +266,7 @@
                     info += `bidOwner: ${lot.bidOwner} <br>`;
                     info += `<br><b>Items:</b> $${totalItems}<br>`;
                     lodash.forEach(this.state.lots[this.state.currentLot].items, item => {
-                        const itemInfo = serverService.items[item.itemId];
+                        const itemInfo = serverService.getItem(item.itemId);
                         let color = 'black';
                         let highlight = '';
 
