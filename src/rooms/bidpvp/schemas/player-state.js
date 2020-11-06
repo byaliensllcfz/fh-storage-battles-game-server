@@ -47,6 +47,9 @@ class PlayerState extends Schema {
 
         /** @type {number} */
         this.reconnections = 0;
+
+        /** @type {string} */
+        this.abtestgroup = options.abtestgroup || '';
     }
 }
 

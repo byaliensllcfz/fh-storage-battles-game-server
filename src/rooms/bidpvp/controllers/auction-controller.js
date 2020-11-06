@@ -718,6 +718,7 @@ class AuctionController {
                     position: position,
                     price: result.price,
                     items: result.items,
+                    abtestgroup: player.abtestgroup,
                 };
 
                 this.logger.info('Game result tally.', {
