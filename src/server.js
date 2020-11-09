@@ -78,10 +78,13 @@ async function createServer() {
     app.post('/reserve', utils.asyncRoute(async (req, res) => {
         let reservation;
 
+        const abFlag = req.headers['abtestgroup'];
+
         const options = {
             userId: req.body.userId,
             character: req.body.character,
             city: req.body.cityId,
+            abtestgroup: abFlag,
         };
 
         try {

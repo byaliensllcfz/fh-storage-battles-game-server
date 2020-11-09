@@ -63,6 +63,7 @@ class BidPvpRoom extends Room {
             firebaseId: options.userId,
             character: options.character,
             isBot: options.bot,
+            abtestgroup: options.abtestgroup,
         });
 
         if (options.clientWeb) {
