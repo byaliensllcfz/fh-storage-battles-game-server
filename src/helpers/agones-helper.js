@@ -1,7 +1,7 @@
 'use strict';
 
 const { config } = require('@tapps-games/core');
-const AgonesSDK = require('@googleforgames/agones');
+const AgonesSDK = require('@google-cloud/agones-sdk');
 
 let agonesSDK;
 let ignoreAgones = true;
