@@ -35,7 +35,7 @@ function setUpDeallocateEndpoint(app, utils) {
     if (!ignoreAgones) {
         app.get('/admin/deallocate', utils.asyncRoute(async (req, res) => {
             const seconds = req.query.seconds || 420; // 7 minutes
-            agonesSDK.reseve(seconds);
+            await agonesSDK.reserve(seconds);
             res.send(`Deallocating server in ${seconds} seconds`);
         }));
     }

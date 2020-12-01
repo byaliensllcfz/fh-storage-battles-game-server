@@ -12,7 +12,7 @@ data:
       "forceLocalConfig": false,
       "loggingLevel": "debug",
       "serverEnableDatadog": false,
-      "apiUrl": "https://storage-battles-v1.stag.gameservices.forhumans.games",
+      "apiUrl": "https://storage-battles.stag.gameservices.forhumans.games",
       "bundleId": "com.byaliens.bid.wars.stars.multiplayer.auction.battles",
       "ignoreAgones": true
     }
