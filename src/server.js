@@ -75,6 +75,8 @@ async function createServer() {
         res.send(JSON.stringify(data));
     }));
 
+    agonesHelper.setUpDeallocateEndpoint(app, utils);
+
     app.post('/reserve', utils.asyncRoute(async (req, res) => {
         let reservation;
 
