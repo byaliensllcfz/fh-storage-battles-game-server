@@ -1,96 +1,92 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: "agones.dev/v1"
+kind: Fleet
 metadata:
   labels:
     app: <NAME>-<URL_VERSION>
-  name: <NAME>-deployment-<URL_VERSION>
+    tags.datadoghq.com/env: <ENV>
+    tags.datadoghq.com/service: <NAME>
+    tags.datadoghq.com/version: <BUILD_VERSION>
+  name: <NAME>-fleet-<URL_VERSION>
 spec:
   replicas: 1
-  selector:
-    matchLabels:
-      app: <NAME>-<URL_VERSION>
-  strategy:
-    rollingUpdate:
-      maxSurge: 25%
-      maxUnavailable: 25%
-    type: RollingUpdate
   template:
     metadata:
       annotations:
-        ad.datadoghq.com/<NAME>-<URL_VERSION>.logs: '[{"service":"<NAME>", "source":"nodejs"}]'
+        ad.datadoghq.com/<NAME>-<URL_VERSION>.logs: '[{"source":"nodejs"}]'
       labels:
-        app: <NAME>-<URL_VERSION>
+        ssg.bundleid: com.byaliens.bid.wars.stars.multiplayer.auction.battles
+        version: <BUILD_VERSION>
+        condition: "DEFAULT"
+        tags.datadoghq.com/env: <ENV>
+        tags.datadoghq.com/service: <NAME>
+        tags.datadoghq.com/version: <BUILD_VERSION>
     spec:
-      containers:
-        - image: gcr.io/forhumans-gameservices-dev/<NAME>:<BUILD_VERSION>
-          livenessProbe:
-            failureThreshold: 5
-            httpGet:
-              path: /liveness-check
-              port: 2567
-              scheme: HTTP
-            periodSeconds: 10
-            successThreshold: 1
-            timeoutSeconds: 1
-          name: <NAME>-<URL_VERSION>
-          env:
-            - name: DD_ENV
-              valueFrom:
-                fieldRef:
-                  apiVersion: v1
-                  fieldPath: metadata.labels['tags.datadoghq.com/env']
-            - name: DD_SERVICE
-              valueFrom:
-                fieldRef:
-                  apiVersion: v1
-                  fieldPath: metadata.labels['tags.datadoghq.com/service']
-            - name: DD_VERSION
-              valueFrom:
-                fieldRef:
-                  apiVersion: v1
-                  fieldPath: metadata.labels['tags.datadoghq.com/version']
-            - name: DD_AGENT_HOST
-              valueFrom:
-                fieldRef:
-                  apiVersion: v1
-                  fieldPath: status.hostIP
-            - name: DD_RUNTIME_METRICS_ENABLED
-              value: "true"
-            - name: DD_LOGS_INJECTION
-              value: "true"
-            - name: DD_TRACE_ENABLED
-              value: "true"
-          ports:
-            - containerPort: 2567
-              protocol: TCP
-          readinessProbe:
-            failureThreshold: 30
-            httpGet:
-              path: /readiness-check
-              port: 2567
-              scheme: HTTP
-            periodSeconds: 10
-            successThreshold: 1
-            timeoutSeconds: 1
-          resources:
-            requests:
-              cpu: 1000m
-              memory: 2Gi
-          volumeMounts:
-            - name: google-cloud-key
-              mountPath: /var/secrets/google
-            - name: config-files
-              mountPath: /app/configuration
-      dnsPolicy: ClusterFirst
-      restartPolicy: Always
-      schedulerName: default-scheduler
-      securityContext: {}
-      terminationGracePeriodSeconds: 30
-      volumes:
-        - name: google-cloud-key
-          secret:
-            defaultMode: 420
-            secretName: gcp-api-key
-        - name: config-files
-          configMap:
-            name: config-<NAME>-<URL_VERSION>
+      env:
+        - name: DD_ENV
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.labels['tags.datadoghq.com/env']
+        - name: DD_SERVICE
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.labels['tags.datadoghq.com/service']
+        - name: DD_VERSION
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.labels['tags.datadoghq.com/version']
+        - name: DD_AGENT_HOST
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: status.hostIP
+        - name: DD_RUNTIME_METRICS_ENABLED
+          value: "true"
+        - name: DD_LOGS_INJECTION
+          value: "true"
+        - name: DD_TRACE_ENABLED
+          value: "true"
+      ports:
+      - name: default
+        containerPort: 2567
+        protocol: TCP
+      health:
+        disabled: false
+        initialDelaySeconds: 30
+        periodSeconds: 30
+        failureThreshold: 3
+      template:
+        spec:
+          containers:
+          - image: gcr.io/forhumans-gameservices-dev/<NAME>:<BUILD_VERSION>
+            imagePullPolicy: IfNotPresent
+            livenessProbe:
+              failureThreshold: 5
+              httpGet:
+                path: /liveness-check
+                port: 2567
+                scheme: HTTP
+              periodSeconds: 10
+              successThreshold: 1
+              timeoutSeconds: 1
+            name: <NAME>-<URL_VERSION>
+            resources:
+              requests:
+                cpu: "0.2"
+                memory: 1Gi
+            volumeMounts:
+            - mountPath: /var/secrets/google
+              name: google-cloud-key
+            - mountPath: /app/configuration
+              name: config-files
+          volumes:
+          - name: google-cloud-key
+            secret:
+              defaultMode: 420
+              secretName: gcp-api-key
+          - configMap:
+              defaultMode: 420
+              name: config-<NAME>-<URL_VERSION>
+            name: config-files

@@ -14,7 +14,7 @@ data:
       "serverEnableDatadog": false,
       "apiUrl": "https://storage-battles.stag.gameservices.forhumans.games",
       "bundleId": "com.byaliens.bid.wars.stars.multiplayer.auction.battles",
-      "ignoreAgones": true
+      "ignoreAgones": false
     }
   .env: |
     ENV=stag
