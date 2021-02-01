@@ -15,7 +15,7 @@ spec:
         ad.datadoghq.com/<NAME>-<URL_VERSION>.logs: '[{"source":"nodejs"}]'
       labels:
         ssg.bundleid: com.byaliens.bid.wars.stars.multiplayer.auction.battles
-        version: <BUILD_VERSION>
+        version: <VERSION>
         condition: "DEFAULT"
         tags.datadoghq.com/env: <ENV>
         tags.datadoghq.com/service: <NAME>
