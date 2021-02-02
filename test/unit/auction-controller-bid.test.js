@@ -12,6 +12,7 @@ const itemsConfig = require('../fixtures/config/items');
 const stateFixture = require('../fixtures/state/state');
 
 const { BidInterval } = require('../../src/helpers/bid-interval');
+const { bidStatus } = require('../../src/types');
 
 describe('AuctionController Unit tests', function() {
     const moduleTestContext = new TestContext({
@@ -38,61 +39,92 @@ describe('AuctionController Unit tests', function() {
     describe('AuctionController bid Tests', function() {
 
         it('should bid a lot', async function() {
+            const playerId = 'xfSB3PMvG';
+            const client = { id: playerId };
+            room.clients = [{ id: 'abcdefghi' }, client ];
+
             auction.state = state;
 
             auction.finishBidInterval = new MagicMock('finishBid');
 
-            auction.bid('xfSB3PMvG');
+            auction.bid(playerId);
             expect(room.clock.setTimeout).to.have.invocationCount(1);
 
             const timeoutCallback = room.clock.setTimeout.$.invocations[0][0];
             timeoutCallback();
 
-            expect(auction.bidInterval.drawPlayers[0]).to.equal('xfSB3PMvG');
+            expect(auction.bidInterval.drawPlayers[0]).to.equal(playerId);
             expect(auction.finishBidInterval).to.have.invocationCount(1);
+            expect(room.send).to.have.invocationCount(1);
+            expect(room.send).to.be.invokedWith(client, JSON.stringify({ bidStatus: bidStatus.ACCEPTED }));
         });
 
         it('should not bid , player has less money', async function() {
-            state.players['xfSB3PMvG'].money = 0;
+            const playerId = 'xfSB3PMvG';
+            const client = { id: playerId };
+            room.clients = [{ id: 'abcdefghi' }, client ];
+
+            state.players[playerId].money = 0;
             auction.state = state;
 
             auction.finishBidInterval = new MagicMock('finishBid');
 
-            auction.bid('xfSB3PMvG');
+            auction.bid(playerId);
             expect(room.clock.setTimeout).to.have.invocationCount(0);
 
             expect(auction.bidInterval).to.not.exist;
             expect(auction.finishBidInterval).to.have.invocationCount(0);
+            expect(room.send).to.have.invocationCount(1);
+            expect(room.send).to.be.invokedWith(client,
+                JSON.stringify({ bidStatus: bidStatus.REJECTED_INSUFFICIENT_MONEY }));
         });
 
         it('should not bid , player has the highest bid', async function() {
-            state.lots[0].bidOwner = 'xfSB3PMvG';
+            const playerId = 'xfSB3PMvG';
+            const client = { id: playerId };
+            room.clients = [{ id: 'abcdefghi' }, client ];
+
+            state.lots[0].bidOwner = playerId;
             auction.state = state;
 
             auction.finishBidInterval = new MagicMock('finishBid');
 
-            auction.bid('xfSB3PMvG');
+            auction.bid(playerId);
             expect(room.clock.setTimeout).to.have.invocationCount(0);
 
             expect(auction.bidInterval).to.not.exist;
             expect(auction.finishBidInterval).to.have.invocationCount(0);
+            expect(room.send).to.have.invocationCount(1);
+            expect(room.send).to.be.invokedWith(client,
+                JSON.stringify({ bidStatus: bidStatus.REJECTED_ALREADY_OWNER }));
         });
 
         it('should bid a lot, 2 players draw', async function() {
+            const firstPlayerId = 'xfSB3PMvG';
+            const secondPlayerId = 'abcdHfSta';
+            const firstClient = { id: firstPlayerId };
+            const secondClient = { id: secondPlayerId };
+            room.clients = [secondClient, firstClient];
+
             auction.state = state;
 
             auction.finishBidInterval = new MagicMock('finishBid');
 
-            auction.bid('xfSB3PMvG');
-            auction.bid('abcdHfSta');
+            auction.bid(firstPlayerId);
+            auction.bid(secondPlayerId);
             expect(room.clock.setTimeout).to.have.invocationCount(1);
 
             const timeoutCallback = room.clock.setTimeout.$.invocations[0][0];
             timeoutCallback();
 
-            expect(auction.bidInterval.drawPlayers[0]).to.equal('xfSB3PMvG');
-            expect(auction.bidInterval.drawPlayers[1]).to.equal('abcdHfSta');
+            expect(auction.bidInterval.drawPlayers[0]).to.equal(firstPlayerId);
+            expect(auction.bidInterval.drawPlayers[1]).to.equal(secondPlayerId);
             expect(auction.finishBidInterval).to.have.invocationCount(1);
+            expect(room.send).to.have.invocationCount(2);
+            expect(room.send).to.be.invokedWith(firstClient,
+                JSON.stringify({ bidStatus: bidStatus.ACCEPTED }));
+            expect(room.send).to.be.invokedWith(secondClient,
+                JSON.stringify({ bidStatus: bidStatus.ACCEPTED }));
         });
 
         describe('AuctionController finishBidInterval Tests', function() {
