@@ -228,7 +228,7 @@ class Bot {
             } else {
                 this.logger.debug(`Bot decided to bid on lot ${auctionState.currentLot}. Bid probability: ${bidProbability}. Random bid chance: ${randomBidChance}.`);
                 this.sendMessage(commands.AUCTION_BID);
-                this.eventEmitter.emit(botEvents.PERFORM_BID, { botId: this.id });
+                this.eventEmitter.emit(botEvents.BID_PERFORMED, { botId: this.id });
             }
         } else {
             this.logger.debug(`Bot won't bid on lot ${auctionState.currentLot}. Bid probability: ${bidProbability}. Random bid chance: ${randomBidChance}.`);
