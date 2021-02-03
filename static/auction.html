@@ -112,7 +112,7 @@
         emoji: {},
         
         sendMessage(command, args) {
-            serverService.room.send({ command, args, commandIndex: 0 });
+            serverService.room.send("message", { command, args, commandIndex: 0 });
             console.log('command', command, args);
         },
 
@@ -145,7 +145,7 @@
         },
 
         _addListeners() {
-            serverService.room.onMessage((message) => {
+            serverService.room.onMessage("*", (message) => {
                 if (message && JSON.parse(message).items) {
                     const items = JSON.parse(message).items;
                     lodash.forEach(items, item => {

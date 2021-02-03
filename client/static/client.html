@@ -36,7 +36,7 @@ const serverService = {
   serverData: null,
 
   sendMessage(command, args) {
-    serverService.room.send({ command, args, commandIndex: 0 });
+    serverService.room.send("message", { command, args, commandIndex: 0 });
     console.log('command', command, args);
   },
 
@@ -54,7 +54,7 @@ const serverService = {
   },
 
   _addListeners() {
-    serverService.room.onMessage((message) => {
+    serverService.room.onMessage("*", (message) => {
       console.log("server just sent this message:" + message);
       serverService.serverData = message;
     });
