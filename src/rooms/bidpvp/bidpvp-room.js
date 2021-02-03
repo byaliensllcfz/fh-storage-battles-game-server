@@ -80,15 +80,17 @@ class BidPvpRoom extends Room {
         }
     }
 
-    onMessage(client, message) {
-        this.logger.debug(`Client: ${client.id} sent message ${JSON.stringify(message)}`);
-
-        if (this.locked) {
-            handleAuctionCommand(this, client.id, message).catch(error => {
-                this.logger.error(`Error handling message: ${JSON.stringify(message)} from player: ${client.id}.`, error);
-            });
-        }
-    }
+    onCreate(options) {
+        this.onMessage("message", (client, message) => {
+            this.logger.debug(`Client: ${client.id} sent message ${JSON.stringify(message)}`);
+    
+            if (this.locked) {
+                handleAuctionCommand(this, client.id, message).catch(error => {
+                    this.logger.error(`Error handling message: ${JSON.stringify(message)} from player: ${client.id}.`, error);
+                });
+            }
+        });
+    }    
 
     async onLeave(client, consented) {
         const isBot = this.state.players[client.id].isBot;

@@ -25,10 +25,6 @@ class LobbyRoom extends Room {
         this.sendConfig(client);
     }
 
-    onMessage(client, message) {
-        this.logger.debug(`Client: ${client.id} sent message ${JSON.stringify(message)}`);
-    }
-
     onLeave(client, consented) {
         this.logger.info(`Client: ${client.id} left. consented? ${consented}`);
     }
@@ -43,7 +39,7 @@ class LobbyRoom extends Room {
             items: lodash.map(Config.items),
         };
 
-        this.send(client, JSON.stringify(startingConfig));
+        client.send("config", JSON.stringify(startingConfig));
     }
 }
 

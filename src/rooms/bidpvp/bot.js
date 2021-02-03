@@ -125,7 +125,7 @@ class Bot {
         const state = this.room.state;
         this.clientId = this.room.sessionId;
 
-        this.room.onMessage((messageString) => {
+        this.room.onMessage("*", (messageString) => {
             const message = JSON.parse(messageString);
             if (message.emoji && message.client != this.clientId) {
                 this._tryTriggerEmoji('reaction', message.emoji);
