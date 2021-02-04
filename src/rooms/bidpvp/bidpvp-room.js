@@ -177,8 +177,15 @@ class BidPvpRoom extends Room {
             this.availableBotNames = lodash.filter(this.availableBotNames, name => name !== botName);
             const bot = new Bot(uuid(), botName, 'ws://localhost:2567', this.auctionController.city);
 
-            this.bots[bot.id] = bot;
-            await bot.joinRoom(this.roomId);
+            try {
+                // Bot must be added in map before calling joinRoom because it's being accessed right 
+                // after the function call
+                this.bots[bot.id] = bot;
+                await bot.joinRoom(this.roomId);
+            } catch (err) {
+                delete this.bots[bot.id];
+                this.logger.error('Tried to add bot, but an error occurred', err);
+            }
 
             this._setAddBotTimeout();
         }
