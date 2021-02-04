@@ -178,7 +178,7 @@ class BidPvpRoom extends Room {
             const bot = new Bot(uuid(), botName, 'ws://localhost:2567', this.auctionController.city);
 
             try {
-                // Bot must be added in map before calling joinRoom because it's being accessed right 
+                // Bot must be added in map before calling joinRoom because it's being accessed right
                 // after the function call
                 this.bots[bot.id] = bot;
                 await bot.joinRoom(this.roomId);
