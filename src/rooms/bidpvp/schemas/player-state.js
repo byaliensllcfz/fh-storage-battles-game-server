@@ -1,6 +1,8 @@
 'use strict';
 
-const { Schema, type } = require('@colyseus/schema');
+const { Schema, MapSchema, type } = require('@colyseus/schema');
+
+const { EffectState } = require('./effect-state');
 
 class PlayerState extends Schema {
     constructor(options = {}) {
@@ -50,6 +52,9 @@ class PlayerState extends Schema {
 
         /** @type {string} */
         this.abtestgroup = options.abtestgroup || '';
+
+        /** @type {Object<string, EffectState>} */
+        this.effects = new MapSchema();
     }
 }
 
@@ -63,6 +68,7 @@ type('boolean')(PlayerState.prototype, 'connected');
 type('int32')(PlayerState.prototype, 'trophiesEarned');
 type('int32')(PlayerState.prototype, 'trophies');
 type('int8')(PlayerState.prototype, 'rank');
+type({ map: EffectState })(EffectState.prototype, 'effects');
 
 module.exports = {
     PlayerState,
