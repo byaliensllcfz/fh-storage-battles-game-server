@@ -3,11 +3,12 @@
 const lodash = require('lodash');
 const { Logger } = require('@tapps-games/logging');
 const { Client } = require('colyseus.js');
+const { EventEmitter } = require('events');
 
 const { Config } = require('../../helpers/config-helper');
 const itemStateHelper = require('../../helpers/item-state-helper');
 
-const { auctionStatus, commands } = require('../../types');
+const { auctionStatus, commands, botEvents } = require('../../types');
 
 class Bot {
 
@@ -47,6 +48,9 @@ class Bot {
 
         /** @type {boolean} */
         this.hadBid = false;
+
+        /** @type {EventEmitter} */
+        this.eventEmitter = new EventEmitter();
 
         this._generateRankAndTrophies();
     }
@@ -125,6 +129,8 @@ class Bot {
             const message = JSON.parse(messageString);
             if (message.emoji && message.client != this.clientId) {
                 this._tryTriggerEmoji('reaction', message.emoji);
+            } else if (message.bidStatus) {
+                this.eventEmitter.emit(botEvents.BID_PROCESSED, { botId: this.id });
             }
         });
 
@@ -222,6 +228,7 @@ class Bot {
             } else {
                 this.logger.debug(`Bot decided to bid on lot ${auctionState.currentLot}. Bid probability: ${bidProbability}. Random bid chance: ${randomBidChance}.`);
                 this.sendMessage(commands.AUCTION_BID);
+                this.eventEmitter.emit(botEvents.BID_PERFORMED, { botId: this.id });
             }
         } else {
             this.logger.debug(`Bot won't bid on lot ${auctionState.currentLot}. Bid probability: ${bidProbability}. Random bid chance: ${randomBidChance}.`);
@@ -275,6 +282,32 @@ class Bot {
             command,
             args,
         });
+    }
+
+    /**
+     * Add a listener to an event
+     * @param {string} eventName
+     * @param {Function} callback
+     */
+    addListener(eventName, callback) {
+        this.eventEmitter.addListener(eventName, callback);
+    }
+
+    /**
+     * Remove a listener to an event
+     * @param {string} eventName
+     * @param {Function} callback
+     */
+    removeListener(eventName, callback) {
+        this.eventEmitter.removeListener(eventName, callback);
+    }
+
+    /**
+     * Remove all listeners
+     * @param {string} [eventName]
+     */
+    removeAllListeners(eventName) {
+        this.eventEmitter.removeAllListeners(eventName);
     }
 }
 
