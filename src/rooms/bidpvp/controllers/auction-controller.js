@@ -60,7 +60,7 @@ class AuctionController {
         this.logger.info('Auction started - GAME ON');
         this._started = true;
 
-        lodash.each(this.state.players, player => {
+        this.state.players.forEach((player, key) => {
             if (player.isBot) {
                 const bot = this.room.bots[player.firebaseId];
                 const maxMoney = this._getInitialMaxMoney(player, {}, bot.character);
@@ -191,7 +191,7 @@ class AuctionController {
         let eventItemsDrawn = 0;
         for (let index = 0; index < lotAmount; index++) {
             const lot = this.state.lots[shuffledLots[index]];
-            let lotItemsAmount = lodash.keys(lot.items).length;
+            let lotItemsAmount = lot.items.size;
 
             const eventItemsPerRarity = lodash.clone(this.city.eventItemsPerRarity);
             //only once per rarity, per lot
@@ -206,7 +206,10 @@ class AuctionController {
                         const state = this._pickItemState();
                         this.logger.debug(`Drawing EVENT item ${itemId}, from rarity ${rarity} on lot ${shuffledLots[index]}`);
 
-                        lot.items[lotItemsAmount] = new ItemState(itemId, state);
+                        lot.items[lotItemsAmount] = new ItemState().assign({
+                            itemId: itemId,
+                            state: state
+                        });
 
                         //remove item already drawn
                         lodash.remove(eventItemsPerRarity[rarity], itemId);
@@ -222,7 +225,10 @@ class AuctionController {
                 const state = this._pickItemState();
                 this.logger.debug(`Drawing EVENT item ${itemId} on last LOT ${shuffledLots[index]} because no event item was drawn`);
 
-                lot.items[lotItemsAmount] = new ItemState(itemId, state);
+                lot.items[lotItemsAmount] = new ItemState().assign({
+                    itemId: itemId,
+                    state: state
+                });
             }
         }
     }
@@ -317,7 +323,7 @@ class AuctionController {
                 const box = Config.getBox(item.boxType);
 
                 this.logger.debug(`- Item ${item.id} - was boxed on ${box.id})`);
-                lotBoxes[boxedItems] = new BoxState(box.id);
+                lotBoxes.set(boxedItems, new BoxState().assign({boxId: box.id}));
                 lotBoxedItems[boxedItems] = {
                     itemId: item.id,
                     state,
@@ -325,7 +331,9 @@ class AuctionController {
                 boxedItems++;
             }
             else {
-                lotItems[unboxedItems] = new ItemState(itemId, state);
+                lotItems.set(unboxedItems, new ItemState().assign({
+                    itemId: itemId,
+                    state: state}));
                 unboxedItems++;
             }
         }
@@ -337,7 +345,10 @@ class AuctionController {
                 const state = this._pickItemState();
                 this.logger.debug(`Drawing JUNK item ${itemId}, state:${state}.`);
 
-                lotItems[unboxedItems] = new ItemState(itemId, state);
+                lotItems[unboxedItems] = new ItemState().assign({
+                    itemId: itemId,
+                    state: state
+                });
                 unboxedItems++;
             }
         }
@@ -511,7 +522,7 @@ class AuctionController {
         this.playersLotReady[playerId] = true;
 
         let canStart = true;
-        lodash.each(this.state.players, (player) => {
+        lodash.each(this.state.players.values(), (player) => {
             if (player.connected && !this.playersLotReady[player.id]) {
                 canStart = false;
             }
@@ -565,7 +576,7 @@ class AuctionController {
         let endingLot = this.state.lots[lotIndex];
         endingLot.status = auctionStatus.FINISHED;
 
-        lodash.each(this.state.players, player => {
+        lodash.each(this.state.players.values(), player => {
             player.lastBid = 0;
         });
 
@@ -600,7 +611,7 @@ class AuctionController {
      */
     async _calculateRewards() {
         const endGameResults = {};
-        lodash.each(this.state.players, player => {
+        this.state.players.forEach((player, _idx) => {
             endGameResults[player.firebaseId] = {
                 isBot: player.isBot,
                 firebaseId: player.firebaseId,
@@ -626,7 +637,7 @@ class AuctionController {
                 };
             });
 
-            lodash.each(lotState.boxes, (boxState, idx) => {
+            lotState.boxes.forEach((boxState, idx) => {
                 boxState.itemId = lotState.boxedItems[idx].itemId;
                 boxState.state = lotState.boxedItems[idx].state;
 
@@ -635,7 +646,7 @@ class AuctionController {
                 valuePerRarity = this.addItemStats(valuePerRarity, item);
             });
 
-            lodash.each(lotState.items, lotItem => {
+            lotState.items.forEach((lotItem, key) => {
                 const item = Config.getItem(lotItem.itemId);
                 lotState.lotItemsPrice += itemStateHelper.getItemPrice(Config, item.price, lotItem.state);
                 valuePerRarity = this.addItemStats(valuePerRarity, item);
@@ -668,7 +679,7 @@ class AuctionController {
                 playerResult.score += lotState.lotItemsPrice - lotState.bidValue;
 
                 // TODO join stage items and boxed items before this
-                lodash.each(lotState.items, lotItem => {
+                lotState.items.forEach((lotItem, _idx) => {
                     const key = `${lotItem.itemId}-${lotItem.state}`;
                     if (playerResult.items[key]) {
                         playerResult.items[key].quantity += 1;
@@ -682,7 +693,7 @@ class AuctionController {
                     }
                 });
 
-                lodash.each(lotState.boxes, (boxState, _idx) => {
+                lotState.boxes.forEach((boxState, _idx) => {
                     const key = `${boxState.itemId}-${boxState.state}`;
                     if (playerResult.items[key]) {
                         playerResult.items[key].quantity += 1;
@@ -787,7 +798,7 @@ class AuctionController {
             eventParams.lockers_purchased.push(lockersPurchased);
 
             let itemsValue = 0;
-            lodash.forEach(result.items, (item, _id) => {
+            lodash.forEach(result.items, item => {
                 const price = itemStateHelper.getItemPrice(Config, Config.getItem(item.itemId).price, item.state);
                 itemsValue += item.quantity * price;
             });
@@ -825,7 +836,7 @@ class AuctionController {
 
             if (!lodash.isEmpty(response)) {
                 lodash.forEach(response, (rank, firebaseId) => {
-                    const player = lodash.find(this.state.players, player => player.firebaseId === firebaseId);
+                    const player = lodash.find(this.state.players.values(), player => player.firebaseId === firebaseId);
                     const client = lodash.find(this.room.clients, client => client.id === player.id);
 
                     if (!client || !player.connected) {
@@ -905,7 +916,7 @@ class AuctionController {
         const currentLot = this._getCurrentLot();
 
         // Interact each real player.
-        lodash.each(this.state.players, player => {
+        lodash.each(this.state.players.values(), player => {
             if (player.isBot) {
                 return; // Same as continue;
             }
@@ -932,7 +943,7 @@ class AuctionController {
                     const skillProbability = this._findSkillProbability(player, profile, skillConfig);
 
                     // Get all itens based on rarity and category.
-                    lodash.each(currentLot.items, lotItem => {
+                    lodash.each(currentLot.items.values(), lotItem => {
                         const lotItemConfig = Config.getItem(lotItem.itemId);
                         const rarityFound = lodash.find(skillItemRarity, r => r === lotItemConfig.rarity);
 
@@ -951,7 +962,7 @@ class AuctionController {
                     const skillProbability = this._findSkillProbability(player, profile, skillConfig);
                     const skillItemRarity = skillConfig.rarity;
 
-                    lodash.each(currentLot.boxes, (box, idx) => {
+                    currentLot.boxes.forEach((box, idx) => {
                         const boxedItemId = currentLot.boxedItems[idx].itemId;
                         const lotItemConfig = Config.getItem(boxedItemId);
                         const rarityFound = lodash.find(skillItemRarity, r => r === lotItemConfig.rarity);

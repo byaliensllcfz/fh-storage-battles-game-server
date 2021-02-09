@@ -253,7 +253,7 @@
 
                     const lot = this.state.lots[this.state.currentLot];
                     let totalItems = 0
-                    lodash.forEach(this.state.lots[this.state.currentLot].items, item => {
+                    lodash.forEach(this.state.lots[this.state.currentLot].items.values(), item => {
                         const itemInfo = serverService.getItem(item.itemId);
                         totalItems += itemInfo.price;
                     });
@@ -265,7 +265,7 @@
                     info += `nextBidValue: ${lot.nextBidValue} <br>`;
                     info += `bidOwner: ${lot.bidOwner} <br>`;
                     info += `<br><b>Items:</b> $${totalItems}<br>`;
-                    lodash.forEach(this.state.lots[this.state.currentLot].items, item => {
+                    lodash.forEach(this.state.lots[this.state.currentLot].items.values(), item => {
                         const itemInfo = serverService.getItem(item.itemId);
                         let color = 'black';
                         let highlight = '';
@@ -277,7 +277,7 @@
                         info += `&nbsp;&nbsp;&nbsp; <span style="color:${color}${highlight}">[${item.itemId}] ${itemInfo.category}: $${itemInfo.price} </span><br>`;
                     });
                     info += `<br><b>Boxes:</b> <br>`;
-                    lodash.forEach(this.state.lots[this.state.currentLot].boxes, (box, idx) => {
+                    this.state.lots[this.state.currentLot].boxes.forEach((box, idx) => {
                         let color = 'black';
                         let highlight = '';
                         let item = '';
@@ -361,7 +361,7 @@
                     }
 
                     //console.log(`-- ${JSON.stringify(serverService.emoji)}`);
-                    lodash.forEach(lodash.keys(this.state.players), player => {
+                    lodash.forEach(lodash.keys(this.state.players.values()), player => {
                         let emoji = '';
                         if (serverService.emoji[player]) {
                             emoji = serverService.emoji[player].emoji;

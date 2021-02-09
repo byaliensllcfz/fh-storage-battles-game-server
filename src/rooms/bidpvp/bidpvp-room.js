@@ -40,6 +40,16 @@ class BidPvpRoom extends Room {
 
         // TODO put this on a config
         this.setSeatReservationTime(10);
+
+        this.onMessage("message", (client, message) => {
+            this.logger.debug(`Client: ${client.id} sent message ${JSON.stringify(message)}`);
+    
+            if (this.locked) {
+                handleAuctionCommand(this, client.id, message).catch(error => {
+                    this.logger.error(`Error handling message: ${JSON.stringify(message)} from player: ${client.id}.`, error);
+                });
+            }
+        });
     }
 
     // Firebase token authentication on matchmaking now
@@ -57,8 +67,8 @@ class BidPvpRoom extends Room {
             this._addRemoteBot(options);
         }
         this.logger.info(`Client: ${client.id} joined. ${JSON.stringify(options)}`);
-
-        this.state.players[client.id] = new PlayerState({
+ 
+        this.state.players[client.id] = new PlayerState().assign({
             id: client.id,
             firebaseId: options.userId,
             character: options.character,
@@ -67,30 +77,18 @@ class BidPvpRoom extends Room {
         });
 
         if (options.clientWeb) {
-            this.send(client, JSON.stringify({ items: Config.items }));
-            this.send(client, JSON.stringify({ emojis: Config.emojis }));
+            client.send("items", JSON.stringify({ items: Config.items }));
+            client.send("emojis", JSON.stringify({ emojis: Config.emojis }));
         }
 
-        if (this.locked && lodash.keys(this.state.players).length === this.maxClients) {
+        if (this.locked && this.state.players.size === this.maxClients) {
             await this.lock(); // Prevent new players from joining if any players leave.
             await this.auctionController.startAuction();
 
         } else {
             this._setAddBotTimeout();
         }
-    }
-
-    onCreate(options) {
-        this.onMessage("message", (client, message) => {
-            this.logger.debug(`Client: ${client.id} sent message ${JSON.stringify(message)}`);
-    
-            if (this.locked) {
-                handleAuctionCommand(this, client.id, message).catch(error => {
-                    this.logger.error(`Error handling message: ${JSON.stringify(message)} from player: ${client.id}.`, error);
-                });
-            }
-        });
-    }    
+    } 
 
     async onLeave(client, consented) {
         const isBot = this.state.players[client.id].isBot;
@@ -103,7 +101,7 @@ class BidPvpRoom extends Room {
             delete this.state.players[client.id];
 
             //isBotAmount[false] will return undefined if no human player on room (isBot=false)
-            const isBotAmount = lodash.groupBy(this.state.players, 'isBot');
+            const isBotAmount = lodash.groupBy(this.state.players.values(), 'isBot');
             if (!isBotAmount[false]) {
                 if (this.addBotTimeout) {
                     this.addBotTimeout.clear();
@@ -174,7 +172,7 @@ class BidPvpRoom extends Room {
     async _addBot() {
         delete this.addBotTimeout;
 
-        if (lodash.keys(this.state.players).length < this.maxClients) {
+        if (this.state.players.size < this.maxClients) {
             const botName = lodash.sample(this.availableBotNames);
             this.availableBotNames = lodash.filter(this.availableBotNames, name => name !== botName);
             const bot = new Bot(uuid(), botName, 'ws://localhost:2567', this.auctionController.city);

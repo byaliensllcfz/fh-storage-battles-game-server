@@ -179,7 +179,7 @@ class Bot {
     _sendReady() {
         const state = this.room.state;
 
-        if (state.status === auctionStatus.PLAY && lodash.keys(state.players).length === Config.game.maxPlayers) {
+        if (state.status === auctionStatus.PLAY && state.players.size === Config.game.maxPlayers) {
             this.sendMessage(commands.AUCTION_LOT_READY);
         }
     }
@@ -202,9 +202,9 @@ class Bot {
             return;
         }
 
-        const auctionBoxesIds = lodash.map(lotState.boxes, boxState => boxState.boxId);
+        const auctionBoxesIds = lodash.map(lotState.boxes.values(), boxState => boxState.boxId);
 
-        const visibleItemsValue = lodash.sum(lodash.map(lotState.items, lotItem => {
+        const visibleItemsValue = lodash.sum(lodash.map(lotState.items.values(), lotItem => {
             const item = Config.getItem(lotItem.itemId);
             return itemStateHelper.getItemPrice(Config, item.price, lotItem.state);
         }));
