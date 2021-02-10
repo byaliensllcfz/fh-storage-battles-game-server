@@ -125,7 +125,7 @@ class Bot {
         const state = this.room.state;
         this.clientId = this.room.sessionId;
 
-        this.room.onMessage("*", (messageString) => {
+        this.room.onMessage('*', (messageString) => {
             const message = JSON.parse(messageString);
             if (message.emoji && message.client != this.clientId) {
                 this._tryTriggerEmoji('reaction', message.emoji);
@@ -146,18 +146,17 @@ class Bot {
             }
         };
 
-        state.lots.onChange = (changes) => {
-            lodash.forEach(changes, (value, field) => {
-                if (field === 'status') {
-                    if (value === auctionStatus.PLAY) {
+        state.lots.onAdd = (value, _key) => {
+            value.onChange = (value) => {
+                if (value[0].field === 'status') {
+                    if (value[0].value === auctionStatus.PLAY) {
                         this._setBidTimeout(state.currentLot);
-
-                    } else if (value === auctionStatus.FINISHED) {
+                    } else if (value[0].value === auctionStatus.FINISHED) {
                         this._sendReady();
                     }
                 }
-                else if (field === 'bidOwner') {
-                    if (value === this.clientId) {
+                else if (value[0].field === 'bidOwner') {
+                    if (value[0].value === this.clientId) {
                         this._tryTriggerEmoji('bidded');
                         this.hadBid = true;
                     }
@@ -166,7 +165,7 @@ class Bot {
                         this.hadBid = false;
                     }
                 }
-            });
+            };
         };
 
         state.players.onChange = () => {
@@ -202,9 +201,9 @@ class Bot {
             return;
         }
 
-        const auctionBoxesIds = lodash.map(lotState.boxes.values(), boxState => boxState.boxId);
+        const auctionBoxesIds = lodash.map(Array.from(lotState.boxes.values()), boxState => boxState.boxId);
 
-        const visibleItemsValue = lodash.sum(lodash.map(lotState.items.values(), lotItem => {
+        const visibleItemsValue = lodash.sum(lodash.map(Array.from(lotState.items.values()), lotItem => {
             const item = Config.getItem(lotItem.itemId);
             return itemStateHelper.getItemPrice(Config, item.price, lotItem.state);
         }));

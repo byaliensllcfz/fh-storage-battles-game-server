@@ -41,9 +41,9 @@ class BidPvpRoom extends Room {
         // TODO put this on a config
         this.setSeatReservationTime(10);
 
-        this.onMessage("message", (client, message) => {
+        this.onMessage('message', (client, message) => {
             this.logger.debug(`Client: ${client.id} sent message ${JSON.stringify(message)}`);
-    
+
             if (this.locked) {
                 handleAuctionCommand(this, client.id, message).catch(error => {
                     this.logger.error(`Error handling message: ${JSON.stringify(message)} from player: ${client.id}.`, error);
@@ -67,18 +67,18 @@ class BidPvpRoom extends Room {
             this._addRemoteBot(options);
         }
         this.logger.info(`Client: ${client.id} joined. ${JSON.stringify(options)}`);
- 
-        this.state.players[client.id] = new PlayerState().assign({
+
+        this.state.players.set(client.id, new PlayerState().assign({
             id: client.id,
             firebaseId: options.userId,
             character: options.character,
             isBot: options.bot,
             abtestgroup: options.abtestgroup,
-        });
+        }));
 
         if (options.clientWeb) {
-            client.send("items", JSON.stringify({ items: Config.items }));
-            client.send("emojis", JSON.stringify({ emojis: Config.emojis }));
+            client.send('items', JSON.stringify({ items: Config.items }));
+            client.send('emojis', JSON.stringify({ emojis: Config.emojis }));
         }
 
         if (this.locked && this.state.players.size === this.maxClients) {
@@ -88,7 +88,7 @@ class BidPvpRoom extends Room {
         } else {
             this._setAddBotTimeout();
         }
-    } 
+    }
 
     async onLeave(client, consented) {
         const isBot = this.state.players[client.id].isBot;

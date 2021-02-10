@@ -323,7 +323,7 @@ class AuctionController {
                 const box = Config.getBox(item.boxType);
 
                 this.logger.debug(`- Item ${item.id} - was boxed on ${box.id})`);
-                lotBoxes.set(boxedItems, new BoxState().assign({boxId: box.id}));
+                lotBoxes.set(`${boxedItems}`, new BoxState().assign({boxId: box.id}));
                 lotBoxedItems[boxedItems] = {
                     itemId: item.id,
                     state,
@@ -331,7 +331,7 @@ class AuctionController {
                 boxedItems++;
             }
             else {
-                lotItems.set(unboxedItems, new ItemState().assign({
+                lotItems.set(`${unboxedItems}`, new ItemState().assign({
                     itemId: itemId,
                     state: state}));
                 unboxedItems++;
@@ -345,10 +345,10 @@ class AuctionController {
                 const state = this._pickItemState();
                 this.logger.debug(`Drawing JUNK item ${itemId}, state:${state}.`);
 
-                lotItems[unboxedItems] = new ItemState().assign({
+                lotItems.set(`${unboxedItems}`, new ItemState().assign({
                     itemId: itemId,
                     state: state
-                });
+                }));
                 unboxedItems++;
             }
         }
@@ -460,7 +460,7 @@ class AuctionController {
      * @private
      */
     _notifyClientBidStatus(client, bidStatus) {
-        this.room.send(client, JSON.stringify({ bidStatus }));
+        client.send(JSON.stringify({ bidStatus }));
     }
 
     /**
@@ -845,7 +845,7 @@ class AuctionController {
                         });
 
                     } else {
-                        this.room.send(client, JSON.stringify({ rank: rank }));
+                        client.send(JSON.stringify({ rank: rank }));
 
                         this.logger.info(`Player ${client.id} was rewarded the rank ${rank}`, {
                             firebaseId,
@@ -984,7 +984,7 @@ class AuctionController {
                     this.logger.info(`Player ${player.firebaseId} disconnected. Unable to send skill message.`);
                 } else {
                     this.logger.info(`Player ${player.id} got skills. ${JSON.stringify(notification)}`);
-                    this.room.send(client, JSON.stringify(notification));
+                    client.send(JSON.stringify(notification));
                 }
             }
         });
