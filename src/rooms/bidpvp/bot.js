@@ -147,24 +147,26 @@ class Bot {
         };
 
         state.lots.onAdd = (value, _key) => {
-            value.onChange = (value) => {
-                if (value[0].field === 'status') {
-                    if (value[0].value === auctionStatus.PLAY) {
-                        this._setBidTimeout(state.currentLot);
-                    } else if (value[0].value === auctionStatus.FINISHED) {
-                        this._sendReady();
+            value.onChange = (changes) => {
+                lodash.forEach(changes, entry => {
+                    if (entry.field === 'status') {
+                        if (entry.value === auctionStatus.PLAY) {
+                            this._setBidTimeout(state.currentLot);
+                        } else if (entry.value === auctionStatus.FINISHED) {
+                            this._sendReady();
+                        }
                     }
-                }
-                else if (value[0].field === 'bidOwner') {
-                    if (value[0].value === this.clientId) {
-                        this._tryTriggerEmoji('bidded');
-                        this.hadBid = true;
+                    else if (entry.field === 'bidOwner') {
+                        if (entry.value === this.clientId) {
+                            this._tryTriggerEmoji('bidded');
+                            this.hadBid = true;
+                        }
+                        else if (this.hadBid) {
+                            this._tryTriggerEmoji('outbidded');
+                            this.hadBid = false;
+                        }
                     }
-                    else if (this.hadBid) {
-                        this._tryTriggerEmoji('outbidded');
-                        this.hadBid = false;
-                    }
-                }
+                });
             };
         };
 
@@ -277,7 +279,7 @@ class Bot {
      * @param {Object} [args]
      */
     sendMessage(command, args) {
-        this.room.send({
+        this.room.send('message', {
             command,
             args,
         });
