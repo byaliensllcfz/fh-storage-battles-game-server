@@ -13,7 +13,7 @@ async function handleAuctionCommand(room, playerId, message = {}) {
         room.auctionController.tryToSendEmoji(playerId, message.args);
     }
     else if (message.command === commands.POWER && room.auctionController.getCurrentLotStatus() === auctionStatus.PLAY) {
-        // room.auctionController.tryToSendPower(playerId, message.args);
+        room.auctionController.tryToApplyPower(playerId, message.args);
     }
 }
 

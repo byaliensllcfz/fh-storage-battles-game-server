@@ -13,6 +13,7 @@ const { PlayerState } = require('./schemas/player-state');
 const { AuctionController } = require('./controllers/auction-controller');
 const { handleAuctionCommand } = require('./handlers/auction-handler');
 const { Config }  = require('../../helpers/config-helper');
+const { PowerState } = require('./schemas/power-state');
 
 class BidPvpRoom extends Room {
 
@@ -65,6 +66,8 @@ class BidPvpRoom extends Room {
             isBot: options.bot,
             abtestgroup: options.abtestgroup,
         });
+
+        this.state.players[client.id].powers['calculator'] = new PowerState({id: 'calculator'});
 
         if (options.clientWeb) {
             this.send(client, JSON.stringify({ items: Config.items }));

@@ -16,6 +16,8 @@ const { Config } = require('../../../helpers/config-helper');
 const { LotState } = require('../schemas/lot-state');
 const { BoxState } = require('../schemas/box-state');
 const { ItemState } = require('../schemas/item-state');
+const { EffectState } = require('../schemas/effect-state');
+const { PowerState } = require('../schemas/power-state');
 
 class AuctionController {
 
@@ -35,6 +37,8 @@ class AuctionController {
         this.playersLotReady = {};
         this.profiles = {};
         this.lastSentEmoji = {};
+        this.gameStartedAtDateTime = Date.now();
+        this.expirePowerEffectTimeout = null;
 
         /** @type {number} */
         this.lotsAmount = Config.game.lotsAmount;
@@ -519,6 +523,10 @@ class AuctionController {
     _startInspect(forced) {
         const lotIndex = this.state.currentLot;
 
+        if (lotIndex == 0) {
+            this.gameStartedAtDateTime = Date.now();
+        }
+
         if (this.state.lots[lotIndex].status !== auctionStatus.INSPECT) {
             this.state.lots[lotIndex].status = auctionStatus.INSPECT;
             this.logger.debug(`Starting ${auctionStatus.INSPECT} stage on LOT ${lotIndex} (forced? ${forced})`);
@@ -966,6 +974,76 @@ class AuctionController {
                 }
             }
         });
+    }
+
+    /**
+     * Apply a power.
+     * @param {string} playerId
+     * @param {object} message Protocol with power effect command.
+     * message.powerId
+     * message.targetId
+     */
+    tryToApplyPower(playerId, message) {
+        const powerCooldownMs = 10000;
+        const powerDurationMs = 5000;
+        const now = Date.now();
+        // Get power config.
+
+        // Check if can use (delay start game)
+
+        // Check if player have enough power available.
+
+        // Check if player cooldown is finished.
+        const playerState = this.state.players[playerId];
+        const playerPower = lodash.find(playerState.powers, power => message.powerId === power.id);
+        if (!playerPower) {
+            // Player doesn't have this power to apply! Hacking?
+            this.logger.info(`PlayerId=${playerId} trying to use powerId=${message.powerId} but doesn't have it.`);
+            return;
+        }
+        if (playerPower.expiration > now + powerCooldownMs) {
+            // Cooldown not finished.
+            this.logger.info(`PlayerId=${playerId} trying to use powerId=${message.powerId} but cooldown not finished.`);
+            return;
+        }
+
+        // Check if target player is not suffering effect from this power.
+        let targetPlayerState;
+        if (lodash.isUndefined(message.targeId)) {
+            targetPlayerState = playerState;
+        } else {
+            targetPlayerState = this.state.players[message.targetId];
+        }
+
+        if (targetPlayerState.effects[message.powerId]) {
+            if (targetPlayerState.effects[message.powerId].expiration > now) {
+                this.logger.info(`Target PlayerId=${message.targetId} is suffering effect from powerId=${message.powerId}.`);
+            }
+        }
+
+        playerState.powers[message.powerId] = new PowerState({ id: message.powerId, expiration: now + powerCooldownMs});
+
+        // Create effect state setting parameters, than add to effect list.
+        targetPlayerState.effects[message.powerId] = new EffectState(
+            {
+                id: message.powerId,
+                owner: playerId,
+                target: message.targetId,
+                expiration: Date.now() + powerDurationMs,
+            });
+    }
+
+    /**
+     * Remove expired power effects from players.
+     */
+    expirePowerEffect() {
+        // lodash.foreach(this.state.player, (player) => {
+        //     lodash.foreach(player.effects, (effect) => {
+                
+        //     }); 
+        // });
+
+        // this.expirePowerEffectTimeout = this.room.clock.setTimeout(() => this.expirePowerEffect(), 10000);
     }
 }
 
