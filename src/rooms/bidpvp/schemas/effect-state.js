@@ -15,15 +15,15 @@ class EffectState extends Schema {
         /** @type {string} */
         this.target = options.target || '';
 
-        /** @type {string} */
-        this.expiration = options.expiration || '';
+        /** @type {int64} */
+        this.expiration = options.expiration || 0;
     }
 }
 
 type('string')(EffectState.prototype, 'id');
 type('string')(EffectState.prototype, 'owner');
 type('string')(EffectState.prototype, 'target');
-type('string')(EffectState.prototype, 'expiration');
+type('int64')(EffectState.prototype, 'expiration');
 
 module.exports = {
     EffectState,

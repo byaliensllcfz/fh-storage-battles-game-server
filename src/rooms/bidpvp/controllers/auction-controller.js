@@ -985,7 +985,7 @@ class AuctionController {
      */
     tryToApplyPower(playerId, message) {
         const powerCooldownMs = 10000;
-        const powerDurationMs = 5000;
+        const powerDurationMs = 10000;
         const now = Date.now();
         // Get power config.
 
@@ -1001,7 +1001,7 @@ class AuctionController {
             this.logger.info(`PlayerId=${playerId} trying to use powerId=${message.powerId} but doesn't have it.`);
             return;
         }
-        if (playerPower.expiration > now + powerCooldownMs) {
+        if (playerPower.expiration > now) {
             // Cooldown not finished.
             this.logger.info(`PlayerId=${playerId} trying to use powerId=${message.powerId} but cooldown not finished.`);
             return;
@@ -1017,11 +1017,11 @@ class AuctionController {
 
         if (targetPlayerState.effects[message.powerId]) {
             if (targetPlayerState.effects[message.powerId].expiration > now) {
-                this.logger.info(`Target PlayerId=${message.targetId} is suffering effect from powerId=${message.powerId}.`);
+                this.logger.info(`Target PlayerId=${targetPlayerState.id} is suffering effect from powerId=${message.powerId}.`);
             }
         }
 
-        playerState.powers[message.powerId] = new PowerState({ id: message.powerId, expiration: now + powerCooldownMs});
+        playerPower.expiration = now + powerCooldownMs;
 
         // Create effect state setting parameters, than add to effect list.
         targetPlayerState.effects[message.powerId] = new EffectState(
@@ -1029,21 +1029,44 @@ class AuctionController {
                 id: message.powerId,
                 owner: playerId,
                 target: message.targetId,
-                expiration: Date.now() + powerDurationMs,
+                expiration: now + powerDurationMs,
             });
+
+        if (this.expirePowerEffectTimeout == null) {
+            this._expirePowerEffect();
+        }
     }
 
     /**
      * Remove expired power effects from players.
      */
-    expirePowerEffect() {
-        // lodash.foreach(this.state.player, (player) => {
-        //     lodash.foreach(player.effects, (effect) => {
-                
-        //     }); 
-        // });
+    _expirePowerEffect() {
+        const now = Date.now();
+        let nextExpireEffect = 0;
 
-        // this.expirePowerEffectTimeout = this.room.clock.setTimeout(() => this.expirePowerEffect(), 10000);
+        lodash.each(this.state.players, (player) => {
+            const toRemove = [];
+            player.effect = lodash.filter(player.effects, effect => effect.expiration < now);
+            lodash.each(player.effects, (effect) => {
+                if (effect.expiration < now) {
+                    toRemove.push(effect.id);
+                } else {
+                    if (nextExpireEffect == 0 || effect.expiration < nextExpireEffect)  {
+                        nextExpireEffect = effect.expiration;
+                    }
+                }
+            });
+            lodash.forEach(toRemove, key =>{
+                delete player.effects[key];
+            });
+        });
+
+        if (nextExpireEffect > 0) {
+            this.logger.debug(`Next expirePowerEffect in ${nextExpireEffect - now} miliseconds`);
+            this.expirePowerEffectTimeout = this.room.clock.setTimeout(() => this._expirePowerEffect(), nextExpireEffect - now);
+        } else {
+            this.expirePowerEffectTimeout = null;
+        }
     }
 }
 
