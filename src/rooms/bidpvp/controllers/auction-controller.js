@@ -984,14 +984,21 @@ class AuctionController {
      * message.targetId
      */
     tryToApplyPower(playerId, message) {
-        const powerCooldownMs = 10000;
-        const powerDurationMs = 10000;
         const now = Date.now();
         // Get power config.
 
+        const powerConfig = Config.getPower(message.powerId);
+        if (!powerConfig) {
+            this.logger.error(`PlayerId=${playerId} trying to user unknown powerId=${message.powerId}`);
+            return;
+        }
         // Check if can use (delay start game)
+        if (this.gameStartedAtDateTime + powerConfig.delayMs > now) {
+            this.logger.error(`PlayerId=${playerId} trying to user unknown powerId=${message.powerId}`);
+            return;
+        }
 
-        // Check if player have enough power available.
+        // TODO: Check if player have enough power available.
 
         // Check if player cooldown is finished.
         const playerState = this.state.players[playerId];
@@ -1021,7 +1028,7 @@ class AuctionController {
             }
         }
 
-        playerPower.expiration = now + powerCooldownMs;
+        playerPower.expiration = now + powerConfig.cooldownMs;
 
         // Create effect state setting parameters, than add to effect list.
         targetPlayerState.effects[message.powerId] = new EffectState(
@@ -1029,7 +1036,7 @@ class AuctionController {
                 id: message.powerId,
                 owner: playerId,
                 target: message.targetId,
-                expiration: now + powerDurationMs,
+                expiration: now + powerConfig.durationMs,
             });
 
         if (this.expirePowerEffectTimeout == null) {

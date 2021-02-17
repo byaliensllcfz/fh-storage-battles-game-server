@@ -135,6 +135,7 @@ class Config {
         config.milestonesV2 = lodash.keyBy(config.milestonesV2, milestone => milestone.rank);
         config.skills = lodash.keyBy(config.skills, skill => skill.id);
         config.emojis = lodash.keyBy(config.emojis, emoji => emoji.id);
+        config.powers = lodash.keyBy(config.powers, power => power.id);
 
         _putEventsOnCities(config);
         _separateCityItemsPerRarity(config);
@@ -242,6 +243,10 @@ class Config {
 
     static getItemRarities() {
         return _itemRarities;
+    }
+
+    static getPower(powerId) {
+        return _config.powers[powerId];
     }
 }
 
