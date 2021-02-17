@@ -10,7 +10,7 @@ const itemStateHelper = require('../../../helpers/item-state-helper');
 
 const profileDao = require('../../../daos/profile-dao');
 const rewardDao = require('../../../daos/reward-dao');
-const { auctionStatus } = require('../../../types');
+const { auctionStatus, bidStatus } = require('../../../types');
 const { BidInterval } = require('../../../helpers/bid-interval');
 const { Config } = require('../../../helpers/config-helper');
 const { LotState } = require('../schemas/lot-state');
@@ -414,17 +414,20 @@ class AuctionController {
      */
     bid(playerId) {
         const playerState = this.state.players[playerId];
+        const client = lodash.find(this.room.clients, client => client.id === playerId);
 
         this.logger.debug(`Player ${playerId} (Bot: ${playerState.isBot}) trying to bid ${this._getCurrentLot().nextBidValue} on lot ${this.state.currentLot}.`, {
             firebaseId: playerState.firebaseId,
         });
 
         if (this._getCurrentLot().bidOwner === playerId) {
+            this._notifyClientBidStatus(client, bidStatus.REJECTED_ALREADY_OWNER);
             this.logger.debug(`Ignoring bid. Player ${playerId} is already winning`);
             return;
         }
 
         if (playerState.money < this._getCurrentLot().nextBidValue) {
+            this._notifyClientBidStatus(client, bidStatus.REJECTED_INSUFFICIENT_MONEY);
             this.logger.debug(`Ignoring bid. Player ${playerId} has no money (${playerState.money}) for this bid ${this._getCurrentLot().nextBidValue}`);
             return;
         }
@@ -442,7 +445,15 @@ class AuctionController {
             firebaseId: playerState.firebaseId,
         });
 
+        this._notifyClientBidStatus(client, bidStatus.ACCEPTED);
         this.bidInterval.addBid(playerId);
+    }
+
+    /**
+     * @private
+     */
+    _notifyClientBidStatus(client, bidStatus) {
+        this.room.send(client, JSON.stringify({ bidStatus }));
     }
 
     /**

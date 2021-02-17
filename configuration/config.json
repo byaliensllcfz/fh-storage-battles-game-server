@@ -2,7 +2,7 @@
     "serverEnableDatadog" : false,
     "loggingEnableConsole" : true,
     "apiUrl": "http://localhost:8080",
-    "bundleId": "com.megastorm.bidpvp.powerups",
+    "bundleId": "com.byaliens.bid.wars.stars.multiplayer.auction.battles",
     "loggingLevel": "debug",
     "ignoreAgones": true
 }
