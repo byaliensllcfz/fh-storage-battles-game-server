@@ -1027,7 +1027,7 @@ class AuctionController {
 
         // Check if target player is not suffering effect from this power.
         let targetPlayerState;
-        if (lodash.isUndefined(message.targeId)) {
+        if (lodash.isUndefined(message.targetId)) {
             targetPlayerState = playerState;
         } else {
             targetPlayerState = this.state.players[message.targetId];

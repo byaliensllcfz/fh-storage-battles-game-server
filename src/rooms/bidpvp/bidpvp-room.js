@@ -67,7 +67,19 @@ class BidPvpRoom extends Room {
             abtestgroup: options.abtestgroup,
         });
 
-        this.state.players[client.id].powers['calculator'] = new PowerState({id: 'calculator'});
+        if (!lodash.isUndefined(options.power0 && !lodash.isEmpty(options.power0))) {
+            const power = Config.getPower(options.power0);
+            if (!lodash.isNull(power)) {
+                this.state.players[client.id].powers[power.id] = new PowerState({id: power.id});
+            }
+        }
+
+        if (!lodash.isUndefined(options.power1 && !lodash.isEmpty(options.power1))) {
+            const power = Config.getPower(options.power1);
+            if (!lodash.isNull(power)) {
+                this.state.players[client.id].powers[power.id] = new PowerState({id: power.id});
+            }
+        }
 
         if (options.clientWeb) {
             this.send(client, JSON.stringify({ items: Config.items }));
