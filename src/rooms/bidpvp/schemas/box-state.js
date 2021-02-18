@@ -4,11 +4,11 @@ const { Schema, type } = require('@colyseus/schema');
 
 class BoxState extends Schema {
 
-    constructor(boxId) {
+    constructor(options = {}) {
         super();
 
         /** @type {string} */
-        this.boxId = boxId;
+        this.boxId = options.boxId;
 
         /** @type {string} */
         this.itemId;

@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>Welcome to Vue</title>
-    <script type="text/javascript" src="https://raw.githack.com/colyseus/colyseus.js/0.12.0/dist/colyseus.js"></script>
+    <script type="text/javascript" src="https://unpkg.com/colyseus.js@^0.14.0/dist/colyseus.js"></script>
 
     <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/@mdi/font@3.x/css/materialdesignicons.min.css" rel="stylesheet">
@@ -119,9 +119,6 @@
         async connect(firebaseId, reservation) {
             if (serverService.connected) return;
 
-            //dev 1 ---- 34.75.203.64
-            //dev rep -- 34.74.97.78
-            //stg 1 ---- 35.237.111.24
             serverService.client = new Colyseus.Client('ws://localhost:2567');
 
             if (reservation) {
@@ -145,17 +142,17 @@
         },
 
         _addListeners() {
-            serverService.room.onMessage("*", (message) => {
-                if (message && JSON.parse(message).items) {
-                    const items = JSON.parse(message).items;
-                    lodash.forEach(items, item => {
-                        serverService.items[item.id] = item;
-                        //console.log(`ITEM ${JSON.stringify(item)}`);
-                    });
-                }
-                else if (message && JSON.parse(message).emojis) {
-                    const emojis = JSON.parse(message).emojis;
-                    lodash.forEach(emojis, emoji => {
+            serverService.room.onMessage('items', (message) => {
+                const items = JSON.parse(message).items;
+                lodash.forEach(items, item => {
+                    serverService.items[item.id] = item;
+                    //console.log(`ITEM ${JSON.stringify(item)}`);
+                });
+            });
+
+            serverService.room.onMessage('emojis', (message) => {
+                const emojis = JSON.parse(message).emojis;
+                lodash.forEach(emojis, emoji => {
                         if (emoji.id === 'sunglass') emoji.rep = '&#128526;';
                         else if (emoji.id === 'money') emoji.rep = '&#129297;';
                         else if (emoji.id === 'silence') emoji.rep = '&#129323;';
@@ -167,8 +164,10 @@
                         else if (emoji.id === 'upset') emoji.rep = '&#128533;';
                     });
                     Vue.set(app, 'emojiList', emojis);
-                }
-                else if (message && JSON.parse(message).emoji) {
+            });
+
+            serverService.room.onMessage('*', (message) => {
+                if (message && JSON.parse(message).emoji) {
                     app.setEmoji(message);
                 }
                 else {
@@ -187,7 +186,7 @@
         
         getItem(itemId) {
             if (serverService.items && !lodash.isEmpty(serverService.items)) {
-                return serverService.items[item.itemId];
+                return serverService.items[itemId];
             }
             return {
                 price: 0,
@@ -253,7 +252,8 @@
 
                     const lot = this.state.lots[this.state.currentLot];
                     let totalItems = 0
-                    lodash.forEach(this.state.lots[this.state.currentLot].items.values(), item => {
+
+                    lodash.forEach(this.state.lots[this.state.currentLot].items, (item, _key) => {
                         const itemInfo = serverService.getItem(item.itemId);
                         totalItems += itemInfo.price;
                     });
@@ -265,7 +265,8 @@
                     info += `nextBidValue: ${lot.nextBidValue} <br>`;
                     info += `bidOwner: ${lot.bidOwner} <br>`;
                     info += `<br><b>Items:</b> $${totalItems}<br>`;
-                    lodash.forEach(this.state.lots[this.state.currentLot].items.values(), item => {
+
+                    lodash.forEach(this.state.lots[this.state.currentLot].items, (item, _key) => {
                         const itemInfo = serverService.getItem(item.itemId);
                         let color = 'black';
                         let highlight = '';
@@ -276,8 +277,9 @@
                         if (lodash.includes(serverService.highlights, item.itemId)) highlight = ';font-weight: bold';
                         info += `&nbsp;&nbsp;&nbsp; <span style="color:${color}${highlight}">[${item.itemId}] ${itemInfo.category}: $${itemInfo.price} </span><br>`;
                     });
+
                     info += `<br><b>Boxes:</b> <br>`;
-                    this.state.lots[this.state.currentLot].boxes.forEach((box, idx) => {
+                    lodash.forEach(this.state.lots[this.state.currentLot].boxes, (box, idx) => {
                         let color = 'black';
                         let highlight = '';
                         let item = '';
@@ -360,11 +362,10 @@
                         }, 2000);
                     }
 
-                    //console.log(`-- ${JSON.stringify(serverService.emoji)}`);
-                    lodash.forEach(lodash.keys(this.state.players.values()), player => {
+                    lodash.forEach(this.state.players, (player, key) => {
                         let emoji = '';
-                        if (serverService.emoji[player]) {
-                            emoji = serverService.emoji[player].emoji;
+                        if (serverService.emoji[key]) {
+                            emoji = serverService.emoji[key].emoji;
                             if (emoji === 'sunglass') emoji = '&#128526;';
                             else if (emoji === 'money') emoji = '&#129297;';
                             else if (emoji === 'silence') emoji = '&#129323;';
@@ -375,7 +376,7 @@
                             else if (emoji === 'think') emoji = '&#129300;';
                             else if (emoji === 'upset') emoji = '&#128533;';
                         }
-                        info += `${player}: ${emoji}<br>`;
+                        info += `${key}: ${emoji}<br>`;
                     });
                 }
 

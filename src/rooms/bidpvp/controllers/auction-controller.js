@@ -60,7 +60,7 @@ class AuctionController {
         this.logger.info('Auction started - GAME ON');
         this._started = true;
 
-        this.state.players.forEach((player, key) => {
+        this.state.players.forEach((player, _key) => {
             if (player.isBot) {
                 const bot = this.room.bots[player.firebaseId];
                 const maxMoney = this._getInitialMaxMoney(player, {}, bot.character);
@@ -208,7 +208,7 @@ class AuctionController {
 
                         lot.items[lotItemsAmount] = new ItemState().assign({
                             itemId: itemId,
-                            state: state
+                            state: state,
                         });
 
                         //remove item already drawn
@@ -227,7 +227,7 @@ class AuctionController {
 
                 lot.items[lotItemsAmount] = new ItemState().assign({
                     itemId: itemId,
-                    state: state
+                    state: state,
                 });
             }
         }
@@ -323,7 +323,9 @@ class AuctionController {
                 const box = Config.getBox(item.boxType);
 
                 this.logger.debug(`- Item ${item.id} - was boxed on ${box.id})`);
-                lotBoxes.set(`${boxedItems}`, new BoxState().assign({boxId: box.id}));
+                lotBoxes.set(`${boxedItems}`, new BoxState().assign({
+                    boxId: box.id,
+                }));
                 lotBoxedItems[boxedItems] = {
                     itemId: item.id,
                     state,
@@ -333,7 +335,8 @@ class AuctionController {
             else {
                 lotItems.set(`${unboxedItems}`, new ItemState().assign({
                     itemId: itemId,
-                    state: state}));
+                    state: state,
+                }));
                 unboxedItems++;
             }
         }
@@ -347,7 +350,7 @@ class AuctionController {
 
                 lotItems.set(`${unboxedItems}`, new ItemState().assign({
                     itemId: itemId,
-                    state: state
+                    state: state,
                 }));
                 unboxedItems++;
             }
