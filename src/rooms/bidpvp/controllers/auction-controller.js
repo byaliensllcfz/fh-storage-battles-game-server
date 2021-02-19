@@ -144,7 +144,7 @@ class AuctionController {
         return maxMoney;
     }
 
-    _getPlayerProfile(player) {
+    getPlayerProfile(player) {
         return this.profiles[player.firebaseId];
     }
 
@@ -920,7 +920,7 @@ class AuctionController {
             let notification = {}; // Base awnser.
 
             // Get player's skills
-            const profile = this._getPlayerProfile(player);
+            const profile = this.getPlayerProfile(player);
             const characterConfig = Config.getCharacter(profile.character.id);
 
             // Character can have more than one skill.
@@ -996,41 +996,52 @@ class AuctionController {
      */
     tryToApplyPower(playerId, message) {
         const now = Date.now();
-        // Get power config.
 
+        // Get power config.
         const powerConfig = Config.getPower(message.powerId);
-        if (!powerConfig) {
-            this.logger.error(`PlayerId=${playerId} trying to user unknown powerId=${message.powerId}`);
+        if (lodash.isNull(powerConfig)) {
+            this.logger.error(`Apply power error. PlayerId=${playerId} trying to user unknown powerId=${message.powerId}`);
             return;
         }
+
         // Check if can use (delay start game)
         if (this.gameStartedAtDateTime + powerConfig.delayMs > now) {
-            this.logger.error(`PlayerId=${playerId} trying to user unknown powerId=${message.powerId}`);
+            this.logger.info(`Apply power failed. PlayerId=${playerId} trying to user unknown powerId=${message.powerId}`);
             return;
         }
 
-        // TODO: Check if player have enough power available.
-
-        // Check if player cooldown is finished.
         const playerState = this.state.players[playerId];
         const playerPower = lodash.find(playerState.powers, power => message.powerId === power.id);
-        if (!playerPower) {
+        if (lodash.isNull(playerPower)) {
             // Player doesn't have this power to apply! Hacking?
-            this.logger.info(`PlayerId=${playerId} trying to use powerId=${message.powerId} but doesn't have it.`);
-            return;
-        }
-        if (playerPower.expiration > now) {
-            // Cooldown not finished.
-            this.logger.info(`PlayerId=${playerId} trying to use powerId=${message.powerId} but cooldown not finished.`);
+            this.logger.info(`Apply power error. PlayerId=${playerId} trying to use powerId=${message.powerId} but doesn't have it.`);
             return;
         }
 
-        // Check if target player is not suffering effect from this power.
-        let targetPlayerState;
-        if (lodash.isUndefined(message.targetId)) {
+        // Check if player cooldown is finished.
+        if (playerPower.expiration > now) {
+            this.logger.info(`Apply power failed. PlayerId=${playerId} trying to use powerId=${message.powerId} but cooldown not finished.`);
+            return;
+        }
+
+        // Check power amount.
+        if (playerPower.amount <= 0) {
+            this.logger.info(`Apply power failed. PlayerId=${playerId} trying to use powerId=${message.powerId} but amount is 0.`);
+            return;
+        }
+
+        // Get the target player to suffering the effects.
+        let targetPlayerState = null;
+        if (powerConfig.targetType === 'self') {
             targetPlayerState = playerState;
-        } else {
+        } else if (powerConfig.targetType === 'other' && !lodash.isUndefined(message.targetId)) {
             targetPlayerState = this.state.players[message.targetId];
+        }
+
+        if (lodash.isNull(targetPlayerState)) {
+            // Target not found....
+            this.logger.error(`Apply power error. PlayerId=${playerId} trying to use powerId=${message.powerId} to unknown target.`);
+            return;
         }
 
         if (targetPlayerState.effects[message.powerId]) {
@@ -1039,7 +1050,8 @@ class AuctionController {
             }
         }
 
-        playerPower.expiration = now + powerConfig.cooldownMs;
+        playerPower.expiration = now + powerConfig.durationMs + powerConfig.cooldownMs;
+        playerPower.amount -= 1;
 
         // Create effect state setting parameters, than add to effect list.
         targetPlayerState.effects[message.powerId] = new EffectState(
@@ -1050,9 +1062,7 @@ class AuctionController {
                 expiration: now + powerConfig.durationMs,
             });
 
-        if (this.expirePowerEffectTimeout == null) {
-            this._expirePowerEffect();
-        }
+        this._expirePowerEffect();
     }
 
     /**
@@ -1061,6 +1071,11 @@ class AuctionController {
     _expirePowerEffect() {
         const now = Date.now();
         let nextExpireEffect = 0;
+
+        if (!lodash.isNull(this.expirePowerEffectTimeout)) {
+            this.expirePowerEffectTimeout.clear();
+            this.expirePowerEffectTimeout = null;
+        }
 
         lodash.each(this.state.players, (player) => {
             const toRemove = [];
@@ -1082,8 +1097,39 @@ class AuctionController {
         if (nextExpireEffect > 0) {
             this.logger.debug(`Next expirePowerEffect in ${nextExpireEffect - now} miliseconds`);
             this.expirePowerEffectTimeout = this.room.clock.setTimeout(() => this._expirePowerEffect(), nextExpireEffect - now);
-        } else {
-            this.expirePowerEffectTimeout = null;
+        }
+    }
+
+    /**
+     * Reload player profile to update power amount.
+     * @param {*} playerId 
+     * @param {*} message message.powerId
+     */
+    async tryReloadPowerAmount(playerId, message) {
+        const playerState = this.state.players[playerId];
+
+        const powerConfig = Config.getPower(message.powerId);
+        if (lodash.isNull(powerConfig)) {
+            this.logger.error(`Reload power amount failed. PlayerId=${playerId} trying to user unknown powerId=${message.powerId}`);
+            return;
+        }
+
+        const playerPower = lodash.find(playerState.powers, power => message.powerId === power.id);
+        if (lodash.isNull(playerPower)) {
+            // Player doesn't have this power to apply! Hacking?
+            this.logger.info(`Reload power amount failed. PlayerId=${playerId} trying to use powerId=${message.powerId} but doesn't have it.`);
+            return;
+        }
+
+        const profiles = await profileDao.getProfiles([playerState.firebaseId]);
+        const profile = profiles[playerState.firebaseId];
+        if (lodash.isNull(profile)) {
+            this.logger.error(`Reload power amount failed. Could not get player profile for playerId=${playerId} userId=${playerState.firebaseId}`);
+            return;
+        }
+
+        if (!lodash.isUndefined(profile.currencies[powerConfig.currency])) {
+            playerPower.amount = profile.currencies[powerConfig.currency];
         }
     }
 }
