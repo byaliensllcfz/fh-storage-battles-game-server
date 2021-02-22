@@ -17,7 +17,6 @@ const { LotState } = require('../schemas/lot-state');
 const { BoxState } = require('../schemas/box-state');
 const { ItemState } = require('../schemas/item-state');
 const { EffectState } = require('../schemas/effect-state');
-const { PowerState } = require('../schemas/power-state');
 
 class AuctionController {
 
@@ -1102,7 +1101,7 @@ class AuctionController {
 
     /**
      * Reload player profile to update power amount.
-     * @param {*} playerId 
+     * @param {*} playerId
      * @param {*} message message.powerId
      */
     async tryReloadPowerAmount(playerId, message) {
