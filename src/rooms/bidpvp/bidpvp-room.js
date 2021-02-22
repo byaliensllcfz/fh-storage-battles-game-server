@@ -13,6 +13,7 @@ const { PlayerState } = require('./schemas/player-state');
 const { AuctionController } = require('./controllers/auction-controller');
 const { handleAuctionCommand } = require('./handlers/auction-handler');
 const { Config }  = require('../../helpers/config-helper');
+const { PowerState } = require('./schemas/power-state');
 
 class BidPvpRoom extends Room {
 
@@ -62,9 +63,16 @@ class BidPvpRoom extends Room {
             id: client.id,
             firebaseId: options.userId,
             character: options.character,
-            isBot: options.bot,
+            isBot: options.bot || false,
             abtestgroup: options.abtestgroup,
         });
+
+        if (!lodash.isUndefined(options.power0)) {
+            this._setPlayerPowers(this.state.players[client.id], options.power0);
+        }
+        if (!lodash.isUndefined(options.power1)) {
+            this._setPlayerPowers(this.state.players[client.id], options.power1);
+        }
 
         if (options.clientWeb) {
             this.send(client, JSON.stringify({ items: Config.items }));
@@ -77,6 +85,17 @@ class BidPvpRoom extends Room {
 
         } else {
             this._setAddBotTimeout();
+        }
+    }
+
+    _setPlayerPowers(playerState, powerId) {
+        const power = Config.getPower(powerId);
+        if (!lodash.isNull(power)) {
+            playerState.powers[power.id] = new PowerState({id: power.id});
+            if (!playerState.isBot) {
+                const playerProfile = this.auctionController.getPlayerProfile(playerState);
+                playerState.powers[power.id].amount = playerProfile.currencies[power.currency] || 0;
+            }
         }
     }
 
