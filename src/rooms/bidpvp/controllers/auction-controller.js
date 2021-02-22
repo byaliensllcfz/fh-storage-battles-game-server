@@ -998,7 +998,7 @@ class AuctionController {
 
         // Get power config.
         const powerConfig = Config.getPower(message.powerId);
-        if (lodash.isNull(powerConfig)) {
+        if (lodash.isNull(powerConfig) || lodash.isUndefined(powerConfig)) {
             this.logger.error(`Apply power error. PlayerId=${playerId} trying to user unknown powerId=${message.powerId}`);
             return;
         }
@@ -1011,7 +1011,7 @@ class AuctionController {
 
         const playerState = this.state.players[playerId];
         const playerPower = playerState.powers[message.powerId];
-        if (lodash.isNull(playerPower)) {
+        if (lodash.isNull(playerPower) || lodash.isUndefined(playerPower)) {
             // Player doesn't have this power to apply! Hacking?
             this.logger.info(`Apply power error. PlayerId=${playerId} trying to use powerId=${message.powerId} but doesn't have it.`);
             return;
@@ -1037,7 +1037,7 @@ class AuctionController {
             targetPlayerState = this.state.players[message.targetId];
         }
 
-        if (lodash.isNull(targetPlayerState)) {
+        if (lodash.isNull(targetPlayerState) || lodash.isUndefined(targetPlayerState) ) {
             // Target not found....
             this.logger.error(`Apply power error. PlayerId=${playerId} trying to use powerId=${message.powerId} to unknown target.`);
             return;
@@ -1114,7 +1114,7 @@ class AuctionController {
         }
 
         const playerPower = playerState.powers[message.powerId];
-        if (lodash.isNull(playerPower)) {
+        if (lodash.isNull(playerPower) || lodash.isUndefined(playerPower)) {
             // Player doesn't have this power to apply! Hacking?
             this.logger.info(`Reload power amount failed. PlayerId=${playerId} trying to use powerId=${message.powerId} but doesn't have it.`);
             return;
