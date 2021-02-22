@@ -91,10 +91,11 @@ class BidPvpRoom extends Room {
     _setPlayerPowers(playerState, powerId) {
         const power = Config.getPower(powerId);
         if (!lodash.isNull(power)) {
-            playerState.powers[power.id] = new PowerState({id: power.id});
+            playerState.powers[power.id] = new PowerState({id: power.id, expiration: 0, amount: 0});
             if (!playerState.isBot) {
                 const playerProfile = this.auctionController.getPlayerProfile(playerState);
                 playerState.powers[power.id].amount = playerProfile.currencies[power.currency] || 0;
+                this.logger.info(`Client: ${playerState.id} got PowerId=${powerId} with Amount=${playerState.powers[power.id].amount}`);
             }
         }
     }
