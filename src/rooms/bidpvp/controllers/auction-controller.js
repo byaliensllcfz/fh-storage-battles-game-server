@@ -1010,7 +1010,7 @@ class AuctionController {
         }
 
         const playerState = this.state.players[playerId];
-        const playerPower = lodash.find(playerState.powers, power => message.powerId === power.id);
+        const playerPower = playerState.powers[message.powerId];
         if (lodash.isNull(playerPower)) {
             // Player doesn't have this power to apply! Hacking?
             this.logger.info(`Apply power error. PlayerId=${playerId} trying to use powerId=${message.powerId} but doesn't have it.`);
@@ -1113,7 +1113,7 @@ class AuctionController {
             return;
         }
 
-        const playerPower = lodash.find(playerState.powers, power => message.powerId === power.id);
+        const playerPower = playerState.powers[message.powerId];
         if (lodash.isNull(playerPower)) {
             // Player doesn't have this power to apply! Hacking?
             this.logger.info(`Reload power amount failed. PlayerId=${playerId} trying to use powerId=${message.powerId} but doesn't have it.`);
