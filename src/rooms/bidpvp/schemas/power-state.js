@@ -14,6 +14,9 @@ class PowerState extends Schema {
 
         /** @type {int32} */
         this.amount = options.amount || 0;
+
+        /** @type {int32} */
+        this.useCount = 0;
     }
 }
 
