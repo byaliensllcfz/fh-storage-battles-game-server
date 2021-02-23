@@ -617,7 +617,12 @@ class AuctionController {
                 items: {},
                 trophies: 0,
                 position: 0,
+                powers: {},
             };
+
+            lodash.each(player.powers, power => {
+                endGameResults[player.firebaseId].powers[power.id] = { spent: power.useCount };
+            });
         });
 
         lodash.each(this.state.lots, lotState => {
@@ -737,6 +742,7 @@ class AuctionController {
                     price: result.price,
                     items: result.items,
                     abtestgroup: player.abtestgroup,
+                    powers: result.powers,
                 };
 
                 this.logger.info('Game result tally.', {
@@ -1051,6 +1057,7 @@ class AuctionController {
 
         playerPower.expiration = now + powerConfig.durationMs + powerConfig.cooldownMs;
         playerPower.amount -= 1;
+        playerPower.useCount += 1;
 
         // Create effect state setting parameters, than add to effect list.
         targetPlayerState.effects[message.powerId] = new EffectState(
