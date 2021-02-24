@@ -8,6 +8,8 @@ const { Logger } = require('@tapps-games/logging');
 const bigQueryHelper = require('../../../helpers/big-query-helper');
 const itemStateHelper = require('../../../helpers/item-state-helper');
 
+const powerSkillsConst = require('../../../types/powers-skills');
+
 const profileDao = require('../../../daos/profile-dao');
 const rewardDao = require('../../../daos/reward-dao');
 const { auctionStatus, bidStatus } = require('../../../types');
@@ -431,6 +433,17 @@ class AuctionController {
             return;
         }
 
+        if (!lodash.isNil(playerState.effects)) {
+            const stopEffect = playerState.effects[powerSkillsConst.POWER_STOP];
+            if (!lodash.isNil(stopEffect)) {
+                if (stopEffect.expiration > Date.now()) {
+                    this._notifyClientBidStatus(client, bidStatus.REJECTED_STOP_POWER);
+                    this.logger.debug(`Ignoring bid. Player ${playerId} is suffering ${stopEffect.id} power effect`);
+                    return;
+                }
+            }
+        }
+        
         if (this.bidInterval === null) {
             this.bidInterval = new BidInterval();
             if (this.bidIntervalTimeout) {
@@ -1068,6 +1081,10 @@ class AuctionController {
                 expiration: now + powerConfig.durationMs,
             });
 
+        if (powerConfig.id === powerSkillsConst.POWER_CALCULATOR) {
+            targetPlayerState.effects[message.powerId].valueInt =  this._doCalculatorPower(powerConfig);
+        }
+
         this._expirePowerEffect();
     }
 
@@ -1104,6 +1121,31 @@ class AuctionController {
             this.logger.debug(`Next expirePowerEffect in ${nextExpireEffect - now} miliseconds`);
             this.expirePowerEffectTimeout = this.room.clock.setTimeout(() => this._expirePowerEffect(), nextExpireEffect - now);
         }
+    }
+
+    /**
+     * Calculate lot and apply modififer.
+     * @param {*} powerConfig Calculator power config.
+     */
+    _doCalculatorPower(powerConfig) {
+        const minEstimativeMod = lodash.find(powerConfig.custom, entry => entry.key === 'minEstimative');
+        const maxEstimativeMod = lodash.find(powerConfig.custom, entry => entry.key === 'maxEstimative');
+
+        const lotState = this.state.lots[this.state.currentLot];
+        const visibleItemsValue = lodash.sum(lodash.map(lotState.items, lotItem => {
+            const item = Config.getItem(lotItem.itemId);
+            return itemStateHelper.getItemPrice(Config, item.price, lotItem.state);
+        }));
+        const hiddenItemsValue = lodash.sum(lodash.map(lotState.boxes, boxState => {
+            const item = Config.getItem(boxState.itemId);
+            return itemStateHelper.getItemPrice(Config, item.price, boxState.state);
+        }));
+
+        const allItemsValue = visibleItemsValue + hiddenItemsValue;
+
+        const estimatedValue = lodash.round(allItemsValue * lodash.random(minEstimativeMod.valueNumber, maxEstimativeMod.valueNumber, true));
+
+        return estimatedValue;
     }
 
     /**

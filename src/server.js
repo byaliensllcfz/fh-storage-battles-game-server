@@ -87,6 +87,8 @@ async function createServer() {
             character: req.body.character,
             city: req.body.cityId,
             abtestgroup: abFlag,
+            power0: req.body.power0,
+            power1: req.body.power1,
         };
 
         try {

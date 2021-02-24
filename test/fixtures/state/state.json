@@ -31,7 +31,7 @@
         "name": "",
         "photoUrl": "",
         "money": 1000,
-        "character": "Character Two",
+        "character": "Character One",
         "connected": true,
         "trophies": 0,
         "rank": 0
@@ -45,6 +45,22 @@
         "connected": true,
         "trophies": 0,
         "rank": 0
+      },
+      "xptoeffect": {
+        "id": "xptoeffect",
+        "name": "",
+        "photoUrl": "",
+        "money": 1000,
+        "character": "Character Effect",
+        "connected": true,
+        "trophies": 0,
+        "rank": 0,
+        "effects": {
+          "stop": {
+            "id": "stop",
+            "expiration": 0
+          }
+        }
       }
     }
   }
