@@ -443,7 +443,7 @@ class AuctionController {
                 }
             }
         }
-        
+
         if (this.bidInterval === null) {
             this.bidInterval = new BidInterval();
             if (this.bidIntervalTimeout) {
