@@ -127,6 +127,29 @@ describe('AuctionController Unit tests', function() {
                 JSON.stringify({ bidStatus: bidStatus.ACCEPTED }));
         });
 
+        it('should not bid , player has stop effect', async function() {
+            const playerId = 'xptoeffect';
+            const secondPlayerId = 'abcdHfSta';
+            const client = { id: playerId };
+            //client.effects['stop'] = {id: 'stop', expiration: Date.now()};
+            room.clients = [{ id: 'abcdefghi' }, client ];
+
+            state.lots[0].bidOwner = secondPlayerId;
+            state.players['xptoeffect'].effects['stop'].expiration = Date.now() + 6000000;
+            auction.state = state;
+
+            auction.finishBidInterval = new MagicMock('finishBid');
+
+            auction.bid(playerId);
+            expect(room.clock.setTimeout).to.have.invocationCount(0);
+
+            expect(auction.bidInterval).to.not.exist;
+            expect(auction.finishBidInterval).to.have.invocationCount(0);
+            expect(room.send).to.have.invocationCount(1);
+            expect(room.send).to.be.invokedWith(client,
+                JSON.stringify({ bidStatus: bidStatus.REJECTED_STOP_POWER }));
+        });
+
         describe('AuctionController finishBidInterval Tests', function() {
 
             it('should put current bidder as current winner', async function() {
