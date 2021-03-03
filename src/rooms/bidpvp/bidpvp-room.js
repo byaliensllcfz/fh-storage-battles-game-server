@@ -99,7 +99,6 @@ class BidPvpRoom extends Room {
             }
             else
             {
-                // aqui sorteia a quantidade de poder para o bot.
                 playerState.powers[power.id].amount = lodash.random(Config.bot.powerMinAmount, Config.bot.powerMaxAmount);
             }
         }
