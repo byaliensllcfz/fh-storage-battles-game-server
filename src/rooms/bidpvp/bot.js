@@ -103,7 +103,6 @@ class Bot {
             character: this.character,
         };
 
-        // Sortear se o bot vai ter poder
         const choosePower = Config.bot.powerChoices[lodash.random(0, lodash.size(Config.bot.powerChoices))];
         options.power0 = choosePower;
         this.powerId = choosePower;
@@ -266,22 +265,22 @@ class Bot {
         const auctionState = this.room.state;
         const lotState = auctionState.lots[auctionState.currentLot];
 
-        //const powerChance = lodash.random(0.0, 1.0, true);
-        //if (powerChance < Config.bot.powerChanceUse) {
-        let message = { powerId: this.powerId};
+        const powerChance = lodash.random(0.0, 1.0, true);
+        if (powerChance < Config.bot.powerChanceUse) {
+            let message = { powerId: this.powerId};
 
-        if (message.powerId === 'stop') {
-            // Escolhe um targe
-            const others = [];
-            lodash.each(auctionState.players, player => {
-                if (player.id != this.id) {
-                    others.push(player.id);
-                }
-            });
-            message.targetId = others[lodash.random(0, 2)];
+            if (message.powerId === 'stop') {
+                // Escolhe um targe
+                const others = [];
+                lodash.each(auctionState.players, player => {
+                    if (player.id != this.id) {
+                        others.push(player.id);
+                    }
+                });
+                message.targetId = others[lodash.random(0, 2)];
+            }
+            this.sendMessage(commands.POWER, message);
         }
-        this.sendMessage(commands.POWER, message);
-        //}
 
         if (lotState.status === auctionStatus.PLAY) {
             this._setPowerTimerout(lot);
