@@ -1,6 +1,7 @@
 apiVersion: "agones.dev/v1"
 kind: Fleet
 metadata:
+  namespace: storage-battles-game-server-dev
   labels:
     app: <NAME>-<URL_VERSION>
     tags.datadoghq.com/env: <ENV>
