@@ -53,6 +53,8 @@ class Bot {
         this.eventEmitter = new EventEmitter();
 
         this._generateRankAndTrophies();
+
+        this.powerId = '';
     }
 
     _generateRankAndTrophies() {
@@ -95,8 +97,18 @@ class Bot {
             rank: this.rank,
         });
 
+        const options = {
+            bot: true,
+            userId: this.id,
+            character: this.character,
+        };
+
+        const choosePower = Config.bot.powerChoices[lodash.random(0, lodash.size(Config.bot.powerChoices))];
+        options.power0 = choosePower;
+        this.powerId = choosePower;
+
         /** @type {Room} */
-        this.room = await this.client.joinById(roomId, { bot: true, userId: this.id, character: this.character });
+        this.room = await this.client.joinById(roomId, options);
 
         this.logger.info(`Bot: ${this.id} joined room: ${roomId} with session ID: ${this.room.sessionId}.`);
         this._start();
@@ -151,6 +163,7 @@ class Bot {
                 if (field === 'status') {
                     if (value === auctionStatus.PLAY) {
                         this._setBidTimeout(state.currentLot);
+                        this._setPowerTimerout(state.currentLot);
 
                     } else if (value === auctionStatus.FINISHED) {
                         this._sendReady();
@@ -190,6 +203,15 @@ class Bot {
                 delete this.bidTimeout;
                 this._bid(lot);
             }, 1000 * lodash.random(Config.bot.minimumTimeToBidSeconds, Config.bot.maximumTimeToBidSeconds));
+        }
+    }
+
+    _setPowerTimerout(lot) {
+        if (!this.powerTimeout) {
+            this.powerTimeout = setTimeout(() => {
+                delete this.powerTimeout;
+                this._applyPower(lot);
+            }, Config.bot.powerTimeToUseMs);
         }
     }
 
@@ -236,6 +258,31 @@ class Bot {
 
         if (lotState.status === auctionStatus.PLAY) {
             this._setBidTimeout(lot);
+        }
+    }
+
+    _applyPower(lot) {
+        const auctionState = this.room.state;
+        const lotState = auctionState.lots[auctionState.currentLot];
+
+        const powerChance = lodash.random(0.0, 1.0, true);
+        if (powerChance < Config.bot.powerChanceUse) {
+            let message = { powerId: this.powerId};
+
+            if (message.powerId === 'stop') {
+                const others = [];
+                lodash.each(auctionState.players, player => {
+                    if (player.id != this.id) {
+                        others.push(player.id);
+                    }
+                });
+                message.targetId = others[lodash.random(0, 2)];
+            }
+            this.sendMessage(commands.POWER, message);
+        }
+
+        if (lotState.status === auctionStatus.PLAY) {
+            this._setPowerTimerout(lot);
         }
     }
 
