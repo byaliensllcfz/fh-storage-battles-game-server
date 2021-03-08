@@ -97,6 +97,10 @@ class BidPvpRoom extends Room {
                 playerState.powers[power.id].amount = playerProfile.currencies[power.currency] || 0;
                 this.logger.info(`Client: ${playerState.id} got PowerId=${powerId} with Amount=${playerState.powers[power.id].amount}`);
             }
+            else
+            {
+                playerState.powers[power.id].amount = lodash.random(Config.bot.powerMinAmount, Config.bot.powerMaxAmount);
+            }
         }
         else {
             this.logger.warning(`Client: ${playerState.id} trying to set an invalid PowerId=${powerId}`);

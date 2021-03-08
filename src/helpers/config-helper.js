@@ -100,6 +100,11 @@ let _itemRarities;
  * @property {number} maximumTrophiesModifier
  * @property {string[]} names
  * @property {string[]} profilePictures
+ * @property {string[]} powerChoices
+ * @property {number} powerMinAmount
+ * @property {number} powerMaxAmount
+ * @property {number} powerTimeToUse
+ * @property {number} powerChanceUse
  */
 
 /**
