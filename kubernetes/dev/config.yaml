@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: config-<NAME>-<URL_VERSION>
-  namespace: storage-battles-game-server-<ENV>
+  namespace: <NAME>-<ENV>
 data:
   config.json: |
     {
