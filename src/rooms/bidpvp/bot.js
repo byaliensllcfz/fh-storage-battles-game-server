@@ -272,7 +272,7 @@ class Bot {
             if (message.powerId === 'stop') {
                 const others = [];
                 lodash.each(auctionState.players, player => {
-                    if (player.id != this.id) {
+                    if (player.id != this.clientId) {
                         others.push(player.id);
                     }
                 });
