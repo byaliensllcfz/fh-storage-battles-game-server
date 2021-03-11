@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: config-<NAME>-<URL_VERSION>
+  name: default
   namespace: <NAME>-<ENV>
 data:
   config.json: |
