@@ -1136,9 +1136,9 @@ class AuctionController {
             const item = Config.getItem(lotItem.itemId);
             return itemStateHelper.getItemPrice(Config, item.price, lotItem.state);
         }));
-        const hiddenItemsValue = lodash.sum(lodash.map(lotState.boxes, boxState => {
-            const item = Config.getItem(boxState.itemId);
-            return itemStateHelper.getItemPrice(Config, item.price, boxState.state);
+        const hiddenItemsValue = lodash.sum(lodash.map(lotState.boxedItems, boxedItems => {
+            const item = Config.getItem(boxedItems.itemId);
+            return itemStateHelper.getItemPrice(Config, item.price, boxedItems.state);
         }));
 
         const allItemsValue = visibleItemsValue + hiddenItemsValue;
