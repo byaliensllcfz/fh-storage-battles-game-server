@@ -103,7 +103,7 @@ class Bot {
             character: this.character,
         };
 
-        const choosePower = Config.bot.powerChoices[lodash.random(0, lodash.size(Config.bot.powerChoices))];
+        const choosePower = lodash.sample(Config.bot.powerChoices);
         options.power0 = choosePower;
         this.powerId = choosePower;
 
