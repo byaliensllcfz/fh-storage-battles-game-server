@@ -1,7 +1,7 @@
 {
     "name": "storage-battles-game-server",
     "description": "Bid PvP Alpha Colyseus Server",
-    "version": "1.11.5",
+    "version": "1.11.6",
     "private": true,
     "engines": {
         "node": ">=10.0.0"
@@ -13,6 +13,7 @@
         "@tapps-games/requests": "^2.2.1",
         "@google-cloud/agones-sdk": "^1.9.0",
         "dd-trace": "^0.24.2",
+        "moment": "^2.24.0",
         "axios": "^0.19.0",
         "body-parser": "^1.18.3",
         "colyseus": "^0.12.1",
