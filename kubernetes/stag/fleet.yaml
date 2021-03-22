@@ -1,11 +1,16 @@
 apiVersion: "agones.dev/v1"
 kind: Fleet
 metadata:
+  namespace: default
   labels:
     app: <NAME>-<URL_VERSION>
     tags.datadoghq.com/env: <ENV>
     tags.datadoghq.com/service: <NAME>
     tags.datadoghq.com/version: <BUILD_VERSION>
+    app.kubernetes.io/name: <NAME>
+    app.kubernetes.io/version: <BUILD_VERSION>
+    app.kubernetes.io/component: server
+    app.kubernetes.io/managed-by: gocd
   name: <NAME>-fleet-<URL_VERSION>
 spec:
   replicas: 1
@@ -20,6 +25,10 @@ spec:
         tags.datadoghq.com/env: <ENV>
         tags.datadoghq.com/service: <NAME>
         tags.datadoghq.com/version: <BUILD_VERSION>
+        app.kubernetes.io/name: <NAME>
+        app.kubernetes.io/version: <BUILD_VERSION>
+        app.kubernetes.io/component: server
+        app.kubernetes.io/managed-by: gocd
     spec:
       env:
         - name: DD_ENV
