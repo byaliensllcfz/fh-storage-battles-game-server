@@ -47,5 +47,6 @@
         "test:report": "nyc --no-clean --temp-directory=./.nyc_output report --reporter=text --reporter=html --reporter=lcov",
         "test": "npm-run-all test:run test:report lint",
         "start": "node -r dotenv/config src/index.js dotenv_config_path=configuration/.env"
-    }
+    },
+    "buildNumber": 76
 }
