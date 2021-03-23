@@ -8,6 +8,8 @@ const { middlewares, routes, utils } = require('@tapps-games/server');
 
 const express = require('express');
 const bodyParser = require('body-parser');
+const moment = require('moment');
+const lodash = require('lodash');
 
 const http = require('http');
 const { Server, matchMaker } = require('colyseus');
@@ -67,9 +69,21 @@ async function createServer() {
 
     app.get('/rooms', utils.asyncRoute(async (_req, res) => {
         const rooms = await matchMaker.query({});
+
         const data = {
             rooms: rooms.length,
         };
+
+        const now = moment().utc();
+        lodash.forEach(rooms, room => {
+            const creation = moment(room.createdAt);
+            const uptimeSec = now.diff(creation)/1000;
+
+            // no match should last more than 10 minutes
+            if (uptimeSec && uptimeSec > 600) {
+                logger.critical(`Room ${room.roomId} is up for more than 10 minutes (${uptimeSec} secs). might be stuck?`);
+            }
+        });
 
         res.contentType('application/json');
         res.send(JSON.stringify(data));
