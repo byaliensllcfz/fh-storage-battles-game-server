@@ -101,5 +101,5 @@ spec:
               secretName: gcp-api-key
           - configMap:
               defaultMode: 420
-              name: config-<NAME>-<URL_VERSION>
+              name: <NAME>-config-<URL_VERSION>
             name: config-files

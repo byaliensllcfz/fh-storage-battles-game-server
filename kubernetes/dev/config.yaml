@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: config-<NAME>-<URL_VERSION>
+  name: <NAME>-config-<URL_VERSION>
   namespace: default
   labels:
     tags.datadoghq.com/env: <ENV>
