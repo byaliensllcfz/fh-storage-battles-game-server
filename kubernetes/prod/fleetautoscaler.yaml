@@ -14,6 +14,7 @@ metadata:
     app.kubernetes.io/component: server
     app.kubernetes.io/managed-by: gocd
     forhumans/build: "<BUILD_NUMBER>"
+    forhumans/in-use: "true"
 spec:
   # The name of the fleet to attach to and control. Must be an existing Fleet in the same namespace
   # as this FleetAutoscaler
@@ -31,6 +32,7 @@ spec:
         app.kubernetes.io/component: server
         app.kubernetes.io/managed-by: gocd
         forhumans/build: "<BUILD_NUMBER>"
+        forhumans/in-use: "true"
   # The autoscaling policy
   policy:
     # type of the policy. for now, only Buffer is available
