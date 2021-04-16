@@ -224,6 +224,19 @@ class Config {
         return _config.boxes;
     }
 
+    /**
+     * @return {Object<id, SkillConfig>}
+     */
+    static get skills() {
+        return _config.skills;
+    }
+
+    /**
+     * @return {Object<id, PowerConfig>}
+     */
+    static get powers() {
+        return _config.powers;
+    }
 
     /**
      * @return {BoxConfig}
@@ -252,6 +265,21 @@ class Config {
 
     static getPower(powerId) {
         return _config.powers[powerId];
+    }
+
+    static getConfigs() {
+        return {
+            game: this.game,
+            bot: this.bot,
+            cities: this.cities,
+            items: this.items,
+            boxes: this.boxes,
+            milestonesV2: lodash.sortBy(this.milestonesV2, 'rank'),
+            characters: this.characters,
+            skills: this.skills,
+            emojis: this.emojis,
+            powers: this.powers,
+        };
     }
 }
 

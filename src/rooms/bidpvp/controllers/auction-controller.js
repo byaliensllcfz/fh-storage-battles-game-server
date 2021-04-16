@@ -740,13 +740,12 @@ class AuctionController {
             resultsOrdered[idx].position = position;
 
             let trophiesBalanced = trophies;
+            if (result.score > 0) { //player had profit
+                trophiesBalanced += this.city.trophiesOnProfit;
+            }
 
             if (!result.isBot) {
                 const player = this.state.players[result.playerId];
-
-                if (player.trophies >= this.city.trophyThresholdMax && trophies > 0) {
-                    trophiesBalanced = 0;
-                }
 
                 rewards[result.firebaseId] = {
                     city: this.city.id,
