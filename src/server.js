@@ -67,6 +67,11 @@ async function createServer() {
         res.send('configs reloaded');
     }));
 
+    //this answers IS MY GS USING MY CONFIGS?
+    app.get('/configs', utils.asyncRoute(async (_req, res) => {
+        res.send(Config.getConfigs());
+    }));
+
     app.get('/rooms', utils.asyncRoute(async (_req, res) => {
         const rooms = await matchMaker.query({});
 
