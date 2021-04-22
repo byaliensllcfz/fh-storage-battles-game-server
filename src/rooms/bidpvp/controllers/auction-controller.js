@@ -768,7 +768,7 @@ class AuctionController {
                 });
             }
 
-            this.state.players[result.playerId].trophiesEarned = trophies;
+            this.state.players[result.playerId].trophiesEarned = trophiesBalanced;
         });
 
         const eventParams = {
