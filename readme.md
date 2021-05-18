@@ -1,6 +1,6 @@
-# Bare Node.JS API
+# Bid PvP Alpha Colyseus Server
 
-API for the Storage Battles Game Server, works alongside the [Agones Service](agones.dev) in order to provide dedicated game servers rooms for players.
+API for the Storage Battles Game Server, works alongside the [Agones Service](agones.dev) in order to provide dedicated game servers rooms for players. 
 
 ## Getting Started
 
