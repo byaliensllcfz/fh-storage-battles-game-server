@@ -1,6 +1,6 @@
-# Bare Node.JS API
+# Bid PvP Alpha Colyseus Server
 
-Barebones project to develop an API to TP Server. It already includes some of the basic funcionalities that will be common to all projects, such as verifying the X-Tapps-Shared-Cloud-Secret and sending error messages in the application/problem+json format.
+API for the Storage Battles Game Server, works alongside the [Agones Service](agones.dev) in order to provide dedicated game servers rooms for players. 
 
 ## Getting Started
 
@@ -31,10 +31,6 @@ This will install all of the package's dependencies.
 
     yarn start
 
-If you get errors running this command change the permission to App Engine Logs folder.
-
-    sudo chown -R [user] /var/log/app_engine/custom_logs/
-
 ## Running the tests
 
 In order to run the application tests use the following command:
@@ -52,18 +48,4 @@ We use `esdoc` to generate the code documentation:
 
 ## Deployment
 
-To deploy the application in App Engine create a pipeline on GoCD, using the TPServer-Nodejs template.
-
-It's also possible to deploy the application using the Google Cloud CLI, as explained in the following steps:
-
-Login using your Google account:
-
-    gcloud auth login
-
-Set the project where the application should be deployed::
-
-    gcloud config set project [project-name]
-
-And lastly deploy the application:
-
-    gcloud app deploy --version 1-0-0-0
+To deploy the application in Kubernetes we have the GoCD pipeline called `StorageBattlesGameServer`.

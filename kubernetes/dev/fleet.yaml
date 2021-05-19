@@ -1,7 +1,7 @@
 apiVersion: "agones.dev/v1"
 kind: Fleet
 metadata:
-  namespace: default
+  namespace: <NAME>-<ENV>
   labels:
     app: <NAME>-<URL_VERSION>
     tags.datadoghq.com/env: <ENV>
