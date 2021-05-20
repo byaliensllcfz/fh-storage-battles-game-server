@@ -1,7 +1,7 @@
 {
     "name": "storage-battles-game-server",
     "description": "Bid PvP Alpha Colyseus Server",
-    "version": "1.12.3",
+    "version": "1.12.4",
     "private": true,
     "engines": {
         "node": ">=10.0.0"
