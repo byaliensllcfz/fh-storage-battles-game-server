@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: <NAME>-config-<URL_VERSION>
-  namespace: default
+  namespace: <NAME>-<ENV>
   labels:
     tags.datadoghq.com/env: <ENV>
     tags.datadoghq.com/service: <NAME>
@@ -22,7 +22,7 @@ data:
       "forceLocalConfig": false,
       "loggingLevel": "debug",
       "serverEnableDatadog": false,
-      "apiUrl": "https://stag.gameservices.forhumans.games/storage-battles/v1",
+      "apiUrl": "http://storage-battles.storage-battles-stag.svc.cluster.local",
       "bundleId": "com.byaliens.bid.wars.stars.multiplayer.auction.battles",
       "ignoreAgones": false
     }
