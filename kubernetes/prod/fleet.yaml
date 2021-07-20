@@ -11,7 +11,7 @@ metadata:
     app.kubernetes.io/version: <VERSION>
     app.kubernetes.io/component: server
     app.kubernetes.io/managed-by: gocd
-    forhumans/build: "<BUILD_NUMBER>"
+    forhumans/build: "<SHORT_SHA>"
     forhumans/in-use: "true"
   name: <NAME>-fleet-<URL_VERSION>
 spec:
@@ -31,7 +31,7 @@ spec:
         app.kubernetes.io/version: <VERSION>
         app.kubernetes.io/component: server
         app.kubernetes.io/managed-by: gocd
-        forhumans/build: "<BUILD_NUMBER>"
+        forhumans/build: "<SHORT_SHA>"
         forhumans/in-use: "true"
     spec:
       env:
@@ -73,7 +73,7 @@ spec:
       template:
         spec:
           containers:
-          - image: gcr.io/forhumans-gameservices-dev/<NAME>:<VERSION>-build.<BUILD_NUMBER>
+          - image: gcr.io/forhumans-gameservices-dev/<NAME>@<SHA>
             imagePullPolicy: IfNotPresent
             livenessProbe:
               failureThreshold: 5
