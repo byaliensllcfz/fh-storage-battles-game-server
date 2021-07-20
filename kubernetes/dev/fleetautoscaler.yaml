@@ -13,7 +13,7 @@ metadata:
     app.kubernetes.io/version: <VERSION>
     app.kubernetes.io/component: server
     app.kubernetes.io/managed-by: gocd
-    forhumans/build: "<BUILD_NUMBER>"
+    forhumans/build: "<SHORT_SHA>"
     forhumans/in-use: "true"
 spec:
   # The name of the fleet to attach to and control. Must be an existing Fleet in the same namespace
