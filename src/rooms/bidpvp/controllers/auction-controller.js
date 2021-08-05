@@ -746,6 +746,8 @@ class AuctionController {
 
             if (!result.isBot) {
                 const player = this.state.players[result.playerId];
+                const profile = this.profiles[result.firebaseId];
+                let needsLeagueAllocation = (profile.needsLeagueAllocation)?profile.needsLeagueAllocation:false;
 
                 rewards[result.firebaseId] = {
                     city: this.city.id,
@@ -755,6 +757,8 @@ class AuctionController {
                     items: result.items,
                     abtestgroup: player.abtestgroup,
                     powers: result.powers,
+                    needsLeagueAllocation: needsLeagueAllocation,
+                    score: result.score,
                 };
 
                 this.logger.info('Game result tally.', {
