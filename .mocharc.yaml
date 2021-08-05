@@ -1,0 +1,10 @@
+reporter: dot
+ui: bdd
+recursive: true
+color: true
+timeout: 10000
+exit: true
+file:
+  - ./test/hooks.js
+spec:
+  - ./test/**/*.test.js
