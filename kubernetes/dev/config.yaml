@@ -17,7 +17,7 @@ data:
   config.json: |
     {
       "loggingEnableConsole": true,
-      "loggingEnableFile": false,
+      "loggingEnableFiles": false,
       "serverProcesses": 2,
       "forceLocalConfig": false,
       "loggingLevel": "debug",
@@ -34,6 +34,6 @@ data:
     DATASTORE_PROJECT_ID=forhumans-gameservices-dev
     SERVICE_NAME=<NAME>
     SERVICE_DEPLOY_ID=<NAME>-v<MAJOR_VERSION>
-    SERVICE_DEPLOY_VERSION=<BUILD_VERSION>
+    SERVICE_DEPLOY_VERSION=<VERSION>
     SERVICE_MAJOR_VERSION=<MAJOR_VERSION>
-    SERVICE_VERSION=<BUILD_VERSION>
+    SERVICE_VERSION=<VERSION>
