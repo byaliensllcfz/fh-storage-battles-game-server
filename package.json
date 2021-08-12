@@ -46,5 +46,6 @@
         "test:report": "nyc --no-clean --temp-directory=./.nyc_output report --reporter=text --reporter=html --reporter=lcov",
         "test": "npm-run-all test:run test:report lint",
         "start": "node -r dotenv/config src/index.js dotenv_config_path=configuration/.env"
-    }
+    },
+    "sha": "sha256:44a52a32a5fef35937a82b6be2a28e4dd26a0dbd32278e05d5cb418a72818280"
 }
