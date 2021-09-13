@@ -34,8 +34,8 @@ async function sendAgonesReady() {
 }
 
 function setUpDeallocateEndpoint(app, utils) {
-    if (!ignoreAgones) {
-        app.get('/admin/deallocate', [middlewares.validateSharedCloudSecret()], utils.asyncRoute(async (req, res) => {
+    if (ignoreAgones) {
+        app.get('/admin/deallocate', utils.asyncRoute(async (req, res) => {
             const seconds = req.query.seconds || 420; // 7 minutes
             await agonesSDK.reserve(seconds);
             res.send(`Deallocating server in ${seconds} seconds`);
