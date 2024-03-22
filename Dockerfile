@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:experimental
 # Dockerfile extending the generic Node image with application files for a
 # single application.
-FROM node:erbium-buster
+FROM node:gallium-buster
 
 ENV NODE_ENV production
 ENV NPM_TOKEN "REPLACE_NPM_TOKEN"
