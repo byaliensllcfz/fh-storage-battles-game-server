@@ -4,9 +4,6 @@ metadata:
   namespace: <NAME>-<ENV>
   labels:
     app: <NAME>-<URL_VERSION>
-    tags.datadoghq.com/env: <ENV>
-    tags.datadoghq.com/service: <NAME>
-    tags.datadoghq.com/version: <VERSION>
     app.kubernetes.io/name: <NAME>
     app.kubernetes.io/version: <VERSION>
     app.kubernetes.io/component: server
@@ -22,9 +19,6 @@ spec:
         ssg.bundleid: com.byaliens.bid.wars.stars.multiplayer.auction.battles
         version: <VERSION>
         condition: "DEFAULT"
-        tags.datadoghq.com/env: <ENV>
-        tags.datadoghq.com/service: <NAME>
-        tags.datadoghq.com/version: <VERSION>
         app.kubernetes.io/name: <NAME>
         app.kubernetes.io/version: <VERSION>
         app.kubernetes.io/component: server
@@ -42,14 +36,6 @@ spec:
         periodSeconds: 30
         failureThreshold: 3
       template:
-        metadata:
-          annotations:
-            ad.datadoghq.com/<NAME>-<URL_VERSION>.logs: '[{"source": "nodejs"}]'
-          labels:
-            tags.datadoghq.com/env: <ENV>
-            tags.datadoghq.com/service: <NAME>
-            tags.datadoghq.com/version: <VERSION>
-            admission.datadoghq.com/enabled: "true"
         spec:
           containers:
           - name: <NAME>-<URL_VERSION>

@@ -4,9 +4,6 @@ metadata:
   name: <NAME>-config-<URL_VERSION>
   namespace: <NAME>-<ENV>
   labels:
-    tags.datadoghq.com/env: <ENV>
-    tags.datadoghq.com/service: <NAME>
-    tags.datadoghq.com/version: <VERSION>
     app.kubernetes.io/name: <NAME>
     app.kubernetes.io/version: <VERSION>
     app.kubernetes.io/component: server
