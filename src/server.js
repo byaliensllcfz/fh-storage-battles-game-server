@@ -52,6 +52,7 @@ async function createServer() {
 
     agonesHelper.setUpHealthCheck(app, utils);
 
+    app.use('/liveness-check', routes.livenessCheck());
     app.use('/readiness-check', routes.readinessCheck());
     app.use('/resource-status', routes.resourceStatus());
     app.use(middlewares.responseTime());
@@ -82,7 +83,7 @@ async function createServer() {
         const now = moment().utc();
         lodash.forEach(rooms, room => {
             const creation = moment(room.createdAt);
-            const uptimeSec = now.diff(creation)/1000;
+            const uptimeSec = now.diff(creation) / 1000;
 
             // no match should last more than 10 minutes
             if (uptimeSec && uptimeSec > 600) {
@@ -134,7 +135,7 @@ async function createServer() {
  * @private
  */
 async function _loadConfig() {
-    const retry = new Retry({retries: 10});
+    const retry = new Retry({ retries: 10 });
     await retry.attempt(async () => {
         const configs = await configDao.getConfigs();
         Config.set(configs);
