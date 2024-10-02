@@ -7,6 +7,7 @@
         "node": ">=19.0.0"
     },
     "dependencies": {
+        "@by-aliens-tooling/core": "^1.2.7",
         "@by-aliens-tooling/logging": "^4.1.0",
         "@by-aliens-tooling/requests": "^4.0.3",
         "@by-aliens-tooling/server": "^5.11.2",
@@ -26,6 +27,7 @@
         "weighted": "^0.3.0"
     },
     "devDependencies": {
+        "@by-aliens-tooling/magic-mock": "^2.0.6",
         "@by-aliens-tooling/test": "^1.2.1",
         "chai": "^4.2.0",
         "cross-env": "^5.2.0",
