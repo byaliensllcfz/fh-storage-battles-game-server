@@ -27,9 +27,9 @@ spec:
         forhumans/in-use: "true"
     spec:
       ports:
-      - name: default
-        containerPort: 2567
-        protocol: TCP
+        - name: default
+          containerPort: 2567
+          protocol: TCP
       health:
         disabled: false
         initialDelaySeconds: 30
@@ -38,40 +38,33 @@ spec:
       template:
         spec:
           containers:
-          - name: <NAME>-<URL_VERSION>
-            image: gcr.io/forhumans-gameservices-dev/<NAME>@<SHA>
-            imagePullPolicy: IfNotPresent
-            env:
-              - name: DD_RUNTIME_METRICS_ENABLED
-                value: "true"
-              - name: DD_LOGS_INJECTION
-                value: "true"
-              - name: DD_TRACE_ENABLED
-                value: "true"
-            livenessProbe:
-              failureThreshold: 5
-              httpGet:
-                path: /liveness-check
-                port: 2567
-                scheme: HTTP
-              periodSeconds: 10
-              successThreshold: 1
-              timeoutSeconds: 1
-            resources:
-              requests:
-                cpu: "0.5"
-                memory: 1Gi
-            volumeMounts:
-            - mountPath: /var/secrets/google
-              name: google-cloud-key
-            - mountPath: /app/configuration
-              name: config-files
+            - name: <NAME>-<URL_VERSION>
+              image: gcr.io/forhumans-gameservices-dev/<NAME>@<SHA>
+              imagePullPolicy: IfNotPresent
+              livenessProbe:
+                failureThreshold: 5
+                httpGet:
+                  path: /liveness-check
+                  port: 2567
+                  scheme: HTTP
+                periodSeconds: 10
+                successThreshold: 1
+                timeoutSeconds: 1
+              resources:
+                requests:
+                  cpu: "0.5"
+                  memory: 1Gi
+              volumeMounts:
+                - mountPath: /var/secrets/google
+                  name: google-cloud-key
+                - mountPath: /app/configuration
+                  name: config-files
           volumes:
-          - name: google-cloud-key
-            secret:
-              defaultMode: 420
-              secretName: gcp-api-key
-          - configMap:
-              defaultMode: 420
-              name: <NAME>-config-<URL_VERSION>
-            name: config-files
+            - name: google-cloud-key
+              secret:
+                defaultMode: 420
+                secretName: gcp-api-key
+            - configMap:
+                defaultMode: 420
+                name: <NAME>-config-<URL_VERSION>
+              name: config-files
