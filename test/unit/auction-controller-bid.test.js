@@ -2,8 +2,8 @@
 
 const lodash = require('lodash');
 
-const {TestContext} = require('@tapps-games/test');
-const {MagicMock} = require('@tapps-games/magic-mock');
+const {TestContext} = require('@by-aliens-tooling/test');
+const {MagicMock} = require('@by-aliens-tooling/magic-mock');
 
 const gameConfig = require('../fixtures/config/game');
 const cityConfig = require('../fixtures/config/cities');

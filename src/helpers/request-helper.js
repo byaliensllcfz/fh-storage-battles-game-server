@@ -1,7 +1,7 @@
 'use strict';
 
-const { config, TappsHeaders } = require('@tapps-games/core');
-const { tpServerRequest } = require('@tapps-games/requests');
+const { config, TappsHeaders } = require('@by-aliens-tooling/core');
+const { tpServerRequest } = require('@by-aliens-tooling/requests');
 
 const uuid = require('uuid/v4');
 

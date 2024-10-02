@@ -3,7 +3,7 @@
 const lodash = require('lodash');
 const weighted = require('weighted');
 const { MapSchema } = require('@colyseus/schema');
-const { Logger } = require('@tapps-games/logging');
+const { Logger } = require('@by-aliens-tooling/logging');
 
 const bigQueryHelper = require('../../../helpers/big-query-helper');
 const itemStateHelper = require('../../../helpers/item-state-helper');

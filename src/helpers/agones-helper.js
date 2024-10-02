@@ -1,9 +1,7 @@
 'use strict';
 
-const { config } = require('@tapps-games/core');
+const { config } = require('@by-aliens-tooling/core');
 const AgonesSDK = require('@google-cloud/agones-sdk');
-
-const { middlewares } = require('@tapps-games/server');
 
 let agonesSDK;
 let ignoreAgones = true;

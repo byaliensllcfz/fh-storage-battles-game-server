@@ -3,7 +3,7 @@
 const lodash = require('lodash');
 const uuid = require('uuid/v4');
 const { Room } = require('colyseus');
-const { Logger } = require('@tapps-games/logging');
+const { Logger } = require('@by-aliens-tooling/logging');
 
 const bigQueryHelper = require('../../helpers/big-query-helper');
 const { auctionStatus } = require('../../types');

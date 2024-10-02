@@ -1,7 +1,7 @@
 'use strict';
 
 const lodash = require('lodash');
-const { Logger } = require('@tapps-games/logging');
+const { Logger } = require('@by-aliens-tooling/logging');
 
 const { Room } = require('colyseus');
 const { LobbyState } = require('./schemas/lobby-state');

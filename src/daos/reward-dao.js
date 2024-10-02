@@ -1,6 +1,6 @@
 'use strict';
 
-const { config } = require('@tapps-games/core');
+const { config } = require('@by-aliens-tooling/core');
 const requestHelper = require('../helpers/request-helper');
 
 async function saveRewards(rewards) {

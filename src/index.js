@@ -3,11 +3,11 @@
 startTracer();
 
 (async function () {
-    const { config } = require('@tapps-games/core');
+    const { config } = require('@by-aliens-tooling/core');
     await config.load('env');
     await config.load('json', './configuration/config.json');
 
-    const { Logger } = require('@tapps-games/logging');
+    const { Logger } = require('@by-aliens-tooling/logging');
     const logger = new Logger();
     process.on('unhandledRejection', error => {
         logger.error(`Unhandled Promise Rejection: ${error.message}`, error);
@@ -24,6 +24,7 @@ function startTracer() {
         const project = process.env.GOOGLE_CLOUD_PROJECT || process.env.DATASTORE_PROJECT_ID || 'test';
 
         // We use default logger as gcloud recommends loading its tracer as early as possible
+        // eslint-disable-next-line no-console
         console.info(`[TRACER] Starting tracer for project ${project}`);
 
         require('@google-cloud/trace-agent').start({

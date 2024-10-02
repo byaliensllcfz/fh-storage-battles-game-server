@@ -1,9 +1,9 @@
 'use strict';
 
-const { config } = require('@tapps-games/core');
+const { config } = require('@by-aliens-tooling/core');
 const requestHelper = require('../helpers/request-helper');
 
-const { Logger } = require('@tapps-games/logging');
+const { Logger } = require('@by-aliens-tooling/logging');
 const logger = new Logger('config-dao');
 
 /**

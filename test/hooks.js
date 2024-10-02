@@ -2,9 +2,9 @@
 
 require('dotenv').config({ path: 'test/config/.env' });
 
-const { config } = require('@tapps-games/core');
+const { config } = require('@by-aliens-tooling/core');
 
-require('@tapps-games/test');
+require('@by-aliens-tooling/test');
 
 /**
  * Define mocha hooks here:

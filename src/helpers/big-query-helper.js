@@ -1,7 +1,7 @@
 'use strict';
 
 const lodash = require('lodash');
-const { config } = require('@tapps-games/core');
+const { config } = require('@by-aliens-tooling/core');
 const { BigQuery } = require('@google-cloud/bigquery');
 
 const packageJson = require('../../package');
