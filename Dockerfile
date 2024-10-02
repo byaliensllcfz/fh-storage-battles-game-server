@@ -3,6 +3,11 @@
 # single application.
 FROM node:iron-alpine
 
+RUN apk add --no-cache \
+    git \
+    bash \
+    curl
+
 ENV NODE_ENV production
 ENV NPM_TOKEN "REPLACE_NPM_TOKEN"
 
