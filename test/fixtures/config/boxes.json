@@ -1,7 +1,32 @@
 [
-	{
-		"id": "LHorizontal",
-		"estimatedValue": 100,
-		"archive": "BoxLargeHorizontal"
-    }
+  {
+    "id": "LHorizontal",
+    "estimatedValue": 100,
+    "archive": "BoxLargeHorizontal"
+  },
+  {
+    "id": "SSquare",
+    "estimatedValue": 50,
+    "archive": "BoxSmallSquare"
+  },
+  {
+    "id": "SVertical",
+    "estimatedValue": 50,
+    "archive": "BoxSmallVertical"
+  },
+  {
+    "id": "MHorizontal",
+    "estimatedValue": 75,
+    "archive": "BoxMediumHorizontal"
+  },
+  {
+    "id": "MSquare",
+    "estimatedValue": 75,
+    "archive": "BoxMediumSquare"
+  },
+  {
+    "id": "LSquare",
+    "estimatedValue": 100,
+    "archive": "BoxLargeSquare"
+  }
 ]

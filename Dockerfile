@@ -24,9 +24,9 @@ EXPOSE 2567
 # This command will also cat the npm-debug.log file after the
 # build, if it exists.
 RUN --mount=type=secret,id=npmtoken,mode=666 \
-  NPM_TOKEN=$(cat /run/secrets/npmtoken) yarn --unsafe-perms --frozen-lockfile || \
-  ((if [ -f yarn-debug.log ]; then \
-      cat yarn-debug.log; \
+  NPM_TOKEN=$(cat /run/secrets/npmtoken) npm install --unsafe-perms --frozen-lockfile || \
+  ((if [ -f npm-debug.log ]; then \
+      cat npm-debug.log; \
     fi) && false)
 
-CMD yarn start
+CMD ["npm", "start"]

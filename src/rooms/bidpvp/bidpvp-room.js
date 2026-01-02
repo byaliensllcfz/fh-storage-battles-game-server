@@ -1,7 +1,7 @@
 'use strict';
 
 const lodash = require('lodash');
-const uuid = require('uuid/v4');
+const uuid = require('uuid');
 const { Room } = require('colyseus');
 const { Logger } = require('@by-aliens-tooling/logging');
 
@@ -12,11 +12,10 @@ const { AuctionState } = require('./schemas/auction-state');
 const { PlayerState } = require('./schemas/player-state');
 const { AuctionController } = require('./controllers/auction-controller');
 const { handleAuctionCommand } = require('./handlers/auction-handler');
-const { Config }  = require('../../helpers/config-helper');
+const { Config } = require('../../helpers/config-helper');
 const { PowerState } = require('./schemas/power-state');
 
 class BidPvpRoom extends Room {
-
     onCreate(options) {
         this.setState(new AuctionState());
         this.setPatchRate(1000 / 20);
@@ -79,10 +78,12 @@ class BidPvpRoom extends Room {
             this.send(client, JSON.stringify({ emojis: Config.emojis }));
         }
 
-        if (this.locked && lodash.keys(this.state.players).length === this.maxClients) {
+        if (
+            this.locked &&
+      lodash.keys(this.state.players).length === this.maxClients
+        ) {
             await this.lock(); // Prevent new players from joining if any players leave.
             await this.auctionController.startAuction();
-
         } else {
             this._setAddBotTimeout();
         }
@@ -91,37 +92,59 @@ class BidPvpRoom extends Room {
     _setPlayerPowers(playerState, powerId) {
         const power = Config.getPower(powerId);
         if (!lodash.isNull(power) && !lodash.isUndefined(power)) {
-            playerState.powers[power.id] = new PowerState({id: power.id, expiration: 0, amount: 0});
+            playerState.powers[power.id] = new PowerState({
+                id: power.id,
+                expiration: 0,
+                amount: 0,
+            });
             if (!playerState.isBot) {
-                const playerProfile = this.auctionController.getPlayerProfile(playerState);
-                playerState.powers[power.id].amount = playerProfile.currencies[power.currency] || 0;
-                this.logger.info(`Client: ${playerState.id} got PowerId=${powerId} with Amount=${playerState.powers[power.id].amount}`);
+                const playerProfile =
+          this.auctionController.getPlayerProfile(playerState);
+                playerState.powers[power.id].amount =
+          playerProfile.currencies[power.currency] || 0;
+                this.logger.info(
+                    `Client: ${playerState.id} got PowerId=${powerId} with Amount=${
+                        playerState.powers[power.id].amount
+                    }`,
+                );
+            } else {
+                playerState.powers[power.id].amount = lodash.random(
+                    Config.bot.powerMinAmount,
+                    Config.bot.powerMaxAmount,
+                );
             }
-            else
-            {
-                playerState.powers[power.id].amount = lodash.random(Config.bot.powerMinAmount, Config.bot.powerMaxAmount);
-            }
-        }
-        else {
-            this.logger.warning(`Client: ${playerState.id} trying to set an invalid PowerId=${powerId}`);
+        } else {
+            this.logger.warning(
+                `Client: ${playerState.id} trying to set an invalid PowerId=${powerId}`,
+            );
         }
     }
 
     onMessage(client, message) {
-        this.logger.debug(`Client: ${client.id} sent message ${JSON.stringify(message)}`);
+        this.logger.debug(
+            `Client: ${client.id} sent message ${JSON.stringify(message)}`,
+        );
 
         if (this.locked) {
-            handleAuctionCommand(this, client.id, message).catch(error => {
-                this.logger.error(`Error handling message: ${JSON.stringify(message)} from player: ${client.id}.`, error);
+            handleAuctionCommand(this, client.id, message).catch((error) => {
+                this.logger.error(
+                    `Error handling message: ${JSON.stringify(message)} from player: ${
+                        client.id
+                    }.`,
+                    error,
+                );
             });
         }
     }
 
     async onLeave(client, consented) {
         const isBot = this.state.players[client.id].isBot;
-        this.logger.info(`Client: ${client.id} left (Bot? ${isBot}). Consented: ${consented}`, {
-            firebaseId: this.state.players[client.id].firebaseId,
-        });
+        this.logger.info(
+            `Client: ${client.id} left (Bot? ${isBot}). Consented: ${consented}`,
+            {
+                firebaseId: this.state.players[client.id].firebaseId,
+            },
+        );
 
         if (this.state.status === auctionStatus.WAITING) {
             // Player left before match started.
@@ -134,11 +157,12 @@ class BidPvpRoom extends Room {
                     this.addBotTimeout.clear();
                 }
 
-                this.logger.info('Game didnt start because the only player left. disposing room');
+                this.logger.info(
+                    'Game didnt start because the only player left. disposing room',
+                );
                 await this.disconnect();
             }
-        }
-        else if (this.state.status === auctionStatus.PLAY) {
+        } else if (this.state.status === auctionStatus.PLAY) {
             // Player left during match wait for him to reconnect.
             const playerState = this.state.players[client.id];
             playerState.connected = false;
@@ -161,12 +185,18 @@ class BidPvpRoom extends Room {
             } catch (error) {
                 const newError = new Error(error.message);
                 newError.oldStack = error.stack;
-                this.logger.error('Failed to log match interrupted analytics.', newError);
+                this.logger.error(
+                    'Failed to log match interrupted analytics.',
+                    newError,
+                );
             }
 
             try {
                 if (!consented) {
-                    await this.allowReconnection(client, Config.game.allowReconnectionTimeSeconds);
+                    await this.allowReconnection(
+                        client,
+                        Config.game.allowReconnectionTimeSeconds,
+                    );
 
                     // The client has reconnected
                     this.logger.info(`Client: ${client.id} reconnected.`, {
@@ -175,7 +205,7 @@ class BidPvpRoom extends Room {
                     playerState.connected = true;
                     playerState.reconnections += 1;
                 }
-            } catch (e) {
+            } catch (_e) {
                 // allowReconnection timer expired.
             }
         }
@@ -187,22 +217,36 @@ class BidPvpRoom extends Room {
 
     _setAddBotTimeout() {
         if (!this.addBotTimeout) {
-            this.addBotTimeout = this.clock.setTimeout(this._addBot.bind(this), lodash.random(Config.bot.addBotTimeoutMinimum, Config.bot.addBotTimeoutMaximum));
+            this.addBotTimeout = this.clock.setTimeout(
+                this._addBot.bind(this),
+                lodash.random(
+                    Config.bot.addBotTimeoutMinimum,
+                    Config.bot.addBotTimeoutMaximum,
+                ),
+            );
         }
     }
 
     /**
-     * Instantiates a new bot and adds it to the room.
-     * @return {Promise<void>}
-     * @private
-     */
+   * Instantiates a new bot and adds it to the room.
+   * @return {Promise<void>}
+   * @private
+   */
     async _addBot() {
         delete this.addBotTimeout;
 
         if (lodash.keys(this.state.players).length < this.maxClients) {
             const botName = lodash.sample(this.availableBotNames);
-            this.availableBotNames = lodash.filter(this.availableBotNames, name => name !== botName);
-            const bot = new Bot(uuid(), botName, 'ws://localhost:2567', this.auctionController.city);
+            this.availableBotNames = lodash.filter(
+                this.availableBotNames,
+                (name) => name !== botName,
+            );
+            const bot = new Bot(
+                uuid.v4(),
+                botName,
+                'ws://localhost:2567',
+                this.auctionController.city,
+            );
 
             try {
                 // Bot must be added in map before calling joinRoom because it's being accessed right
@@ -219,10 +263,14 @@ class BidPvpRoom extends Room {
     }
 
     _addRemoteBot(options) {
-        const bot = new Bot(options.userId, options.botName, 'ws://localhost:2567', options.city);
+        const bot = new Bot(
+            options.userId,
+            options.botName,
+            'ws://localhost:2567',
+            options.city,
+        );
         this.bots[bot.id] = bot;
     }
-
 }
 
 module.exports = BidPvpRoom;

@@ -22,7 +22,7 @@ const configDao = require('./daos/config-dao');
 const { Config } = require('./helpers/config-helper');
 const agonesHelper = require('./helpers/agones-helper');
 
-const { LocalDriver } = require('colyseus/lib/matchmaker/drivers/LocalDriver');
+const { LocalDriver } = require('colyseus');
 
 const logger = new Logger('Server');
 
@@ -63,63 +63,76 @@ async function createServer() {
     // register colyseus monitor AFTER registering your room handlers
     app.use('/colyseus', monitor(gameServer));
 
-    app.get('/configs/reload', utils.asyncRoute(async (_req, res) => {
-        await _loadConfig();
-        res.send('configs reloaded');
-    }));
+    app.get(
+        '/configs/reload',
+        utils.asyncRoute(async (_req, res) => {
+            await _loadConfig();
+            res.send('configs reloaded');
+        }),
+    );
 
     //this answers IS MY GS USING MY CONFIGS?
-    app.get('/configs', utils.asyncRoute(async (_req, res) => {
-        res.send(Config.getConfigs());
-    }));
+    app.get(
+        '/configs',
+        utils.asyncRoute(async (_req, res) => {
+            res.send(Config.getConfigs());
+        }),
+    );
 
-    app.get('/rooms', utils.asyncRoute(async (_req, res) => {
-        const rooms = await matchMaker.query({});
+    app.get(
+        '/rooms',
+        utils.asyncRoute(async (_req, res) => {
+            const rooms = await matchMaker.query({});
 
-        const data = {
-            rooms: rooms.length,
-        };
+            const data = {
+                rooms: rooms.length,
+            };
 
-        const now = moment().utc();
-        lodash.forEach(rooms, room => {
-            const creation = moment(room.createdAt);
-            const uptimeSec = now.diff(creation) / 1000;
+            const now = moment().utc();
+            lodash.forEach(rooms, (room) => {
+                const creation = moment(room.createdAt);
+                const uptimeSec = now.diff(creation) / 1000;
 
-            // no match should last more than 10 minutes
-            if (uptimeSec && uptimeSec > 600) {
-                logger.critical(`Room ${room.roomId} is up for more than 10 minutes (${uptimeSec} secs). might be stuck?`);
-            }
-        });
+                // no match should last more than 10 minutes
+                if (uptimeSec && uptimeSec > 600) {
+                    logger.critical(
+                        `Room ${room.roomId} is up for more than 10 minutes (${uptimeSec} secs). might be stuck?`,
+                    );
+                }
+            });
 
-        res.contentType('application/json');
-        res.send(JSON.stringify(data));
-    }));
+            res.contentType('application/json');
+            res.send(JSON.stringify(data));
+        }),
+    );
 
     agonesHelper.setUpDeallocateEndpoint(app, utils);
 
-    app.post('/reserve', utils.asyncRoute(async (req, res) => {
-        let reservation;
+    app.post(
+        '/reserve',
+        utils.asyncRoute(async (req, res) => {
+            let reservation;
 
-        const abFlag = req.headers['abtestgroup'];
+            const abFlag = req.headers['abtestgroup'];
 
-        const options = {
-            userId: req.body.userId,
-            character: req.body.character,
-            city: req.body.cityId,
-            abtestgroup: abFlag,
-            power0: req.body.power0,
-            power1: req.body.power1,
-        };
+            const options = {
+                userId: req.body.userId,
+                character: req.body.character,
+                city: req.body.cityId,
+                abtestgroup: abFlag,
+                power0: req.body.power0,
+                power1: req.body.power1,
+            };
 
-        try {
-            reservation = await matchMaker.join('bidpvp', options);
-        }
-        catch (e) {
-            reservation = await matchMaker.create('bidpvp', options);
-        }
+            try {
+                reservation = await matchMaker.join('bidpvp', options);
+            } catch (_e) {
+                reservation = await matchMaker.create('bidpvp', options);
+            }
 
-        res.send(reservation);
-    }));
+            res.send(reservation);
+        }),
+    );
 
     app.use(middlewares.notFoundHandler());
     app.use(middlewares.errorHandler());

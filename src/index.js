@@ -24,7 +24,7 @@ function startTracer() {
         const project = process.env.GOOGLE_CLOUD_PROJECT || process.env.DATASTORE_PROJECT_ID || 'test';
 
         // We use default logger as gcloud recommends loading its tracer as early as possible
-        // eslint-disable-next-line no-console
+
         console.info(`[TRACER] Starting tracer for project ${project}`);
 
         require('@google-cloud/trace-agent').start({

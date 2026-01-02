@@ -2,19 +2,20 @@
 
 const lodash = require('lodash');
 
-const {TestContext} = require('@by-aliens-tooling/test');
-const {MagicMock} = require('@by-aliens-tooling/magic-mock');
+const { TestContext } = require('@by-aliens-tooling/test');
+const { MagicMock } = require('@by-aliens-tooling/magic-mock');
 
 const gameConfig = require('../fixtures/config/game');
 const cityConfig = require('../fixtures/config/cities');
 const itemsConfig = require('../fixtures/config/items');
+const boxesConfig = require('../fixtures/config/boxes');
 
 const stateFixture = require('../fixtures/state/state');
 
 const { BidInterval } = require('../../src/helpers/bid-interval');
 const { bidStatus } = require('../../src/types');
 
-describe('AuctionController Unit tests', function() {
+describe('AuctionController Unit tests', function () {
     const moduleTestContext = new TestContext({
         moduleName: 'auctionController',
         fromPath: 'rooms/bidpvp/controllers/auction-controller',
@@ -32,16 +33,36 @@ describe('AuctionController Unit tests', function() {
         Config.game = gameConfig;
         Config.cities = cityConfig;
         Config.items = itemsConfig;
+        Config.getBox = (boxType) => lodash.find(boxesConfig, { id: boxType });
+        Config.getItem = (itemId) => itemsConfig[itemId];
+        Config.getCharacter = () => ({ id: 'char01', skills: [] });
+        Config.getSkill = () => ({ id: 'skill01', type: 'none' });
+        Config.getItemRarities = () => [
+            'Common',
+            'Uncommon',
+            'Rare',
+            'Epic',
+            'Legendary',
+        ];
+
+        // Populate items for each rarity
+        lodash.forEach(Config.cities, (city) => {
+            lodash.forEach(city.itemsRarity, (rarityConfig, rarity) => {
+                rarityConfig.items = lodash.filter(city.availableItems, (itemId) => {
+                    const item = itemsConfig[itemId];
+                    return item && item.rarity === rarity;
+                });
+            });
+        });
 
         auction = new auctionController.AuctionController(room, 'City01');
     });
 
-    describe('AuctionController bid Tests', function() {
-
-        it('should bid a lot', async function() {
+    describe('AuctionController bid Tests', function () {
+        it('should bid a lot', async function () {
             const playerId = 'xfSB3PMvG';
             const client = { id: playerId };
-            room.clients = [{ id: 'abcdefghi' }, client ];
+            room.clients = [{ id: 'abcdefghi' }, client];
 
             auction.state = state;
 
@@ -56,13 +77,16 @@ describe('AuctionController Unit tests', function() {
             expect(auction.bidInterval.drawPlayers[0]).to.equal(playerId);
             expect(auction.finishBidInterval).to.have.invocationCount(1);
             expect(room.send).to.have.invocationCount(1);
-            expect(room.send).to.be.invokedWith(client, JSON.stringify({ bidStatus: bidStatus.ACCEPTED }));
+            expect(room.send).to.be.invokedWith(
+                client,
+                JSON.stringify({ bidStatus: bidStatus.ACCEPTED }),
+            );
         });
 
-        it('should not bid , player has less money', async function() {
+        it('should not bid , player has less money', async function () {
             const playerId = 'xfSB3PMvG';
             const client = { id: playerId };
-            room.clients = [{ id: 'abcdefghi' }, client ];
+            room.clients = [{ id: 'abcdefghi' }, client];
 
             state.players[playerId].money = 0;
             auction.state = state;
@@ -75,14 +99,16 @@ describe('AuctionController Unit tests', function() {
             expect(auction.bidInterval).to.not.exist;
             expect(auction.finishBidInterval).to.have.invocationCount(0);
             expect(room.send).to.have.invocationCount(1);
-            expect(room.send).to.be.invokedWith(client,
-                JSON.stringify({ bidStatus: bidStatus.REJECTED_INSUFFICIENT_MONEY }));
+            expect(room.send).to.be.invokedWith(
+                client,
+                JSON.stringify({ bidStatus: bidStatus.REJECTED_INSUFFICIENT_MONEY }),
+            );
         });
 
-        it('should not bid , player has the highest bid', async function() {
+        it('should not bid , player has the highest bid', async function () {
             const playerId = 'xfSB3PMvG';
             const client = { id: playerId };
-            room.clients = [{ id: 'abcdefghi' }, client ];
+            room.clients = [{ id: 'abcdefghi' }, client];
 
             state.lots[0].bidOwner = playerId;
             auction.state = state;
@@ -95,11 +121,13 @@ describe('AuctionController Unit tests', function() {
             expect(auction.bidInterval).to.not.exist;
             expect(auction.finishBidInterval).to.have.invocationCount(0);
             expect(room.send).to.have.invocationCount(1);
-            expect(room.send).to.be.invokedWith(client,
-                JSON.stringify({ bidStatus: bidStatus.REJECTED_ALREADY_OWNER }));
+            expect(room.send).to.be.invokedWith(
+                client,
+                JSON.stringify({ bidStatus: bidStatus.REJECTED_ALREADY_OWNER }),
+            );
         });
 
-        it('should bid a lot, 2 players draw', async function() {
+        it('should bid a lot, 2 players draw', async function () {
             const firstPlayerId = 'xfSB3PMvG';
             const secondPlayerId = 'abcdHfSta';
             const firstClient = { id: firstPlayerId };
@@ -121,21 +149,26 @@ describe('AuctionController Unit tests', function() {
             expect(auction.bidInterval.drawPlayers[1]).to.equal(secondPlayerId);
             expect(auction.finishBidInterval).to.have.invocationCount(1);
             expect(room.send).to.have.invocationCount(2);
-            expect(room.send).to.be.invokedWith(firstClient,
-                JSON.stringify({ bidStatus: bidStatus.ACCEPTED }));
-            expect(room.send).to.be.invokedWith(secondClient,
-                JSON.stringify({ bidStatus: bidStatus.ACCEPTED }));
+            expect(room.send).to.be.invokedWith(
+                firstClient,
+                JSON.stringify({ bidStatus: bidStatus.ACCEPTED }),
+            );
+            expect(room.send).to.be.invokedWith(
+                secondClient,
+                JSON.stringify({ bidStatus: bidStatus.ACCEPTED }),
+            );
         });
 
-        it('should not bid , player has stop effect', async function() {
+        it('should not bid , player has stop effect', async function () {
             const playerId = 'xptoeffect';
             const secondPlayerId = 'abcdHfSta';
             const client = { id: playerId };
             //client.effects['stop'] = {id: 'stop', expiration: Date.now()};
-            room.clients = [{ id: 'abcdefghi' }, client ];
+            room.clients = [{ id: 'abcdefghi' }, client];
 
             state.lots[0].bidOwner = secondPlayerId;
-            state.players['xptoeffect'].effects['stop'].expiration = Date.now() + 6000000;
+            state.players['xptoeffect'].effects['stop'].expiration =
+        Date.now() + 6000000;
             auction.state = state;
 
             auction.finishBidInterval = new MagicMock('finishBid');
@@ -146,13 +179,14 @@ describe('AuctionController Unit tests', function() {
             expect(auction.bidInterval).to.not.exist;
             expect(auction.finishBidInterval).to.have.invocationCount(0);
             expect(room.send).to.have.invocationCount(1);
-            expect(room.send).to.be.invokedWith(client,
-                JSON.stringify({ bidStatus: bidStatus.REJECTED_STOP_POWER }));
+            expect(room.send).to.be.invokedWith(
+                client,
+                JSON.stringify({ bidStatus: bidStatus.REJECTED_STOP_POWER }),
+            );
         });
 
-        describe('AuctionController finishBidInterval Tests', function() {
-
-            it('should put current bidder as current winner', async function() {
+        describe('AuctionController finishBidInterval Tests', function () {
+            it('should put current bidder as current winner', async function () {
                 auction.bidInterval = new BidInterval();
                 auction.bidInterval.addBid('xfSB3PMvG');
 
@@ -172,6 +206,5 @@ describe('AuctionController Unit tests', function() {
                 expect(auction._runDole).to.have.invocationCount(1);
             });
         });
-
     });
 });
